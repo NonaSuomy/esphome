@@ -17,6 +17,8 @@ from esphome.automation import Automation
 
 DEPENDENCIES = ['i2c']
 
+CODEOWNERS = ["@NonaSuomy"]
+
 vl6180x_ns = cg.esphome_ns.namespace('vl6180x')
 
 VL6180XSensor = vl6180x_ns.class_(
