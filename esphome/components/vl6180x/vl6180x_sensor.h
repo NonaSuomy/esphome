@@ -70,52 +70,53 @@ namespace esphome {
 namespace vl6180x {
 
 class VL6180XSensor : public sensor::Sensor, public PollingComponent, public i2c::I2CDevice {
- public:
-  float get_setup_priority() const override { return setup_priority::DATA; }
-  VL6180XSensor(uint8_t address = 0x29, uint32_t update_interval = 60000);
-  void setup() override;
-  void update() override;
-  void loop() override;
-  void dump_config() override;
+  public:
+    float get_setup_priority() const override { return setup_priority::DATA; }
+    VL6180XSensor(uint8_t address = 0x29, uint32_t update_interval = 60000);
+    void setup() override;
+    void update() override;
+    void loop() override;
+    void dump_config() override;
   
-  void set_distance_sensor(sensor::Sensor *distance_sensor) { distance_sensor_ = distance_sensor; }
-  void set_als_sensor(sensor::Sensor *als_sensor) { als_sensor_ = als_sensor; }
-  void set_gain(int gain) { gain_ = gain; }
+    void set_distance_sensor(sensor::Sensor *distance_sensor) { distance_sensor_ = distance_sensor; }
+    void set_als_sensor(sensor::Sensor *als_sensor) { als_sensor_ = als_sensor; }
+    void set_gain(int gain) { gain_ = gain; }
 
-  //void trigger_swipe_gesture(int direction);
+    //void trigger_swipe_gesture(int direction);
 
-  // Declare triggers for the gestures
-  //Trigger<> *get_swipe_gesture_trigger() const { return on_swipe_gesture_trigger_; }
+    // Declare triggers for the gestures
+    //Trigger<> *get_swipe_gesture_trigger() const { return on_swipe_gesture_trigger_; }
   
-  //1Trigger<int> *on_swipe_gesture_trigger_ = new Trigger<int>();
+    //1Trigger<int> *on_swipe_gesture_trigger_ = new Trigger<int>();
   
-  //Trigger<int> *get_swipe_gesture_trigger() const { return on_swipe_gesture_trigger_; }
+    //Trigger<int> *get_swipe_gesture_trigger() const { return on_swipe_gesture_trigger_; }
   
-  //1Trigger<> *get_double_tap_gesture_trigger() const { return on_double_tap_gesture_trigger_; }
-  //1Trigger<> *get_hover_gesture_trigger() const { return on_hover_gesture_trigger_; }
+    //1Trigger<> *get_double_tap_gesture_trigger() const { return on_double_tap_gesture_trigger_; }
+    //1Trigger<> *get_hover_gesture_trigger() const { return on_hover_gesture_trigger_; }
   
-  // Declare a boolean variable to indicate whether the sensor is behind a glass cover
-  bool is_behind_glass_ = false;
+    // Declare a boolean variable to indicate whether the sensor is behind a glass cover
+    bool is_behind_glass_ = false;
   
-  // Declare functions
-  void writing_register(uint16_t reg, uint8_t data);
-  uint8_t reading_register(uint16_t reg);
-  uint16_t reading_register16(uint16_t reg);
-  void load_settings();
-  uint8_t read_range();
-  float read_als(uint8_t gain); // Read the ALS value
+    // Declare functions
+    void writing_register(uint16_t reg, uint8_t data);
+    uint8_t reading_register(uint16_t reg);
+    uint16_t reading_register16(uint16_t reg);
+    void load_settings();
+    uint8_t read_range();
+    float read_als(uint8_t gain); // Read the ALS value
 
- protected:
-  bool data_ready_{false};
-  int gain_;
-  sensor::Sensor *distance_sensor_;
-  sensor::Sensor *als_sensor_;
-
-  // Declare triggers for the gestures
-  //1Trigger<int> *on_swipe_gesture_trigger_ = new Trigger<int>();
-  //Trigger<> *on_swipe_gesture_trigger_ = new Trigger<>();
-  //1Trigger<> *on_double_tap_gesture_trigger_ = new Trigger<>();
-  //1Trigger<> *on_hover_gesture_trigger_ = new Trigger<>();
+  protected:
+    bool data_ready_{false};
+    int gain_;
+    sensor::Sensor *distance_sensor_;
+    sensor::Sensor *als_sensor_;
+    float lux_without_glass_;
+    float als_lux_resolution_without_glass_;
+    // Declare triggers for the gestures
+    //1Trigger<int> *on_swipe_gesture_trigger_ = new Trigger<int>();
+    //Trigger<> *on_swipe_gesture_trigger_ = new Trigger<>();
+    //1Trigger<> *on_double_tap_gesture_trigger_ = new Trigger<>();
+    //1Trigger<> *on_hover_gesture_trigger_ = new Trigger<>();
 };
 
 }  // namespace vl6180x
