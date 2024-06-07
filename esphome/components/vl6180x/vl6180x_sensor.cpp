@@ -15,7 +15,8 @@ static const uint32_t HOVER_TIME_MS = 3000;
 static const uint8_t HAND_PRESENCE_THRESHOLD = 40; // Adjust as needed
 static const uint8_t DOUBLE_TAP_THRESHOLD = 40; // Adjust as needed
 
-VL6180XSensor::VL6180XSensor(uint8_t address, uint32_t update_interval) : PollingComponent(update_interval) {
+VL6180XSensor::VL6180XSensor(uint8_t address, uint32_t update_interval) 
+: PollingComponent(update_interval), lux_without_glass_(0.0), als_lux_resolution_without_glass_(0.32) {
   this->set_i2c_address(address);
 }
 
@@ -29,6 +30,56 @@ void VL6180XSensor::setup() {
 void VL6180XSensor::update() {
   this->writing_register(0x018, 0x01); // Start a new measurement
   this->data_ready_ = true; // Set the flag to indicate that data is expected
+  
+  // Read the status register
+  uint8_t status = this->reading_register(VL6180XConstants::VL6180X_REG_RESULT_RANGE_STATUS);
+
+  // Check for errors
+  switch (status) {
+    case VL6180XConstants::VL6180X_ERROR_NONE:
+      // No error
+      break;
+    case VL6180XConstants::VL6180X_ERROR_SYSERR_1:
+      ESP_LOGE(TAG, "System error 1");
+      return;
+    case VL6180XConstants::VL6180X_ERROR_SYSERR_5:
+      ESP_LOGE(TAG, "System error 5");
+      return;
+    case VL6180XConstants::VL6180X_ERROR_ECEFAIL:
+      ESP_LOGE(TAG, "Early convergence estimate fail");
+      return;
+    case VL6180XConstants::VL6180X_ERROR_NOCONVERGE:
+      ESP_LOGE(TAG, "No target detected");
+      return;
+    case VL6180XConstants::VL6180X_ERROR_RANGEIGNORE:
+      ESP_LOGE(TAG, "Ignore threshold check failed");
+      return;
+    case VL6180XConstants::VL6180X_ERROR_SNR:
+      ESP_LOGE(TAG, "Ambient conditions too high");
+      return;
+    case VL6180XConstants::VL6180X_ERROR_RAWUFLOW:
+      ESP_LOGE(TAG, "Raw range algo underflow");
+      return;
+    case VL6180XConstants::VL6180X_ERROR_RAWOFLOW:
+      ESP_LOGE(TAG, "Raw range algo overflow");
+      return;
+    case VL6180XConstants::VL6180X_ERROR_RANGEUFLOW:
+      ESP_LOGE(TAG, "Range algo underflow");
+      return;
+    case VL6180XConstants::VL6180X_ERROR_RANGEOFLOW:
+      ESP_LOGE(TAG, "Range algo overflow");
+      return;
+    default:
+      ESP_LOGE(TAG, "Unknown error");
+      return;
+  }
+  // If no errors, read the sensor data
+  uint8_t range = this->reading_register(VL6180XConstants::VL6180X_REG_RESULT_RANGE_VAL);
+  float als = read_als(gain_);
+
+  // Publish the sensor data
+  distance_sensor_->publish_state(range);
+  als_sensor_->publish_state(als);
 }
 
 //void VL6180XSensor::trigger_swipe_gesture(int direction) {
@@ -197,51 +248,52 @@ void VL6180XSensor::load_settings() {
 
 float VL6180XSensor::read_als(uint8_t gain) {
   // Define the ALS lux resolution and integration time (in milliseconds)
-  float als_lux_resolution = 0.32; // Example value, adjust as needed
+  //float als_lux_resolution = 0.32; // Example value, adjust as needed
   float als_integration_time = 100; // Example value, adjust as needed
 
   // Add the code to read the ALS data from the VL6180X sensor
   uint8_t reg;
-  reg = reading_register(VL6180X_REG_SYSTEM_INTERRUPT_CONFIG);
+  reg = reading_register(VL6180XConstants::VL6180X_REG_SYSTEM_INTERRUPT_CONFIG);
   reg &= ~0x38;
   reg |= (0x4 << 3); 
-  writing_register(VL6180X_REG_SYSTEM_INTERRUPT_CONFIG, reg);
-  writing_register(VL6180X_REG_SYSALS_INTEGRATION_PERIOD_HI, 0);
-  writing_register(VL6180X_REG_SYSALS_INTEGRATION_PERIOD_LO, 100);
-  if (gain > VL6180X_ALS_GAIN_40) {
-    gain = VL6180X_ALS_GAIN_40;
+  writing_register(VL6180XConstants::VL6180X_REG_SYSTEM_INTERRUPT_CONFIG, reg);
+  writing_register(VL6180XConstants::VL6180X_REG_SYSALS_INTEGRATION_PERIOD_HI, 0);
+  writing_register(VL6180XConstants::VL6180X_REG_SYSALS_INTEGRATION_PERIOD_LO, 100);
+  if (gain > VL6180XConstants::VL6180X_ALS_GAIN_40) {
+    gain = VL6180XConstants::VL6180X_ALS_GAIN_40;
   }
-  writing_register(VL6180X_REG_SYSALS_ANALOGUE_GAIN, 0x40 | gain);
-  writing_register(VL6180X_REG_SYSALS_START, 0x1);
-  while (4 != ((reading_register(VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) >> 3) & 0x7))
+  writing_register(VL6180XConstants::VL6180X_REG_SYSALS_ANALOGUE_GAIN, 0x40 | gain);
+  writing_register(VL6180XConstants::VL6180X_REG_SYSALS_START, 0x1);
+  while (4 != ((reading_register(VL6180XConstants::VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) >> 3) & 0x7))
    ;
   // Read lux!
-  uint16_t als_count = reading_register16(VL6180X_REG_RESULT_ALS_VAL);
-  writing_register(VL6180X_REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
+  uint16_t als_count = reading_register16(VL6180XConstants::VL6180X_REG_RESULT_ALS_VAL);
+  writing_register(VL6180XConstants::VL6180X_REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
 
   // Calculate the light level in lux
   //float light_level_lux = (als_count * als_lux_resolution * als_integration_time) /
   //                        (als_lux_resolution * gain * als_integration_time);
-  float light_level_lux = als_lux_resolution_without_glass * ((float)als_count / (float)gain) * (100.0f / als_integration_time);
-  
+  float light_level_lux = als_lux_resolution_without_glass_ * ((float)als_count / (float)gain) * (100.0f / als_integration_time);
+
   // If the sensor is behind a glass cover, adjust the light level using the recalibration formula
   if (is_behind_glass_) {
     // Measure the lux value with the glass cover
     float lux_with_glass = light_level_lux;
 
-    // Measure the lux value without the glass cover
+    // Use the lux value without the glass cover
     // This would need to be done in a controlled environment with the same light conditions
-    float lux_without_glass = 0.0; // Example value, adjust as needed
+    float lux_without_glass = lux_without_glass_; // Use the member variable here
 
     // Recalculate the ALS lux resolution
     //als_lux_resolution = (lux_without_glass / lux_with_glass) * als_lux_resolution;
-    float als_lux_resolution_with_glass = (lux_without_glass / lux_with_glass) * als_lux_resolution_without_glass;
+    float als_lux_resolution_with_glass = (lux_without_glass / lux_with_glass) * als_lux_resolution_without_glass_;
     
     // Recalculate the light level in lux using the new ALS lux resolution
     //light_level_lux = (als_count * als_lux_resolution * als_integration_time) /
     //                  (als_lux_resolution * gain * als_integration_time);
     light_level_lux = als_lux_resolution_with_glass * ((float)als_count / (float)gain) * (100.0f / als_integration_time);
   }
+
   return light_level_lux;
 }
 
