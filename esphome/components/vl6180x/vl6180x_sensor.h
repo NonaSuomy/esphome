@@ -98,9 +98,9 @@ class VL6180XSensor : public sensor::Sensor, public PollingComponent, public i2c
   bool is_behind_glass_ = false;
   
   // Declare functions
-  void write_register(uint16_t reg, uint8_t data);
-  uint8_t read_register(uint8_t reg);
-  uint16_t read_register16(uint16_t reg);
+  void writing_register(uint16_t reg, uint8_t data);
+  uint8_t reading_register(uint16_t reg);
+  uint16_t reading_register16(uint16_t reg);
   void load_settings();
   uint8_t read_range();
   float read_als(uint8_t gain); // Read the ALS value
