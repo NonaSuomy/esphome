@@ -104,17 +104,17 @@ void VL6180XSensor::loop() {
   } */
 }
 
-void VL6180XSensor::write_register(uint16_t reg, uint8_t data) {
-  this->write_register16(reg, data, 1);
+void VL6180XSensor::writing_register(uint16_t reg, uint8_t data) {
+  this->write_register16(reg, &data, 1);
 }
 
-uint8_t VL6180XSensor::read_register(uint8_t reg) {
+uint8_t VL6180XSensor::reading_register(uint16_t reg) {
   uint8_t data = 0;
-  this->read_register(reg, data, 1);
+  this->read_register16(reg, &data, 1);
   return data;
 }
 
-uint16_t VL6180XSensor::read_register16(uint16_t reg) {
+uint16_t VL6180XSensor::reading_register16(uint16_t reg) {
   uint8_t data[2];
   this->read_register16(reg, data, 2);
   return (data[0]) << 8 | data[1];
@@ -201,22 +201,23 @@ float VL6180XSensor::read_als(uint8_t gain) {
   float als_integration_time = 100; // Example value, adjust as needed
 
   // Add the code to read the ALS data from the VL6180X sensor
-  uint16_t reg;
-  reg = read_register(VL6180X_REG_SYSTEM_INTERRUPT_CONFIG);
+  uint8_t reg;
+  reg = reading_register(VL6180X_REG_SYSTEM_INTERRUPT_CONFIG);
   reg &= ~0x38;
   reg |= (0x4 << 3); 
-  write_register(VL6180X_REG_SYSTEM_INTERRUPT_CONFIG, reg);
-  write_register(VL6180X_REG_SYSALS_INTEGRATION_PERIOD_HI, 0);
-  write_register(VL6180X_REG_SYSALS_INTEGRATION_PERIOD_LO, 100);
+  writing_register(VL6180X_REG_SYSTEM_INTERRUPT_CONFIG, reg);
+  writing_register(VL6180X_REG_SYSALS_INTEGRATION_PERIOD_HI, 0);
+  writing_register(VL6180X_REG_SYSALS_INTEGRATION_PERIOD_LO, 100);
   if (gain > VL6180X_ALS_GAIN_40) {
     gain = VL6180X_ALS_GAIN_40;
   }
-  write_register(VL6180X_REG_SYSALS_ANALOGUE_GAIN, 0x40 | gain);
-  write_register(VL6180X_REG_SYSALS_START, 0x1);
-  while (4 != ((read_register(VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) >> 3) & 0x7))
+  writing_register(VL6180X_REG_SYSALS_ANALOGUE_GAIN, 0x40 | gain);
+  writing_register(VL6180X_REG_SYSALS_START, 0x1);
+  while (4 != ((reading_register(VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) >> 3) & 0x7))
    ;
-  uint16_t als_count = read_register16(VL6180X_REG_RESULT_ALS_VAL);
-  write_register(VL6180X_REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
+  // Read lux!
+  uint16_t als_count = reading_register16(VL6180X_REG_RESULT_ALS_VAL);
+  writing_register(VL6180X_REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
 
   // Calculate the light level in lux
   float light_level_lux = (als_count * als_lux_resolution * als_integration_time) /
@@ -238,10 +239,8 @@ float VL6180XSensor::read_als(uint8_t gain) {
     light_level_lux = (als_count * als_lux_resolution * als_integration_time) /
                       (als_lux_resolution * gain * als_integration_time);
   }
-
   return light_level_lux;
 }
-
 
 void VL6180XSensor::dump_config() {
   ESP_LOGCONFIG(TAG, "VL6180X Sensor:");
