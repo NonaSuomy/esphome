@@ -220,9 +220,10 @@ float VL6180XSensor::read_als(uint8_t gain) {
   writing_register(VL6180X_REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
 
   // Calculate the light level in lux
-  float light_level_lux = (als_count * als_lux_resolution * als_integration_time) /
-                          (als_lux_resolution * gain * als_integration_time);
-
+  //float light_level_lux = (als_count * als_lux_resolution * als_integration_time) /
+  //                        (als_lux_resolution * gain * als_integration_time);
+  float light_level_lux = als_lux_resolution_without_glass * ((float)als_count / (float)gain) * (100.0f / als_integration_time);
+  
   // If the sensor is behind a glass cover, adjust the light level using the recalibration formula
   if (is_behind_glass_) {
     // Measure the lux value with the glass cover
@@ -233,11 +234,13 @@ float VL6180XSensor::read_als(uint8_t gain) {
     float lux_without_glass = 0.0; // Example value, adjust as needed
 
     // Recalculate the ALS lux resolution
-    als_lux_resolution = (lux_without_glass / lux_with_glass) * als_lux_resolution;
-
+    //als_lux_resolution = (lux_without_glass / lux_with_glass) * als_lux_resolution;
+    float als_lux_resolution_with_glass = (lux_without_glass / lux_with_glass) * als_lux_resolution_without_glass;
+    
     // Recalculate the light level in lux using the new ALS lux resolution
-    light_level_lux = (als_count * als_lux_resolution * als_integration_time) /
-                      (als_lux_resolution * gain * als_integration_time);
+    //light_level_lux = (als_count * als_lux_resolution * als_integration_time) /
+    //                  (als_lux_resolution * gain * als_integration_time);
+    light_level_lux = als_lux_resolution_with_glass * ((float)als_count / (float)gain) * (100.0f / als_integration_time);
   }
   return light_level_lux;
 }
