@@ -31,6 +31,8 @@ CONF_GAIN = "gain"
 CONF_ON_SWIPE_GESTURE = "on_swipe_gesture"
 CONF_ON_DOUBLE_TAP_GESTURE = "on_double_tap_gesture"
 CONF_ON_HOVER_GESTURE = "on_hover_gesture"
+CONF_UNDER_GLASS = "under_glass"
+CONF_LUX_WITHOUT_GLASS = "lux_without_glass"
 
 def validate(config):
     if CONF_DISTANCE not in config and CONF_ALS not in config:
@@ -59,6 +61,8 @@ CONFIG_SCHEMA = cv.All(
           '20x': 0x00,
           '40x': 0x07,
         }, lower=True),
+        cv.Optional(CONF_UNDER_GLASS): cv.boolean,
+        cv.Optional(CONF_LUX_WITHOUT_GLASS): cv.float_, 
       }
       )
       .extend(
@@ -96,6 +100,10 @@ async def to_code(config):
     als = await sensor.new_sensor(config[CONF_ALS])
     cg.add(var.set_als_sensor(als))
     cg.add(var.set_gain(config[CONF_ALS][CONF_GAIN]))
+    if CONF_UNDER_GLASS in config[CONF_ALS]:  
+      cg.add(var.set_is_behind_glass(config[CONF_ALS][CONF_UNDER_GLASS]))
+    if CONF_LUX_WITHOUT_GLASS in config[CONF_ALS]:  # Add this line
+      cg.add(var.set_lux_without_glass(config[CONF_ALS][CONF_LUX_WITHOUT_GLASS]))
   # Register the gesture triggers
   #if CONF_ON_SWIPE_GESTURE in config:
   #  for conf in config[CONF_ON_SWIPE_GESTURE]:
