@@ -70,6 +70,16 @@ enum VL6180XConstants {
 
 class VL6180XSensor : public sensor::Sensor, public PollingComponent, public i2c::I2CDevice {
   public:
+    enum SensorState {
+      SENSOR_STATE_IDLE,
+      SENSOR_STATE_WAITING_FOR_DATA,
+      SENSOR_STATE_DATA_READY,
+      // add more states as needed
+    };
+	  void start_measurement();
+    void check_measurement();
+    SensorState state_;
+
     float get_setup_priority() const override { return setup_priority::DATA; }
     VL6180XSensor(uint8_t address = 0x29, uint32_t update_interval = 60000);
     void setup() override;
