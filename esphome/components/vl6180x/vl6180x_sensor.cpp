@@ -297,8 +297,8 @@ float VL6180XSensor::read_als(uint8_t gain) {
   }
   writing_register(VL6180XConstants::VL6180X_REG_SYSALS_ANALOGUE_GAIN, 0x40 | gain);
   writing_register(VL6180XConstants::VL6180X_REG_SYSALS_START, 0x1);
-  while (4 != ((reading_register(VL6180XConstants::VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) >> 3) & 0x7))
-   ;
+  //while (4 != ((reading_register(VL6180XConstants::VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) >> 3) & 0x7))
+  // ;
   // Read lux!
   uint16_t als_count = reading_register16(VL6180XConstants::VL6180X_REG_RESULT_ALS_VAL);
   writing_register(VL6180XConstants::VL6180X_REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
