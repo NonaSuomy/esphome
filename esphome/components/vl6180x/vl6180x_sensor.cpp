@@ -27,6 +27,23 @@ void VL6180XSensor::setup() {
     //automation_id_2 = new esphome::automation::Automation<>(vl6180x_sensor);
 }
 
+void VL6180XSensor::start_measurement() {
+  this->writing_register(0x018, 0x01); // Start a new measurement
+  this->state_ = SENSOR_STATE_WAITING_FOR_DATA;
+}
+
+void VL6180XSensor::check_measurement() {
+  if (this->state_ == SENSOR_STATE_WAITING_FOR_DATA && 
+      4 == ((reading_register(VL6180XConstants::VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) >> 3) & 0x7)) {
+    this->state_ = SENSOR_STATE_DATA_READY;
+    // Read and publish the data here
+    uint8_t range = this->reading_register(VL6180XConstants::VL6180X_REG_RESULT_RANGE_VAL);
+    float als = read_als(gain_);
+    distance_sensor_->publish_state(range);
+    als_sensor_->publish_state(als);
+  }
+}
+
 void VL6180XSensor::update() {
   this->writing_register(0x018, 0x01); // Start a new measurement
   this->data_ready_ = true; // Set the flag to indicate that data is expected
@@ -73,13 +90,29 @@ void VL6180XSensor::update() {
       ESP_LOGE(TAG, "Unknown error");
       return;
   }
-  // If no errors, read the sensor data
-  uint8_t range = this->reading_register(VL6180XConstants::VL6180X_REG_RESULT_RANGE_VAL);
-  float als = read_als(gain_);
+  switch (this->state_) {
+    case SENSOR_STATE_IDLE:
+      this->start_measurement();
+      break;
 
-  // Publish the sensor data
-  distance_sensor_->publish_state(range);
-  als_sensor_->publish_state(als);
+    case SENSOR_STATE_WAITING_FOR_DATA:
+      this->check_measurement();
+      break;
+
+    case SENSOR_STATE_DATA_READY:
+      // If no errors, read the sensor data
+      uint8_t range = this->reading_register(VL6180XConstants::VL6180X_REG_RESULT_RANGE_VAL);
+      float als = read_als(gain_);
+
+      // Publish the sensor data
+      distance_sensor_->publish_state(range);
+      als_sensor_->publish_state(als);
+	  
+	  // Go back to idle state
+      this->state_ = SENSOR_STATE_IDLE;
+      break;
+	  // handle other states as needed
+  }
 }
 
 //void VL6180XSensor::trigger_swipe_gesture(int direction) {
