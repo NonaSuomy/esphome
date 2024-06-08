@@ -304,7 +304,7 @@ float VL6180XSensor::read_als(uint8_t gain) {
   writing_register(VL6180XConstants::VL6180X_REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
 
   // Log the ALS value
-  ESP_LOGD(TAG, "ALS Count: %f", als_count);
+  ESP_LOGD(TAG, "ALS Count: %hu", als_count);
   //std::string rawhex = format_hex_pretty((uint8_t *) x.c_str(), x.size()).c_str();
   ESP_LOGD(TAG, "ALS Gain: 0x%02X", gain);
 
