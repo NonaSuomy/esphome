@@ -283,6 +283,7 @@ float VL6180XSensor::read_als(uint8_t gain) {
   // Define the ALS lux resolution and integration time (in milliseconds)
   //float als_lux_resolution = 0.32; // Example value, adjust as needed
   float als_integration_time = 100; // Example value, adjust as needed
+  float gainxvalue = 1; // Default gain X value
 
   // Add the code to read the ALS data from the VL6180X sensor
   uint8_t reg;
@@ -297,16 +298,47 @@ float VL6180XSensor::read_als(uint8_t gain) {
   }
   writing_register(VL6180XConstants::VL6180X_REG_SYSALS_ANALOGUE_GAIN, 0x40 | gain);
   writing_register(VL6180XConstants::VL6180X_REG_SYSALS_START, 0x1);
-  //while (4 != ((reading_register(VL6180XConstants::VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) >> 3) & 0x7))
-  // ;
+
   // Read lux!
   uint16_t als_count = reading_register16(VL6180XConstants::VL6180X_REG_RESULT_ALS_VAL);
   writing_register(VL6180XConstants::VL6180X_REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
 
+  // Log the ALS value
+  ESP_LOGD(TAG, "ALS Count: %f", als_count);
+  //std::string rawhex = format_hex_pretty((uint8_t *) x.c_str(), x.size()).c_str();
+  ESP_LOGD(TAG, "ALS Gain: 0x%02X", gain);
+
+  // Select Gain X
+  switch (gain) {
+  case VL6180X_ALS_GAIN_1:
+    gainxvalue = 1;
+    break;
+  case VL6180X_ALS_GAIN_1_25:
+    gainxvalue = 1.25;
+    break;
+  case VL6180X_ALS_GAIN_1_67:
+    gainxvalue = 1.67;
+	break;
+  case VL6180X_ALS_GAIN_2_5:
+    gainxvalue = 2.5;
+    break;
+  case VL6180X_ALS_GAIN_5:
+    gainxvalue = 5;
+    break;
+  case VL6180X_ALS_GAIN_10:
+    gainxvalue = 10;
+    break;
+  case VL6180X_ALS_GAIN_20:
+    gainxvalue = 20;
+    break;
+  case VL6180X_ALS_GAIN_40:
+    gainxvalue = 40;
+    break;
+  };
+  ESP_LOGD(TAG, "ALS Gain X Value: %f", gainxvalue);
+
   // Calculate the light level in lux
-  //float light_level_lux = (als_count * als_lux_resolution * als_integration_time) /
-  //                        (als_lux_resolution * gain * als_integration_time);
-  float light_level_lux = als_lux_resolution_without_glass_ * ((float)als_count / (float)gain) * (100.0f / als_integration_time);
+  float light_level_lux = als_lux_resolution_without_glass_ * ((float)als_count / (float)gainxvalue) * (100.0f / als_integration_time);
 
   // If the sensor is behind a glass cover, adjust the light level using the recalibration formula
   if (is_behind_glass_) {
@@ -315,16 +347,13 @@ float VL6180XSensor::read_als(uint8_t gain) {
 
     // Use the lux value without the glass cover
     // This would need to be done in a controlled environment with the same light conditions
-    float lux_without_glass = lux_without_glass_; // Use the member variable here
+    float lux_without_glass = lux_without_glass_;
 
     // Recalculate the ALS lux resolution
-    //als_lux_resolution = (lux_without_glass / lux_with_glass) * als_lux_resolution;
     float als_lux_resolution_with_glass = (lux_without_glass / lux_with_glass) * als_lux_resolution_without_glass_;
     
     // Recalculate the light level in lux using the new ALS lux resolution
-    //light_level_lux = (als_count * als_lux_resolution * als_integration_time) /
-    //                  (als_lux_resolution * gain * als_integration_time);
-    light_level_lux = als_lux_resolution_with_glass * ((float)als_count / (float)gain) * (100.0f / als_integration_time);
+    light_level_lux = als_lux_resolution_with_glass * ((float)als_count / (float)gainxvalue) * (100.0f / als_integration_time);
   }
 
   return light_level_lux;
