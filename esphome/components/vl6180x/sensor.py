@@ -11,6 +11,7 @@ from esphome.const import (
   DEVICE_CLASS_ILLUMINANCE,
   ICON_RULER,
   ICON_BRIGHTNESS_5,
+  UNIT_MILLIMETER,
   UNIT_LUX,
 )
 from esphome.automation import Automation
@@ -52,7 +53,7 @@ CONFIG_SCHEMA = cv.All(
     {
       cv.GenerateID(): cv.declare_id(VL6180XSensor),
       cv.Optional(CONF_DISTANCE): sensor.sensor_schema(
-        unit_of_measurement="mm",
+        unit_of_measurement=UNIT_MILLIMETER,
         icon=ICON_RULER,
         accuracy_decimals=0,
         device_class=DEVICE_CLASS_DISTANCE,
