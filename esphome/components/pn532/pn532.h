@@ -56,6 +56,8 @@ class PN532 : public PollingComponent {
   void write_mode(nfc::NdefMessage *message);
   bool powerdown();
 
+  std::string read_yubikey_otp();
+
  protected:
   void turn_off_rf_();
   bool write_command_(const std::vector<uint8_t> &data);
@@ -114,6 +116,8 @@ class PN532 : public PollingComponent {
     SAM_COMMAND_FAILED,
   } error_code_{NONE};
   CallbackManager<void()> on_finished_write_callback_;
+  bool send_apdu_command_(const std::vector<uint8_t> &apdu, std::vector<uint8_t> &response);
+  bool read_passive_target_(std::vector<uint8_t> &uid);
 };
 
 class PN532BinarySensor : public binary_sensor::BinarySensor {
