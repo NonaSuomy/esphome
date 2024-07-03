@@ -427,6 +427,97 @@ bool PN532::write_tag_(std::vector<uint8_t> &uid, nfc::NdefMessage *message) {
 
 float PN532::get_setup_priority() const { return setup_priority::DATA; }
 
+bool PN532::send_apdu_command_(const std::vector<uint8_t> &apdu, std::vector<uint8_t> &response) {
+  std::vector<uint8_t> command_data;
+  command_data.push_back(PN532_COMMAND_INDATAEXCHANGE);
+  command_data.push_back(0x01);
+  command_data.insert(command_data.end(), apdu.begin(), apdu.end());
+
+  if (!this->write_command_(command_data)) {
+    ESP_LOGE(TAG, "Error sending APDU command");
+    return false;
+  }
+  
+  if (!this->read_response(PN532_COMMAND_INDATAEXCHANGE, response)) {
+    ESP_LOGE(TAG, "Error reading APDU response");
+    return false;
+  }
+  
+  return true;
+}
+
+std::string PN532::read_yubikey_otp() {
+  std::vector<uint8_t> uid;
+  if (!this->read_passive_target_(uid)) {
+    ESP_LOGD(TAG, "No NFC tag found");
+    return "";
+  }
+
+  ESP_LOGD(TAG, "NFC tag detected");
+
+  std::vector<uint8_t> response;
+  std::vector<uint8_t> apdu1 = {0x00, 0xA4, 0x04, 0x00, 0x07, 0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01, 0x00};
+  std::vector<uint8_t> apdu2 = {0x00, 0xA4, 0x00, 0x0C, 0x02, 0xE1, 0x04};
+  std::vector<uint8_t> apdu3 = {0x00, 0xB0, 0x00, 0x00, 0x00};
+
+  if (!this->send_apdu_command_(apdu1, response) || 
+      !this->send_apdu_command_(apdu2, response) ||
+      !this->send_apdu_command_(apdu3, response)) {
+    return "";
+  }
+
+  ESP_LOGD(TAG, "APDU commands successful");
+  ESP_LOGD(TAG, "Response: %s", format_hex_pretty(response).c_str());
+
+  if (response.size() < 9) {
+    ESP_LOGE(TAG, "Response too short for NDEF message");
+    return "";
+  }
+
+  std::string url;
+  for (size_t i = 7; i < response.size() - 2; i++) {
+    if (response[i] >= 32 && response[i] <= 126) {
+      url += static_cast<char>(response[i]);
+    }
+  }
+
+  ESP_LOGD(TAG, "Decoded URL: %s", url.c_str());
+
+  size_t otp_start = url.rfind('/') + 1;
+  std::string otp_code = url.substr(otp_start);
+  
+  ESP_LOGD(TAG, "Extracted OTP Code: %s", otp_code.c_str());
+
+  return otp_code;
+}
+
+bool PN532::read_passive_target_(std::vector<uint8_t> &uid) {
+  if (!this->write_command_({
+          PN532_COMMAND_INLISTPASSIVETARGET,
+          0x01,  // max 1 card
+          0x00,  // baud rate ISO14443A (106 kbit/s)
+      })) {
+    ESP_LOGE(TAG, "Error sending InListPassiveTarget command");
+    return false;
+  }
+
+  std::vector<uint8_t> response;
+  if (!this->read_response(PN532_COMMAND_INLISTPASSIVETARGET, response)) {
+    ESP_LOGE(TAG, "Error reading InListPassiveTarget response");
+    return false;
+  }
+
+  if (response[0] != 1) {
+    // No targets found
+    return false;
+  }
+
+  uint8_t uid_length = response[5];
+  uid.assign(response.begin() + 6, response.begin() + 6 + uid_length);
+
+  return true;
+}
+
 void PN532::dump_config() {
   ESP_LOGCONFIG(TAG, "PN532:");
   switch (this->error_code_) {
