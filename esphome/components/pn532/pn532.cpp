@@ -474,20 +474,26 @@ std::string PN532::read_yubikey_otp() {
     return "";
   }
 
+  // NDEF message structure: [NDEF Header (3 bytes)][Type Length (1 byte)][Payload Length (1 byte)][Record Type (1 byte)][URI Identifier Code (1 byte)][Payload]
+  // We need to skip the first 8 bytes to get to the start of the actual URL
+  // Skip:
+  // NDEF header (3 bytes)
+  // Record header (1 byte)
+  // Type length (1 byte)
+  // Payload length (1 byte)
+  // Record type (1 byte)
+  // URI identifier code (1 byte)
+  size_t start_index = 8;
   std::string url;
-  for (size_t i = 7; i < response.size() - 2; i++) {
-    if (response[i] >= 32 && response[i] <= 126) {
-      url += static_cast<char>(response[i]);
-    }
+  for (size_t i = start_index; i < response.size() - 2; i++) {
+    url += static_cast<char>(response[i]);
   }
 
   ESP_LOGD(TAG, "Decoded URL: %s", url.c_str());
-
   size_t otp_start = url.rfind('/') + 1;
   std::string otp_code = url.substr(otp_start);
   
   ESP_LOGD(TAG, "Extracted OTP Code: %s", otp_code.c_str());
-
   return otp_code;
 }
 
