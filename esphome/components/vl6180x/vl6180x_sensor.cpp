@@ -40,10 +40,10 @@ void VL6180XSensor::check_measurement() {
       4 == ((reading_register(VL6180XRegister::VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) >> 3) & 0x7)) {
     this->state_ = SENSOR_STATE_DATA_READY;
     // Read and publish the data here
-    uint8_t range = this->reading_register(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL);
+    uint16_t range = this->reading_register16(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL);
     float als = read_als(gain_);
 	if (this->distance_sensor_ != nullptr)
-      distance_sensor_->publish_state(range);
+      distance_sensor_->publish_state(static_cast<float>(range));
     if (this->als_sensor_ != nullptr)
       als_sensor_->publish_state(als);
   }
@@ -74,16 +74,16 @@ void VL6180XSensor::update() {
 
     case SENSOR_STATE_DATA_READY:
       // If no errors, read the sensor data
-      uint8_t range = this->reading_register(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL);
+      uint16_t range = this->reading_register16(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL);
       float als = read_als(gain_);
 
       // Publish the sensor data
-	  if (this->distance_sensor_ != nullptr)
-        distance_sensor_->publish_state(range);
-	  if (this->als_sensor_ != nullptr)
+	    if (this->distance_sensor_ != nullptr)
+        distance_sensor_->publish_state(static_cast<float>(range));
+	    if (this->als_sensor_ != nullptr)
         als_sensor_->publish_state(als);
 
-	  // Go back to idle state
+	    // Go back to idle state
       this->state_ = SENSOR_STATE_IDLE;
       break;
   }
@@ -175,7 +175,7 @@ void VL6180XSensor::loop() {
   uint8_t range = this->reading_register(0x062);
   this->writing_register(0x015, 0x07);  // Clear the interrupt
   if (this->distance_sensor_ != nullptr)
-    distance_sensor_->publish_state(range);
+    distance_sensor_->publish_state(static_cast<float>(range));
 
   // Add the new reading to the readings vector
   readings.push_back(range);
