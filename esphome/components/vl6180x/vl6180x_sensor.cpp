@@ -1,6 +1,9 @@
 // vl6180x_sensor.cpp
+
 #include "vl6180x_sensor.h"
 #include "esphome/core/log.h"
+#include "esphome/core/hal.h"
+#include <cstdint>
 
 namespace esphome {
 namespace vl6180x {
@@ -21,13 +24,56 @@ static const uint8_t GESTURE_DOUBLE_TAP_THRESHOLD = 40; */
 
 VL6180XSensor::VL6180XSensor(uint8_t address, uint32_t update_interval)
 : PollingComponent(update_interval), lux_without_glass_(0.0), als_lux_resolution_without_glass_(0.32) {
-  this->set_i2c_address(address);
+    ESP_LOGI("vl6180x", "VL6180X constructor called");
+    this->set_i2c_address(address);
   //this->on_swipe_gesture_trigger_ = new esphome::Trigger<int>();
 }
 
 void VL6180XSensor::setup() {
-  // Initialize VL6180X sensor settings
-  load_settings();
+    ESP_LOGI("vl6180x", "Setup function called");
+    // Check for expected model ID
+//    if (this->reading_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_IDENTIFICATION_MODEL_ID)) != 0xB4) {
+      // ESP_LOGE(TAG, "VL6180X sensor not found");
+//      this->handle_error(0x00);  // Pass a default error code
+      //this->mark_failed();
+//      return;
+//    }
+
+  // Check for expected model ID
+  uint8_t model_id = this->reading_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_IDENTIFICATION_MODEL_ID));
+  ESP_LOGI("vl6180x", "Model ID: 0x%02X", model_id);
+
+  if (model_id != 0xB4) {
+    ESP_LOGE("vl6180x", "VL6180X sensor not found");
+    this->mark_failed();
+    return;
+  }
+
+    // Store part-to-part range offset so it can be adjusted if scaling is changed
+    ptp_offset_ = reading_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSRANGE_PART_TO_PART_RANGE_OFFSET));
+
+    // Check if fresh out of reset
+    if (this->reading_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSTEM_FRESH_OUT_OF_RESET)) & 0x01) {
+      scaling_ = 1;
+      ESP_LOGD(TAG, "VL6180X fresh out of reset, loading settings");
+      // Initialize VL6180X sensor settings
+      this->load_settings();
+      this->writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSTEM_FRESH_OUT_OF_RESET), 0x00);
+    } else {
+        // Sensor has already been initialized, so try to get scaling settings by reading registers.
+        uint16_t s = reading_register16(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_RANGE_SCALER));
+        if      (s == ScalerValues[3]) { scaling_ = 3; }
+        else if (s == ScalerValues[2]) { scaling_ = 2; }
+        else                           { scaling_ = 1; }
+
+        // Adjust the part-to-part range offset value read earlier to account for existing scaling.
+        ptp_offset_ *= scaling_;
+        ESP_LOGD(TAG, "Initial scaling: %ux", scaling_);
+    }
+
+
+    ESP_LOGD(TAG, "VL6180X sensor initialized");
+
 }
 
 void VL6180XSensor::start_measurement() {
@@ -37,11 +83,11 @@ void VL6180XSensor::start_measurement() {
 
 void VL6180XSensor::check_measurement() {
   if (this->state_ == SENSOR_STATE_WAITING_FOR_DATA &&
-      4 == ((reading_register(VL6180XRegister::VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) >> 3) & 0x7)) {
+      4 == ((reading_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO)) >> 3) & 0x7)) {
     this->state_ = SENSOR_STATE_DATA_READY;
     // Read and publish the data here
-    uint16_t range = this->reading_register16(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL);
-    float als = read_als(gain_);
+    uint16_t range = this->reading_register16(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL));
+    float als = read_als();
 	if (this->distance_sensor_ != nullptr)
       distance_sensor_->publish_state(static_cast<float>(range));
     if (this->als_sensor_ != nullptr)
@@ -50,17 +96,43 @@ void VL6180XSensor::check_measurement() {
 }
 
 void VL6180XSensor::update() {
+  ESP_LOGD("vl6180x", "Update function called");
   this->writing_register(0x018, 0x01); // Start a new measurement
   this->data_ready_ = true; // Set the flag to indicate that data is expected
 
+  uint8_t range_status = this->reading_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_RESULT_RANGE_STATUS));
+  uint16_t raw_range = this->reading_register16(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL));
+
+  ESP_LOGD(TAG, "Range status: 0x%02X, Raw range: %u", range_status, raw_range);
+
+  if ((range_status & 0x01) == 0) {
+    // Valid measurement
+    float scaled_range = static_cast<float>(raw_range) * scaling_;
+    ESP_LOGD(TAG, "Scaled range: %.2f", scaled_range);
+    if (this->distance_sensor_ != nullptr)
+      distance_sensor_->publish_state(scaled_range);
+  } else {
+    // Error in measurement
+    ESP_LOGW(TAG, "Error in range measurement: status 0x%02X", range_status);
+    if (this->distance_sensor_ != nullptr)
+      distance_sensor_->publish_state(NAN);  // Or some other indication of invalid reading
+  }
+
   // Read the status register
-  uint8_t status = this->reading_register(VL6180XRegister::VL6180X_REG_RESULT_RANGE_STATUS);
+//  uint8_t status = this->reading_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_RESULT_RANGE_STATUS));
 
   // Check for errors
-  if (status != VL6180XError::VL6180X_ERROR_NONE) {
-    handle_error(status);
-    return;
-  }
+//  if (status != VL6180XError::VL6180X_ERROR_NONE) {
+//    handle_error(status);
+//    return;
+//  }
+//  uint16_t raw_range = this->reading_register16(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL));
+//  float scaled_range = static_cast<float>(raw_range) * scaling_;
+
+//  ESP_LOGD(TAG, "Raw range: %u, Scaled range: %.2f", raw_range, scaled_range);
+
+//  if (this->distance_sensor_ != nullptr)
+//    distance_sensor_->publish_state(scaled_range);
 
   // ALS state machine
   switch (this->state_) {
@@ -74,8 +146,8 @@ void VL6180XSensor::update() {
 
     case SENSOR_STATE_DATA_READY:
       // If no errors, read the sensor data
-      uint16_t range = this->reading_register16(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL);
-      float als = read_als(gain_);
+      uint16_t range = this->reading_register16(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL));
+      float als = read_als();
 
       // Publish the sensor data
 	    if (this->distance_sensor_ != nullptr)
@@ -150,6 +222,10 @@ void VL6180XSensor::handle_error(uint8_t status) {
     case VL6180XError::VL6180X_ERROR_DATANOTREADY_18:
       ESP_LOGE(TAG, "Error returned by VL6180x_RangeGetMeasurementIfReady() when ranging data is not ready.");
       return;
+    // Custom errors not sensor generated
+    case VL6180XError::VL6180X_ERROR_SENSORVERSIONNOTFOUND_19:
+      ESP_LOGE(TAG, "VL6180X sensor version not found is it properly connected?");
+      return;
     default:
       ESP_LOGE(TAG, "Unknown error");
       return;
@@ -186,7 +262,7 @@ void VL6180XSensor::loop() {
   }
 
   // Read the ALS value from the sensor
-  float als = read_als(gain_);
+  float als = read_als();
   // Publish the ALS value
   if (this->als_sensor_ != nullptr)
     als_sensor_->publish_state(als);
@@ -242,7 +318,7 @@ void VL6180XSensor::loop() {
       is_tap = false;
     }
   }
-  
+
   if (this->on_gesture_hover_trigger_ != nullptr) {
     // Hover gesture detection
     if (range >= GESTURE_HAND_PRESENCE_THRESHOLD && range <= 190) {
@@ -290,7 +366,7 @@ void VL6180XSensor::load_settings() {
   writing_register(0x0207, 0x01);
   writing_register(0x0208, 0x01);
   writing_register(0x0096, 0x00);
-  writing_register(0x0097, 0xfd);
+  writing_register(0x0097, 0xfd); // RANGE_SCALER = 253
   writing_register(0x00e3, 0x00);
   writing_register(0x00e4, 0x04);
   writing_register(0x00e5, 0x02);
@@ -330,10 +406,10 @@ void VL6180XSensor::load_settings() {
                                   // which auto calibration of system is performed
   writing_register(0x0041, 0x63); // Set ALS integration time to 100ms
   writing_register(0x002e, 0x01); // Perform a single temperature calibration of the ranging sensor
-  
+
   writing_register(0x0014, 0x04); // Enables the notification of a new value being available.
   //writing_register(0x001b, 0x80); // continuous mode interval
- 
+
   // Optional: Public registers - See data sheet for more detail
   //writing_register(0x001b, 0x09); // Set default ranging inter-measurement
                                     // period to 100ms
@@ -342,6 +418,61 @@ void VL6180XSensor::load_settings() {
   //writing_register(0x0014, 0x24); // Configures interrupt on 'New Sample
                                     // Ready threshold event'
 }
+
+// RANGE_SCALER values for 1x, 2x, 3x scaling
+const uint16_t VL6180XSensor::ScalerValues[] = {0, 253, 127, 84};
+
+void VL6180XSensor::set_scaling(uint8_t new_scaling) {
+  uint8_t const DefaultCrosstalkValidHeight = 20; // default value of SYSRANGE__CROSSTALK_VALID_HEIGHT
+
+  // do nothing if scaling value is invalid
+  if (new_scaling < 1 || new_scaling > 3) {
+    ESP_LOGE(TAG, "Invalid scaling factor: %u", new_scaling);
+    return;
+  }
+
+  scaling_ = new_scaling;
+  ESP_LOGI(TAG, "Setting scaling to %ux", scaling_);
+  // Use the enum values directly
+  uint8_t scaler_value;
+  switch (scaling_) {
+    case 1:
+      scaler_value = static_cast<uint8_t>(VL6180XScalerFactor::VL6180X_SCALER_FACTOR_1);
+      break;
+    case 2:
+      scaler_value = static_cast<uint8_t>(VL6180XScalerFactor::VL6180X_SCALER_FACTOR_2);
+      break;
+    case 3:
+      scaler_value = static_cast<uint8_t>(VL6180XScalerFactor::VL6180X_SCALER_FACTOR_3);
+      break;
+    default:
+      // This shouldn't happen due to the earlier check, but it's good practice
+      ESP_LOGE(TAG, "Invalid scaling factor: %u", scaling_);
+      return;
+  }
+  // used to be register16
+  //writing_register(VL6180XRegister::VL6180X_REG_RANGE_SCALER, scaler_value);
+  writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_RANGE_SCALER), scaler_value);
+  ESP_LOGI(TAG, "Scaling set. New scaler value: 0x%02X", scaler_value);
+  // Apply scaling on part-to-part offset
+  //writing_register(VL6180XRegister::VL6180X_REG_SYSRANGE_PART_TO_PART_RANGE_OFFSET, ptp_offset_ / scaling_);
+  writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSRANGE_PART_TO_PART_RANGE_OFFSET), ptp_offset_ / scaling_);
+
+  // Apply scaling on CrossTalkValidHeight
+  //writing_register(VL6180XRegister::VL6180X_REG_SYSRANGE_CROSSTALK_VALID_HEIGHT, DefaultCrosstalkValidHeight / scaling_);
+  writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSRANGE_CROSSTALK_VALID_HEIGHT), DefaultCrosstalkValidHeight / scaling_);
+
+  // Enable early convergence estimate only at 1x scaling
+  //uint8_t rce = reading_register(VL6180XRegister::VL6180X_REG_SYSRANGE_RANGE_CHECK_ENABLES);
+  //writing_register(VL6180XRegister::VL6180X_REG_SYSRANGE_RANGE_CHECK_ENABLES, (rce & 0xFE) | (scaling_ == 1));
+  uint8_t rce = reading_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSRANGE_RANGE_CHECK_ENABLES));
+  writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSRANGE_RANGE_CHECK_ENABLES), (rce & 0xFE) | (scaling_ == 1));
+  ESP_LOGD(TAG, "Scaling set. New scaler value: 0x%02X", scaler_value);
+  // Log the scaling setting
+  ESP_LOGI(TAG, "VL6180X scaling set to %ux", scaling_);
+}
+
+
 // Assuming there the device is in a 200lux environment, by starting a single shot ambient
 // light measurement, the example below shows how to interpret the value read.
 // When ambient light measurement is complete, the value is read from the
@@ -357,60 +488,60 @@ void VL6180XSensor::load_settings() {
 // value shall be recalculated by the end user to ensure the proper lux measurement.
 
 // Single shot lux measurement
-float VL6180XSensor::read_als(uint8_t gain) {
+float VL6180XSensor::read_als() {
   // Define the ALS lux resolution and integration time (in milliseconds)
   //float als_lux_resolution = 0.32; // Example value, adjust as needed
   float als_integration_time = 100; // Example value, adjust as needed
   float gainxvalue = 1;
   // Add the code to read the ALS data from the VL6180X sensor
   uint8_t reg;
-  reg = reading_register(VL6180XRegister::VL6180X_REG_SYSTEM_INTERRUPT_CONFIG);
+  reg = reading_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSTEM_INTERRUPT_CONFIG));
   reg &= ~0x38;
   reg |= (0x4 << 3); // IRQ on ALS ready
-  writing_register(VL6180XRegister::VL6180X_REG_SYSTEM_INTERRUPT_CONFIG, reg);
+  writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSTEM_INTERRUPT_CONFIG), reg);
   // 100 ms integration period
-  writing_register(VL6180XRegister::VL6180X_REG_SYSALS_INTEGRATION_PERIOD_HI, 0);
-  writing_register(VL6180XRegister::VL6180X_REG_SYSALS_INTEGRATION_PERIOD_LO, 100);
-  if (gain > VL6180XALSGain::VL6180X_ALS_GAIN_40) {
-    gain = VL6180XALSGain::VL6180X_ALS_GAIN_40;
+  writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSALS_INTEGRATION_PERIOD_HI), 0);
+  writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSALS_INTEGRATION_PERIOD_LO), 100);
+  if (static_cast<uint8_t>(gain_) > static_cast<uint8_t>(VL6180XALSGain::VL6180X_ALS_GAIN_40)) {
+    gain_ = VL6180XALSGain::VL6180X_ALS_GAIN_40;
   }
   // Analog gain
-  writing_register(VL6180XRegister::VL6180X_REG_SYSALS_ANALOGUE_GAIN, 0x40 | gain);
+  writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSALS_ANALOGUE_GAIN), 0x40 | static_cast<uint8_t>(gain_));
   // Start ALS
-  writing_register(VL6180XRegister::VL6180X_REG_SYSALS_START, 0x1);
+  writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSALS_START), 0x1);
   // Read lux
-  float als_count = reading_register16(VL6180XRegister::VL6180X_REG_RESULT_ALS_VAL);
+  float als_count = reading_register16(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_RESULT_ALS_VAL));
   // Clear interrupt
-  writing_register(VL6180XRegister::VL6180X_REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
+  writing_register(static_cast<uint16_t>(VL6180XRegister::VL6180X_REG_SYSTEM_INTERRUPT_CLEAR), 0x07);
 
   // Log the ALS value
   if (this->als_sensor_ != nullptr) {
     ESP_LOGD(TAG, "ALS Count: %f", als_count);
-    ESP_LOGD(TAG, "ALS Gain: 0x%02X", gain);
+    ESP_LOGD(TAG, "ALS Gain: 0x%02X", static_cast<uint8_t>(gain_));
   }
-  switch (gain) {
-    case VL6180X_ALS_GAIN_1:
+  switch (gain_) {
+    case VL6180XALSGain::VL6180X_ALS_GAIN_1:
       gainxvalue = 1;
     break;
-    case VL6180X_ALS_GAIN_1_25:
+    case VL6180XALSGain::VL6180X_ALS_GAIN_1_25:
       gainxvalue = 1.25;
     break;
-    case VL6180X_ALS_GAIN_1_67:
+    case VL6180XALSGain::VL6180X_ALS_GAIN_1_67:
       gainxvalue = 1.67;
 	break;
-    case VL6180X_ALS_GAIN_2_5:
+    case VL6180XALSGain::VL6180X_ALS_GAIN_2_5:
       gainxvalue = 2.5;
     break;
-    case VL6180X_ALS_GAIN_5:
+    case VL6180XALSGain::VL6180X_ALS_GAIN_5:
       gainxvalue = 5;
     break;
-    case VL6180X_ALS_GAIN_10:
+    case VL6180XALSGain::VL6180X_ALS_GAIN_10:
       gainxvalue = 10;
     break;
-    case VL6180X_ALS_GAIN_20:
+    case VL6180XALSGain::VL6180X_ALS_GAIN_20:
       gainxvalue = 20;
     break;
-    case VL6180X_ALS_GAIN_40:
+    case VL6180XALSGain::VL6180X_ALS_GAIN_40:
       gainxvalue = 40;
     break;
   };
