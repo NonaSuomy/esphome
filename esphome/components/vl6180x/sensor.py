@@ -27,6 +27,7 @@ VL6180XSensor = vl6180x_ns.class_(
 )
 
 CONF_DISTANCE = "distance"
+CONF_SCALER_FACTOR = "scaler"
 CONF_ALS = "als"
 CONF_GAIN = "gain"
 CONF_UNDER_GLASS = "under_glass"
@@ -42,6 +43,16 @@ CONF_LUX_WITHOUT_GLASS = "lux_without_glass"
 # CONF_GESTURE_HOVER_TIME_MS = "gesture_hover_time_ms"
 # CONF_GESTURE_HAND_PRESENCE_THRESHOLD = "gesture_hand_presence_threshold"
 # CONF_GESTURE_DOUBLE_TAP_THRESHOLD = "gesture_double_tap_threshold"
+GAIN_TO_ENUM = {
+    '1x': 'esphome::vl6180x::VL6180XALSGain::VL6180X_ALS_GAIN_1',
+    '1.25x': 'esphome::vl6180x::VL6180XALSGain::VL6180X_ALS_GAIN_1_25',
+    '1.67x': 'esphome::vl6180x::VL6180XALSGain::VL6180X_ALS_GAIN_1_67',
+    '2.5x': 'esphome::vl6180x::VL6180XALSGain::VL6180X_ALS_GAIN_2_5',
+    '5x': 'esphome::vl6180x::VL6180XALSGain::VL6180X_ALS_GAIN_5',
+    '10x': 'esphome::vl6180x::VL6180XALSGain::VL6180X_ALS_GAIN_10',
+    '20x': 'esphome::vl6180x::VL6180XALSGain::VL6180X_ALS_GAIN_20',
+    '40x': 'esphome::vl6180x::VL6180XALSGain::VL6180X_ALS_GAIN_40',
+}
 
 #def validate(config):
 #    if CONF_DISTANCE not in config and CONF_ALS not in config:
@@ -57,6 +68,14 @@ CONFIG_SCHEMA = cv.All(
         icon=ICON_RULER,
         accuracy_decimals=0,
         device_class=DEVICE_CLASS_DISTANCE,
+      ).extend(
+        {
+          cv.Optional(CONF_SCALER_FACTOR, default='1x'): cv.enum({
+            '1x': 0xFD,
+            '2x': 0x7F,
+            '3x': 0x54,
+          }, lower=True),
+        }
       ),
       cv.Optional(CONF_ALS): sensor.sensor_schema(
           unit_of_measurement=UNIT_LUX,
@@ -65,16 +84,7 @@ CONFIG_SCHEMA = cv.All(
           device_class=DEVICE_CLASS_ILLUMINANCE,
       ).extend(
         {
-          cv.Optional('gain', default='1X'): cv.enum({
-            '1x': 0x06,
-            '1.25x': 0x05,
-            '1.67x': 0x04,
-            '2.5x': 0x03,
-            '5x': 0x02,
-            '10x': 0x01,
-            '20x': 0x00,
-            '40x': 0x07,
-          }, lower=True),
+          cv.Optional(CONF_GAIN, default='1x'): cv.enum(GAIN_TO_ENUM, lower=True),
           cv.Optional(CONF_UNDER_GLASS): cv.boolean,
           cv.Optional(CONF_LUX_WITHOUT_GLASS): cv.float_,
         }
@@ -97,12 +107,44 @@ CONFIG_SCHEMA = cv.All(
 )
 
 async def to_code(config):
-  var = cg.new_Pvariable(config[CONF_ID])
-  await cg.register_component(var, config)
-  await i2c.register_i2c_device(var, config)
-  if CONF_DISTANCE in config:
-    distance = await sensor.new_sensor(config[CONF_DISTANCE])
-    cg.add(var.set_distance_sensor(distance))
+    var = cg.new_Pvariable(config[CONF_ID])
+    await cg.register_component(var, config)
+    await i2c.register_i2c_device(var, config)
+
+    if CONF_DISTANCE in config:
+        distance_config = config[CONF_DISTANCE]
+        distance = await sensor.new_sensor(distance_config)
+        cg.add(var.set_distance_sensor(distance))
+
+        if CONF_SCALER_FACTOR in distance_config:
+            scaler = distance_config[CONF_SCALER_FACTOR]
+            cg.add(var.set_scaling(scaler))
+
+    if CONF_ALS in config:
+        als = await sensor.new_sensor(config[CONF_ALS])
+        cg.add(var.set_als_sensor(als))
+        if CONF_GAIN in config[CONF_ALS]:
+            gain_value = config[CONF_ALS][CONF_GAIN]
+            gain_enum = GAIN_TO_ENUM[gain_value]
+            cg.add(var.set_gain(cg.RawExpression(gain_enum)))
+        if CONF_UNDER_GLASS in config[CONF_ALS]:
+            cg.add(var.set_is_behind_glass(config[CONF_ALS][CONF_UNDER_GLASS]))
+        if CONF_LUX_WITHOUT_GLASS in config[CONF_ALS]:
+            cg.add(var.set_lux_without_glass(config[CONF_ALS][CONF_LUX_WITHOUT_GLASS]))
+
+#async def to_code(config):
+#  var = cg.new_Pvariable(config[CONF_ID])
+#  await cg.register_component(var, config)
+#  await i2c.register_i2c_device(var, config)
+
+#  if CONF_DISTANCE in config:
+#    distance_config = config[CONF_DISTANCE]
+#    distance = await sensor.new_sensor(distance_config)
+#    cg.add(var.set_distance_sensor(distance))
+
+#    if CONF_SCALER_FACTOR in distance_config:
+#      scaler = distance_config[CONF_SCALER_FACTOR]
+#      cg.add(var.set_scaling(scaler))
   # Register the gesture triggers
   # if CONF_ON_GESTURE_SWIPE_TOWARD in config:
     # await automation.build_automation(
@@ -124,11 +166,13 @@ async def to_code(config):
     # await automation.build_automation(
       # var.get_gesture_hover_trigger(), [], config[CONF_ON_GESTURE_HOVER]
     # )
-  if CONF_ALS in config:
-    als = await sensor.new_sensor(config[CONF_ALS])
-    cg.add(var.set_als_sensor(als))
-    cg.add(var.set_gain(config[CONF_ALS][CONF_GAIN]))
-    if CONF_UNDER_GLASS in config[CONF_ALS]:
-      cg.add(var.set_is_behind_glass(config[CONF_ALS][CONF_UNDER_GLASS]))
-    if CONF_LUX_WITHOUT_GLASS in config[CONF_ALS]:
-      cg.add(var.set_lux_without_glass(config[CONF_ALS][CONF_LUX_WITHOUT_GLASS]))
+#  if CONF_ALS in config:
+#    als = await sensor.new_sensor(config[CONF_ALS])
+#    cg.add(var.set_als_sensor(als))
+#    if CONF_GAIN in config[CONF_ALS]:
+#        gain = config[CONF_ALS][CONF_GAIN]
+#        cg.add(var.set_gain(cg.RawExpression(gain)))
+#    if CONF_UNDER_GLASS in config[CONF_ALS]:
+#      cg.add(var.set_is_behind_glass(config[CONF_ALS][CONF_UNDER_GLASS]))
+#    if CONF_LUX_WITHOUT_GLASS in config[CONF_ALS]:
+#      cg.add(var.set_lux_without_glass(config[CONF_ALS][CONF_LUX_WITHOUT_GLASS]))
