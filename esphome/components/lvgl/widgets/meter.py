@@ -20,13 +20,14 @@ from ..defines import (
     CONF_END_VALUE,
     CONF_INDICATOR,
     CONF_MAIN,
+    CONF_OPA,
     CONF_PIVOT_X,
     CONF_PIVOT_Y,
     CONF_SRC,
     CONF_START_VALUE,
     CONF_TICKS,
 )
-from ..helpers import add_lv_use
+from ..helpers import add_lv_use, lvgl_components_required
 from ..lv_validation import (
     angle,
     get_end_value,
@@ -35,10 +36,11 @@ from ..lv_validation import (
     lv_color,
     lv_float,
     lv_image,
+    opacity,
     requires_component,
     size,
 )
-from ..lvcode import LocalVariable, lv, lv_assign, lv_expr
+from ..lvcode import LocalVariable, lv, lv_assign, lv_expr, lv_obj
 from ..types import LvType, ObjUpdateAction
 from . import Widget, WidgetType, get_widgets
 from .arc import CONF_ARC
@@ -76,6 +78,7 @@ INDICATOR_LINE_SCHEMA = cv.Schema(
         cv.Optional(CONF_COLOR, default=0): lv_color,
         cv.Optional(CONF_R_MOD, default=0): size,
         cv.Optional(CONF_VALUE): lv_float,
+        cv.Optional(CONF_OPA): opacity,
     }
 )
 INDICATOR_IMG_SCHEMA = cv.Schema(
@@ -84,6 +87,7 @@ INDICATOR_IMG_SCHEMA = cv.Schema(
         cv.Required(CONF_PIVOT_X): pixels,
         cv.Required(CONF_PIVOT_Y): pixels,
         cv.Optional(CONF_VALUE): lv_float,
+        cv.Optional(CONF_OPA): opacity,
     }
 )
 INDICATOR_ARC_SCHEMA = cv.Schema(
@@ -94,6 +98,7 @@ INDICATOR_ARC_SCHEMA = cv.Schema(
         cv.Exclusive(CONF_VALUE, CONF_VALUE): lv_float,
         cv.Exclusive(CONF_START_VALUE, CONF_VALUE): lv_float,
         cv.Optional(CONF_END_VALUE): lv_float,
+        cv.Optional(CONF_OPA): opacity,
     }
 )
 INDICATOR_TICKS_SCHEMA = cv.Schema(
@@ -177,6 +182,7 @@ class MeterType(WidgetType):
     async def to_code(self, w: Widget, config):
         """For a meter object, create and set parameters"""
 
+        lvgl_components_required.add(CONF_METER)
         var = w.obj
         for scale_conf in config.get(CONF_SCALES, ()):
             rotation = 90 + (360 - scale_conf[CONF_ANGLE_RANGE]) / 2
@@ -218,9 +224,7 @@ class MeterType(WidgetType):
                 for indicator in scale_conf.get(CONF_INDICATORS, ()):
                     (t, v) = next(iter(indicator.items()))
                     iid = v[CONF_ID]
-                    ivar = cg.new_variable(
-                        iid, cg.nullptr, type_=lv_meter_indicator_t_ptr
-                    )
+                    ivar = cg.Pvariable(iid, cg.nullptr, type_=lv_meter_indicator_t)
                     # Enable getting the meter to which this belongs.
                     wid = Widget.create(iid, var, obj_spec, v)
                     wid.obj = ivar
@@ -268,9 +272,7 @@ class MeterType(WidgetType):
                                 v[CONF_PIVOT_Y],
                             ),
                         )
-                    start_value = await get_start_value(v)
-                    end_value = await get_end_value(v)
-                    set_indicator_values(var, ivar, start_value, end_value)
+                    await set_indicator_values(var, ivar, v)
 
 
 meter_spec = MeterType()
@@ -285,21 +287,22 @@ meter_spec = MeterType()
             cv.Exclusive(CONF_VALUE, CONF_VALUE): lv_float,
             cv.Exclusive(CONF_START_VALUE, CONF_VALUE): lv_float,
             cv.Optional(CONF_END_VALUE): lv_float,
+            cv.Optional(CONF_OPA): opacity,
         }
     ),
 )
 async def indicator_update_to_code(config, action_id, template_arg, args):
     widget = await get_widgets(config)
-    start_value = await get_start_value(config)
-    end_value = await get_end_value(config)
 
     async def set_value(w: Widget):
-        set_indicator_values(w.var, w.obj, start_value, end_value)
+        await set_indicator_values(w.var, w.obj, config)
 
     return await action_to_code(widget, set_value, action_id, template_arg, args)
 
 
-def set_indicator_values(meter, indicator, start_value, end_value):
+async def set_indicator_values(meter, indicator, config):
+    start_value = await get_start_value(config)
+    end_value = await get_end_value(config)
     if start_value is not None:
         if end_value is None:
             lv.meter_set_indicator_value(meter, indicator, start_value)
@@ -307,3 +310,6 @@ def set_indicator_values(meter, indicator, start_value, end_value):
             lv.meter_set_indicator_start_value(meter, indicator, start_value)
     if end_value is not None:
         lv.meter_set_indicator_end_value(meter, indicator, end_value)
+    if (opa := config.get(CONF_OPA)) is not None:
+        lv_assign(indicator.opa, await opacity.process(opa))
+        lv_obj.invalidate(meter)

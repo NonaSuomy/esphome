@@ -40,6 +40,7 @@ enum VoiceAssistantFeature : uint32_t {
   FEATURE_SPEAKER = 1 << 1,
   FEATURE_API_AUDIO = 1 << 2,
   FEATURE_TIMERS = 1 << 3,
+  FEATURE_ANNOUNCE = 1 << 4,
 };
 
 enum class State {
@@ -91,7 +92,8 @@ struct Configuration {
 
 class VoiceAssistant : public Component {
  public:
-  void setup() override;
+  VoiceAssistant();
+
   void loop() override;
   float get_setup_priority() const override;
   void start_streaming();
@@ -134,6 +136,12 @@ class VoiceAssistant : public Component {
     if (this->has_timers_) {
       flags |= VoiceAssistantFeature::FEATURE_TIMERS;
     }
+
+#ifdef USE_MEDIA_PLAYER
+    if (this->media_player_ != nullptr) {
+      flags |= VoiceAssistantFeature::FEATURE_ANNOUNCE;
+    }
+#endif
 
     return flags;
   }
@@ -208,6 +216,7 @@ class VoiceAssistant : public Component {
   void set_state_(State state);
   void set_state_(State state, State desired_state);
   void signal_stop_();
+  void start_playback_timeout_();
 
   std::unique_ptr<socket::Socket> socket_ = nullptr;
   struct sockaddr_storage dest_addr_;
@@ -249,7 +258,7 @@ class VoiceAssistant : public Component {
 #ifdef USE_SPEAKER
   void write_speaker_();
   speaker::Speaker *speaker_{nullptr};
-  uint8_t *speaker_buffer_;
+  uint8_t *speaker_buffer_{nullptr};
   size_t speaker_buffer_index_{0};
   size_t speaker_buffer_size_{0};
   size_t speaker_bytes_received_{0};
@@ -281,8 +290,8 @@ class VoiceAssistant : public Component {
   float volume_multiplier_;
   uint32_t conversation_timeout_;
 
-  uint8_t *send_buffer_;
-  int16_t *input_buffer_;
+  uint8_t *send_buffer_{nullptr};
+  int16_t *input_buffer_{nullptr};
 
   bool continuous_{false};
   bool silence_detection_;
