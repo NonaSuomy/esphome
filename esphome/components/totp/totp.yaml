@@ -6,18 +6,12 @@ esp32:
   framework:
     #type: arduino
     type: esp-idf
-    version: 5.2.1
-    platform_version: 6.7.0
-    sdkconfig_options: 
-      CONFIG_COMPILER_OPTIMIZATION_SIZE: y 
-      CONFIG_LWIP_MAX_SOCKETS: "16"
-      CONFIG_MBEDTLS_HKDF_C: y 
 
 esphome:
   name: totp
   friendly_name: totp
   platformio_options:
-    build_flags: "-DBOARD_HAS_PSRAM"  
+    build_flags: "-DBOARD_HAS_PSRAM"
     board_build.arduino.memory_type: qio_opi
     
 external_components:
@@ -39,7 +33,7 @@ logger:
 api:
   encryption:
     key: !secret encryption_key012
-  
+
   services:
     - service: play_rtttl
       variables:
@@ -51,35 +45,20 @@ ota:
   - platform: esphome
     password: !secret ota_pass012
 
-#wifi:
-#  ssid: !secret wifi_ssid2
-#  password: !secret wifi_password2
-#  use_address: !secret use_address_wifi2_012
+wifi:
+  ssid: !secret wifi_ssid2
+  password: !secret wifi_password2
+  use_address: !secret use_address_wifi2_012
 
-  #ap:
-  #  ssid: "EZHackLock Fallback Hotspot"
-  #  password: !secret fallbackhotspot012
+  ap:
+    ssid: "EZHackLock Fallback Hotspot"
+    password: !secret fallbackhotspot012
 
-ethernet:
- type: W5500
- clk_pin: GPIO42 #GPIO12
- mosi_pin: GPIO44 #GPIO21
- miso_pin: GPIO40 #GPIO16
- cs_pin: GPIO39 #GPIO10
- interrupt_pin: GPIO41 #GPIO14
- reset_pin: GPIO43 #GPIO09
- use_address: !secret use_address_wired012
- # Optional manual IP
- #manual_ip:
- #  static_ip: 10.20.30.42
- #  gateway: 10.20.30.40
- #  subnet: 255.255.255.0
-
-#captive_portal:
+captive_portal:
 
 web_server:
   port: 80
-  
+
 time:
   - platform: sntp
     id: sntp_time
@@ -88,6 +67,7 @@ time:
     - 1.pool.ntp.org
     - 2.pool.ntp.org
     timezone: America/Toronto
+
 totp:
   secret: ${totp_secret}
   time_id: sntp_time
@@ -96,6 +76,7 @@ totp:
     name: TOTP
   countdown:
     name: Countdown
+
 matrix_keypad:
   - id: keypad001
     columns:
@@ -129,16 +110,16 @@ key_collector:
       #    args: ['x.c_str()', 'x.length()']
       - lambda: |-
           id(entered_code) = "\"\"";  // Reset the entered code after processing
-      - script.execute: 
+      - script.execute:
           id: check_totp_code
           code: !lambda "return x;"
-
     on_timeout:
       #- logger.log:
       #    format: "Input timeout after: '%s', length: %d"
       #    args: ['x.c_str()', 'x.length()']
       - lambda: |-
           id(entered_code) = "\"\"";  // Reset entered code on timeout
+
   # Matrix Keypad Keys
   - platform: matrix_keypad
     keypad_id: keypad001
@@ -265,30 +246,15 @@ script:
     parameters:
       key: string
     then:
-      - rtttl.play: 'short_beep:d=4,o=5,b=100:16e6'
-      - script.execute: blue_led_action
+      - logger.log: "Keypad touched!"
       # Show current lock state and start fade timer
       - if:
           condition:
-            binary_sensor.is_on: limitswitch1  # Locked state
+            #binary_sensor.is_on: limitswitch1  # Locked state
           then:
-            - light.turn_on:
-                id: ezset_red_light
-                brightness: 100%
-                transition_length: 0.5s
-            - light.turn_off:
-                id: ezset_green_light
-                transition_length: 0.5s
+            - logger.log: "Red!"
           else:
-            - light.turn_off:
-                id: ezset_red_light
-                transition_length: 0.5s
-            - light.turn_on:
-                id: ezset_green_light
-                brightness: 100%
-                transition_length: 0.5s
-      # Start the LED fade timer script
-      - script.execute: led_fade_timer
+            - logger.log: "Green!"
       # Handle keypad input
       - lambda: |-
           if (!key.empty()) {
@@ -308,67 +274,29 @@ script:
   - id: success_indicator
     then:
       - delay: 100ms
-      - rtttl.stop
-      - rtttl.play: 'success_beep:d=4,o=5,b=100:16e7,16e7,16p,16e7,16p,16c7,16e7,16p,16g7'
+        - logger.log: "Success!"
       - repeat:
           count: 3
           then:
-            - light.turn_on:
-                id: ezset_green_light
-                brightness: 100%
-            - delay: 200ms
-            - light.turn_off: ezset_green_light
-            - delay: 200ms
+            - logger.log: "Blink Green!"
 
   - id: failure_indicator
     then:
-      - light.turn_off: ezset_green_light
-      - light.turn_off: ezset_red_light
+      - logger.log: "Failure!"
       - delay: 100ms
-      - rtttl.stop
-      #- rtttl.play: '"zelda:d=64,o=6,b=300,c=4, g,a,b,f#,g,a,b,f#,b,c7,d7,b,c7,d7,a,b,f#,a,b,f#,c7,d7,e7,c7,d7,e7,b,f#,f7,c7,d7,e7,e,f#,f7,g7,d7,e7,e,a5,b5,c6"'
-      #- rtttl.play: 'zelda:d=16,o=5,b=75,c=4, g,a,b,f#,g,a,b,f#,b,c6,d6,b,c6,d6,a,b,f#,a,b,f#,c6,d6,e6,c6,d6,e6,b,f#,f6,c6,d6,e6,e,f#,f6,g6,d6,e6,e,a4,b4,c'
-      - rtttl.play: 'failure_beep:d=16,o=5,b=100:c,c6,a4,a5,a#4,a#5'
       - repeat:
           count: 3
           then:
-            - light.turn_on:
-                id: ezset_red_light
-                brightness: 100%
-                transition_length: 0.1s
-            - delay: 200ms
-            - light.turn_off: 
-                id: ezset_red_light
-                transition_length: 0.1s
-            - delay: 200ms
-      #- light.turn_off: ezset_red_light
+            - logger.log: "Blink Red!"
 
   - id: error_indicator
     then:
-      - light.turn_off: ezset_green_light
-      - light.turn_off: ezset_red_light
+      - logger.log: "Erorr!"
       - delay: 100ms
-      - rtttl.stop
-      - rtttl.play: 'error_beep:d=8,o=5,b=100:d,e'
       - repeat:
           count: 3
           then:
-            - light.turn_on:
-                id: ezset_red_light
-                brightness: 100%
-                transition_length: 0.1s
-            - light.turn_on:
-                id: ezset_green_light
-                brightness: 100%
-                transition_length: 0.1s
-            - delay: 200ms
-            - light.turn_off: 
-                id: ezset_red_light
-                transition_length: 0.1s
-            - light.turn_off: 
-                id: ezset_green_light
-                transition_length: 0.1s
-            - delay: 200ms
+            - logger.log: "Blink Orange!"
 
   - id: check_totp_code
     parameters:
@@ -378,17 +306,8 @@ script:
           id(entered_code) = "\"\"";  // Reset entered code after processing
           auto current_totp = id(my_totp).get_current_totp();
           if (code == current_totp) {
-            // Code is correct, toggle lock state
-            if (id(limitswitch2).state) {
-              // Door is currently unlocked, lock it
-              id(success_indicator).execute();
-              id(lock_door).execute();
-            } else {
-              // Door is currently locked, unlock it
-              id(success_indicator).execute();
-              id(unlock_lock_sequence).execute();
-            }
+            // Code is correct
+            - logger.log: "Code Correct!"
           } else {
-            id(green_led_action).stop();
-            id(failure_indicator).execute();
+            - logger.log: "Code Incorrect!"
           }
