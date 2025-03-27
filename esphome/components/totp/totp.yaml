@@ -15,10 +15,11 @@ esphome:
     board_build.arduino.memory_type: qio_opi
     
 external_components:
-  - source: github://rednblkx/HAP-ESPHome@main
   - source:
-      type: local
-      path: components
+      type: git
+      url: https://github.com/NonaSuomy/esphome
+      ref: totp
+    components: [totp]
 
 psram:
   mode: octal
