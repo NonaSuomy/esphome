@@ -41,7 +41,7 @@ void VL6180XSensor::check_measurement() {
     this->state_ = SENSOR_STATE_DATA_READY;
     // Read and publish the data here
     uint16_t range = this->reading_register16(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL);
-    float als = read_als(gain_);
+    float als = read_als();
 	if (this->distance_sensor_ != nullptr)
       distance_sensor_->publish_state(static_cast<float>(range));
     if (this->als_sensor_ != nullptr)
@@ -75,7 +75,7 @@ void VL6180XSensor::update() {
     case SENSOR_STATE_DATA_READY:
       // If no errors, read the sensor data
       uint16_t range = this->reading_register16(VL6180XRegister::VL6180X_REG_RESULT_RANGE_VAL);
-      float als = read_als(gain_);
+      float als = read_als();
 
       // Publish the sensor data
 	    if (this->distance_sensor_ != nullptr)
@@ -186,7 +186,7 @@ void VL6180XSensor::loop() {
   }
 
   // Read the ALS value from the sensor
-  float als = read_als(gain_);
+  float als = read_als();
   // Publish the ALS value
   if (this->als_sensor_ != nullptr)
     als_sensor_->publish_state(als);
@@ -357,12 +357,73 @@ void VL6180XSensor::load_settings() {
 // value shall be recalculated by the end user to ensure the proper lux measurement.
 
 // Single shot lux measurement
-float VL6180XSensor::read_als(uint8_t gain) {
+float VL6180XSensor::read_als() {
   // Define the ALS lux resolution and integration time (in milliseconds)
   //float als_lux_resolution = 0.32; // Example value, adjust as needed
   float als_integration_time = 100; // Example value, adjust as needed
   float gainxvalue = 1;
   // Add the code to read the ALS data from the VL6180X sensor
+
+  if (alx_underflow_) {
+    switch (gain_) {
+      case VL6180X_ALS_GAIN_1:
+        gain_ = VL6180X_ALS_GAIN_1_25;
+      break;
+      case VL6180X_ALS_GAIN_1_25:
+        gain_ = VL6180X_ALS_GAIN_1_67;
+      break;
+      case VL6180X_ALS_GAIN_1_67:
+        gain_ = VL6180X_ALS_GAIN_2_5;
+    break;
+      case VL6180X_ALS_GAIN_2_5:
+        gain_ = VL6180X_ALS_GAIN_5;
+      break;
+      case VL6180X_ALS_GAIN_5:
+        gain_ = VL6180X_ALS_GAIN_10;
+      break;
+      case VL6180X_ALS_GAIN_10:
+      gain_ = VL6180X_ALS_GAIN_20;
+      break;
+      case VL6180X_ALS_GAIN_20:
+      gain_ = VL6180X_ALS_GAIN_40;
+      break;
+      case VL6180X_ALS_GAIN_40:
+      //nowhere to increase
+      break;
+    };
+    alx_underflow_ = false;
+  }
+
+  if (alx_overflow_) {
+    switch (gain_) {
+      case VL6180X_ALS_GAIN_1:
+        // nowhere to lower
+      break;
+      case VL6180X_ALS_GAIN_1_25:
+        gain_ = VL6180X_ALS_GAIN_1;
+      break;
+      case VL6180X_ALS_GAIN_1_67:
+        gain_ = VL6180X_ALS_GAIN_1_25;
+      break;
+      case VL6180X_ALS_GAIN_2_5:
+        gain_ = VL6180X_ALS_GAIN_1_67;
+      break;
+      case VL6180X_ALS_GAIN_5:
+        gain_ = VL6180X_ALS_GAIN_2_5;
+      break;
+      case VL6180X_ALS_GAIN_10:
+        gain_ = VL6180X_ALS_GAIN_5;
+      break;
+      case VL6180X_ALS_GAIN_20:
+        gain_ = VL6180X_ALS_GAIN_10;
+      break;
+      case VL6180X_ALS_GAIN_40:
+        gain_ = VL6180X_ALS_GAIN_20;
+      break;
+    };
+    alx_overflow_ = false;
+  }
+
   uint8_t reg;
   reg = reading_register(VL6180XRegister::VL6180X_REG_SYSTEM_INTERRUPT_CONFIG);
   reg &= ~0x38;
@@ -371,24 +432,16 @@ float VL6180XSensor::read_als(uint8_t gain) {
   // 100 ms integration period
   writing_register(VL6180XRegister::VL6180X_REG_SYSALS_INTEGRATION_PERIOD_HI, 0);
   writing_register(VL6180XRegister::VL6180X_REG_SYSALS_INTEGRATION_PERIOD_LO, 100);
-  if (gain > VL6180XALSGain::VL6180X_ALS_GAIN_40) {
-    gain = VL6180XALSGain::VL6180X_ALS_GAIN_40;
-  }
+
   // Analog gain
-  writing_register(VL6180XRegister::VL6180X_REG_SYSALS_ANALOGUE_GAIN, 0x40 | gain);
+  writing_register(VL6180XRegister::VL6180X_REG_SYSALS_ANALOGUE_GAIN, 0x40 | gain_);
   // Start ALS
   writing_register(VL6180XRegister::VL6180X_REG_SYSALS_START, 0x1);
   // Read lux
   float als_count = reading_register16(VL6180XRegister::VL6180X_REG_RESULT_ALS_VAL);
   // Clear interrupt
   writing_register(VL6180XRegister::VL6180X_REG_SYSTEM_INTERRUPT_CLEAR, 0x07);
-
-  // Log the ALS value
-  if (this->als_sensor_ != nullptr) {
-    ESP_LOGD(TAG, "ALS Count: %f", als_count);
-    ESP_LOGD(TAG, "ALS Gain: 0x%02X", gain);
-  }
-  switch (gain) {
+  switch (gain_) {
     case VL6180X_ALS_GAIN_1:
       gainxvalue = 1;
     break;
@@ -414,9 +467,20 @@ float VL6180XSensor::read_als(uint8_t gain) {
       gainxvalue = 40;
     break;
   };
-  if (this->als_sensor_ != nullptr){
-    ESP_LOGD(TAG, "ALS Gain X Value: %f", gainxvalue);
+  if (als_count == 65535 && gain_ != VL6180X_ALS_GAIN_1) {
+    ESP_LOGI(TAG, "ALS overflow detected, adjusting gain");
+    alx_overflow_ = true; // For the next loop to adjust gain.
   }
+  if (als_count < 10000 && gain_ != VL6180X_ALS_GAIN_40) {
+    ESP_LOGI(TAG, "ALS underflow detected, adjusting gain");
+    alx_underflow_ = true; // For the next loop to adjust gain.
+  }
+  // Log the ALS value
+  if (this->als_sensor_ != nullptr) {
+    ESP_LOGD(TAG, "ALS Count: %0.0f, gain ID 0x%02X (%g x)", als_count,gain_,gainxvalue);
+    //ESP_LOGD(TAG, "ALS Gain: 0x%02X", gain);
+  }
+
   // Calculate the light level in lux
   float light_level_lux = als_lux_resolution_without_glass_ * ((float)als_count / (float)gainxvalue) * (100.0f / als_integration_time);
 

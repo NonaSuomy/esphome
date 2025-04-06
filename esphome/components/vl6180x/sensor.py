@@ -28,7 +28,6 @@ VL6180XSensor = vl6180x_ns.class_(
 
 CONF_DISTANCE = "distance"
 CONF_ALS = "als"
-CONF_GAIN = "gain"
 CONF_UNDER_GLASS = "under_glass"
 CONF_LUX_WITHOUT_GLASS = "lux_without_glass"
 # CONF_ON_GESTURE_SWIPE_TOWARD = "on_gesture_swipe_toward"
@@ -63,21 +62,6 @@ CONFIG_SCHEMA = cv.All(
           icon=ICON_BRIGHTNESS_5,
           accuracy_decimals=1,
           device_class=DEVICE_CLASS_ILLUMINANCE,
-      ).extend(
-        {
-          cv.Optional('gain', default='1X'): cv.enum({
-            '1x': 0x06,
-            '1.25x': 0x05,
-            '1.67x': 0x04,
-            '2.5x': 0x03,
-            '5x': 0x02,
-            '10x': 0x01,
-            '20x': 0x00,
-            '40x': 0x07,
-          }, lower=True),
-          cv.Optional(CONF_UNDER_GLASS): cv.boolean,
-          cv.Optional(CONF_LUX_WITHOUT_GLASS): cv.float_,
-        }
       ),
       # cv.Optional(CONF_ON_GESTURE_SWIPE_TOWARD): automation.validate_automation(single=True),
       # cv.Optional(CONF_ON_GESTURE_SWIPE_AWAY): automation.validate_automation(single=True),
@@ -127,7 +111,6 @@ async def to_code(config):
   if CONF_ALS in config:
     als = await sensor.new_sensor(config[CONF_ALS])
     cg.add(var.set_als_sensor(als))
-    cg.add(var.set_gain(config[CONF_ALS][CONF_GAIN]))
     if CONF_UNDER_GLASS in config[CONF_ALS]:
       cg.add(var.set_is_behind_glass(config[CONF_ALS][CONF_UNDER_GLASS]))
     if CONF_LUX_WITHOUT_GLASS in config[CONF_ALS]:
