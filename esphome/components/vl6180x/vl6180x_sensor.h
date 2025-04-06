@@ -142,12 +142,14 @@ class VL6180XSensor : public sensor::Sensor, public PollingComponent, public i2c
 	// Sensor settings methods
     void load_settings();
     uint8_t read_range();
-    float read_als(uint8_t gain); // Read the ALS value
+    float read_als(); // Read the ALS value
 
   protected:
     // Sensor state and configuratoin variables
     bool data_ready_{false};
-    int gain_;
+    int gain_{1};
+    bool alx_overflow_{false};
+    bool alx_underflow_{false};
     sensor::Sensor *distance_sensor_;
     sensor::Sensor *als_sensor_;
     float lux_without_glass_;
