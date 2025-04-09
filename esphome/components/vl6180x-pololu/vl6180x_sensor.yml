@@ -1,0 +1,123 @@
+# YAML Example for VL6180X TOF sensor
+substitutions:
+  device_name: esp32gesturecontrol001
+  device_friendlyname: ESP32-Gesture-Control-001
+  created_by: "NonaSuomy"
+  device_description: "LED Strip gesture control with TOF VL6180X sensor https://raw.githubusercontent.com/exxamalte/esphome-customisations/master/vl6180x/vl6180x_sensor.h"
+
+esphome:
+  name: $device_name
+  friendly_name: $device_friendlyname
+  #platformio_options:
+    #board_build.flash_mode: dout
+    #board_build.arduino.memory_type: opi_opi
+    #board_build.f_flash: 80000000L
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+    #type: esp-idf
+external_components:
+  - source:
+      type: local
+      path: components
+  # - source: github://NonaSuomy/esphome@vl6180x
+  #   components: [ vl6180x ]
+  #   refresh: 30s
+# Enable logging
+logger:
+  #hardware_uart: uart0
+  #hardware_uart: uart1
+  #hardware_uart: USB_CDC # For Arduino
+  #hardware_uart: USB_SERIAL_JTAG # For ESP-IDF
+  #level: VERY_VERBOSE
+#psram:
+#  mode: quad
+#  speed: 40MHz
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret encryption_key006
+
+ota:
+  - platform: esphome  # Requires 2024.6
+    password: !secret ota_pass006
+
+safe_mode: # Requires 2024.6
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  use_address: !secret use_address_wifi006
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "T-Energy-008 Fallback Hotspot"
+    password: !secret fallbackhotspot006
+
+captive_portal:
+
+web_server:
+
+i2c:
+  sda: 32
+  scl: 33
+  frequency: 400kHz
+
+sensor:
+  - platform: vl6180x
+    address: 0x29
+    update_interval: 5s
+    distance:
+      id: vl6180x_distance
+      name: "VL6180X Distance"
+      unit_of_measurement: mm
+      scaler: "3x"  # Can be "1x", "2x", or "3x"
+    als:
+      name: "VL6180X Ambient Light"
+      unit_of_measurement: lux
+      accuracy_decimals: 1
+      gain: '2.5x'
+
+# sensor:
+#   - platform: vl6180x
+#     address: 0x29
+#     update_interval: 5s
+#     distance:
+#       id: vl6180x_distance
+#       name: "VL6180X Distance"
+#       unit_of_measurement: mm
+    # on_gesture_swipe_toward:
+    #   then:
+    #     - light.turn_on: light_1
+    #     - lambda: ESP_LOGI("Gesture Swipe Toward", "Swipe toward detected.");
+    # on_gesture_swipe_away:
+    #   then:
+    #     - light.turn_off: light_1
+    #     - lambda: ESP_LOGI("Gesture Swipe Away", "Swipe away detected.");
+    # on_gesture_single_tap:
+    #   then:
+    #     - light.toggle: light_1
+    #     - lambda: ESP_LOGI("Gesture Single Tap", "Single tap detected.");
+    # on_gesture_double_tap:
+    #   then:
+    #     - light.toggle: light_1
+    #     - lambda: ESP_LOGI("Gesture Double Tap", "Double tap detected.");
+    # on_gesture_hover:
+    #   then:
+    #     - light.toggle: light_1
+    #     - lambda: ESP_LOGI("Gesture Hover", "Hover detected.");
+
+    #als:
+    #  name: "VL6180X Ambient Light"
+    #  unit_of_measurement: lux
+    #  accuracy_decimals: 1
+    #  gain: '2.5x'
+    #  under_glass: true
+    #  lux_without_glass: 500.0  # Add this line to specify the lux value without the glass
+    #   then:
+    #     - lambda: |-
+    #         if (x == 1) {
+    #           // Handle swipe away from the sensor
+    #         } else if (x == 2) {
+    #           // Handle swipe towards the sensor
+    #         }
