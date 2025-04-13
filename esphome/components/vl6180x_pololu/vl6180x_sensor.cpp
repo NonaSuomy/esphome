@@ -192,19 +192,6 @@ void VL6180XSensor::setup() {
   }
 }
 
-void VL6180XSensor::update() {
-  if (this->distance_sensor_ != nullptr) {
-    uint8_t range = this->read_range_single();
-    uint16_t scaled_range = range * this->scaling_;
-    this->distance_sensor_->publish_state(scaled_range);
-  }
-
-  if (this->als_sensor_ != nullptr) {
-    uint16_t als = this->read_ambient_single();
-    this->als_sensor_->publish_state(als);
-  }
-}
-
 void VL6180XSensor::dump_config() {
   ESP_LOGCONFIG(TAG, "VL6180X:");
   LOG_I2C_DEVICE(this);
