@@ -34,7 +34,7 @@ class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
 
   void set_distance_sensor(sensor::Sensor *distance) { distance_sensor_ = distance; }
   void set_als_sensor(sensor::Sensor *als) { als_sensor_ = als; }
-  void set_scaling(uint8_t new_scaling); // Moved to public
+  void set_scaling(uint8_t new_scaling);
 
  protected:
   // Register addresses
@@ -95,7 +95,7 @@ class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
     return this->write(data, 3) == i2c::ERROR_OK;
   }
 
-  uint8_t read_byte_(uint16_t reg) {  // Added new helper method
+  uint8_t read_byte_(uint16_t reg) {
     uint8_t value;
     if (!this->read_byte(reg, &value)) {
       ESP_LOGE("vl6180x", "Failed to read register 0x%02X", reg);
