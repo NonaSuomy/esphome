@@ -191,21 +191,21 @@ void VL6180XSensor::handle_error(uint8_t error_code) {
     case VL6180X_ERROR_SYSERR_5:
       ESP_LOGE(TAG, "Range Error: System error; PLL2 Lock"); break;
     case VL6180X_ERROR_ECEFAIL:
-      ESP_LOGW(TAG, "Range Error: Early Convergence Estimate failed"); break;
+      ESP_LOGV(TAG, "Range Error: Early Convergence Estimate failed"); break;
     case VL6180X_ERROR_NOCONVERGE:
-      ESP_LOGW(TAG, "Range Error: No target convergence"); break;
+      ESP_LOGV(TAG, "Range Error: No target convergence"); break;
     case VL6180X_ERROR_RANGEIGNORE:
-      ESP_LOGW(TAG, "Range Error: Ignore threshold check failed"); break;
+      ESP_LOGV(TAG, "Range Error: Ignore threshold check failed"); break;
     case VL6180X_ERROR_SNR:
-      ESP_LOGW(TAG, "Range Error: Ambient conditions too high (SNR check)"); break;
+      ESP_LOGV(TAG, "Range Error: Ambient conditions too high (SNR check)"); break;
     case VL6180X_ERROR_RAWUFLOW:
-      ESP_LOGW(TAG, "Range Error: Raw range algo underflow (target too close?)"); break;
+      ESP_LOGV(TAG, "Range Error: Raw range algo underflow (target too close?)"); break;
     case VL6180X_ERROR_RAWOFLOW:
-      ESP_LOGW(TAG, "Range Error: Raw range algo overflow (target too far?)"); break;
+      ESP_LOGV(TAG, "Range Error: Raw range algo overflow (target too far?)"); break;
     case VL6180X_ERROR_RANGEUFLOW:
-      ESP_LOGW(TAG, "Range Error: Range algo underflow (target too close?)"); break;
+      ESP_LOGV(TAG, "Range Error: Range algo underflow (target too close?)"); break;
     case VL6180X_ERROR_RANGEOFLOW:
-      ESP_LOGW(TAG, "Range Error: Range algo overflow (target too far?)"); break;
+      ESP_LOGV(TAG, "Range Error: Range algo overflow (target too far?)"); break;
     case VL6180X_ERROR_RANGINGFILTERED:
       ESP_LOGW(TAG, "Range Error: Distance filtered by Wrap Around Filter (WAF)"); break;
     case VL6180X_ERROR_DATANOTREADY:
