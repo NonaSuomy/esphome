@@ -71,12 +71,11 @@ sensor:
       id: vl6180x_distance
       name: "VL6180X Distance"
       unit_of_measurement: mm
-      scaler: "3x"  # Can be "1x", "2x", or "3x"
+      scaler: 1  # Can be 1, 2, or 3
     als:
       name: "VL6180X Ambient Light"
       unit_of_measurement: lux
       accuracy_decimals: 1
-      gain: '2.5x'
 
 # sensor:
 #   - platform: vl6180x
