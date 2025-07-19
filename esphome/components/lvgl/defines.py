@@ -29,10 +29,14 @@ def add_define(macro, value="1"):
     lv_defines[macro] = value
 
 
-def literal(arg):
+def literal(arg) -> MockObj:
     if isinstance(arg, str):
         return MockObj(arg)
     return arg
+
+
+def static_cast(type, value):
+    return literal(f"static_cast<{type}>({value})")
 
 
 def call_lambda(lamb: LambdaExpression):
@@ -416,12 +420,10 @@ CONF_CHANGE_RATE = "change_rate"
 CONF_CLOSE_BUTTON = "close_button"
 CONF_COLOR_DEPTH = "color_depth"
 CONF_CONTROL = "control"
-CONF_DEFAULT = "default"
 CONF_DEFAULT_FONT = "default_font"
 CONF_DEFAULT_GROUP = "default_group"
 CONF_DIR = "dir"
 CONF_DISPLAYS = "displays"
-CONF_DRAW_ROUNDING = "draw_rounding"
 CONF_EDITING = "editing"
 CONF_ENCODERS = "encoders"
 CONF_END_ANGLE = "end_angle"
@@ -517,8 +519,6 @@ CONF_UPDATE_ON_RELEASE = "update_on_release"
 CONF_VISIBLE_ROW_COUNT = "visible_row_count"
 CONF_WIDGET = "widget"
 CONF_WIDGETS = "widgets"
-CONF_X = "x"
-CONF_Y = "y"
 CONF_ZOOM = "zoom"
 
 # Keypad keys
