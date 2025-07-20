@@ -128,3 +128,4 @@ async def to_code(config):
         cg.add(var.set_mic_gain(10))
     else:
         raise cv.Invalid(f"Invalid gain value: {gain_str}")
+    
