@@ -9,14 +9,17 @@ namespace es8311 {
 
 enum ES8311MicGain {
   ES8311_MIC_GAIN_MIN = -1,
-  ES8311_MIC_GAIN_0DB,
-  ES8311_MIC_GAIN_6DB,
-  ES8311_MIC_GAIN_12DB,
-  ES8311_MIC_GAIN_18DB,
-  ES8311_MIC_GAIN_24DB,
-  ES8311_MIC_GAIN_30DB,
-  ES8311_MIC_GAIN_36DB,
-  ES8311_MIC_GAIN_42DB,
+  ES8311_MIC_GAIN_0DB,    // 0
+  ES8311_MIC_GAIN_3DB,    // 1
+  ES8311_MIC_GAIN_6DB,    // 2
+  ES8311_MIC_GAIN_9DB,    // 3
+  ES8311_MIC_GAIN_12DB,   // 4
+  ES8311_MIC_GAIN_15DB,   // 5
+  ES8311_MIC_GAIN_18DB,   // 6
+  ES8311_MIC_GAIN_21DB,   // 7
+  ES8311_MIC_GAIN_24DB,   // 8
+  ES8311_MIC_GAIN_27DB,   // 9
+  ES8311_MIC_GAIN_30DB,   // 10
   ES8311_MIC_GAIN_MAX
 };
 
@@ -26,6 +29,11 @@ enum ES8311Resolution : uint8_t {
   ES8311_RESOLUTION_20 = 20,
   ES8311_RESOLUTION_24 = 24,
   ES8311_RESOLUTION_32 = 32
+};
+
+enum ES8311MicrophoneType {
+  ES8311_MICROPHONE_ANALOG,
+  ES8311_MICROPHONE_DIGITAL
 };
 
 struct ES8311Coefficient {
@@ -80,13 +88,38 @@ class ES8311 : public audio_dac::AudioDac, public Component, public i2c::I2CDevi
   //////////////////////////////////
 
   void set_use_mclk(bool use_mclk) { this->use_mclk_ = use_mclk; }
-  void set_bits_per_sample(ES8311Resolution resolution) {
-    this->resolution_in_ = resolution;
-    this->resolution_out_ = resolution;
+  void set_bits_per_sample(int bits_per_sample) {
+    switch (bits_per_sample) {
+      case 16:
+        this->resolution_in_ = ES8311_RESOLUTION_16;
+        this->resolution_out_ = ES8311_RESOLUTION_16;
+        break;
+      case 18:
+        this->resolution_in_ = ES8311_RESOLUTION_18;
+        this->resolution_out_ = ES8311_RESOLUTION_18;
+        break;
+      case 20:
+        this->resolution_in_ = ES8311_RESOLUTION_20;
+        this->resolution_out_ = ES8311_RESOLUTION_20;
+        break;
+      case 24:
+        this->resolution_in_ = ES8311_RESOLUTION_24;
+        this->resolution_out_ = ES8311_RESOLUTION_24;
+        break;
+      case 32:
+        this->resolution_in_ = ES8311_RESOLUTION_32;
+        this->resolution_out_ = ES8311_RESOLUTION_32;
+        break;
+      default:
+        this->resolution_in_ = ES8311_RESOLUTION_16;
+        this->resolution_out_ = ES8311_RESOLUTION_16;
+        break;
+    }
   }
   void set_sample_frequency(uint32_t sample_frequency) { this->sample_frequency_ = sample_frequency; }
   void set_use_mic(bool use_mic) { this->use_mic_ = use_mic; }
-  void set_mic_gain(ES8311MicGain mic_gain) { this->mic_gain_ = mic_gain; }
+  void set_mic_gain(uint8_t mic_gain) { this->mic_gain_ = (ES8311MicGain) mic_gain; }
+  void set_microphone_type(ES8311MicrophoneType type) { this->microphone_type_ = type; }
 
  protected:
   /// @brief Computes the register value for the configured resolution (bits per sample)
@@ -119,6 +152,7 @@ class ES8311 : public audio_dac::AudioDac, public Component, public i2c::I2CDevi
 
   bool use_mic_;
   ES8311MicGain mic_gain_;
+  ES8311MicrophoneType microphone_type_;
 
   bool use_mclk_;                // true = use dedicated MCLK pin, false = use SCLK
   bool sclk_inverted_{false};    // SCLK is inverted
