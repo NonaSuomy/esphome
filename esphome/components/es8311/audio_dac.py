@@ -74,12 +74,13 @@ CONFIG_SCHEMA = (
 			cv.Optional(CONF_SAMPLE_RATE, default=16000): cv.All(cv.frequency, cv.Range(min=8000, max=96000)),
             cv.Optional(CONF_USE_MCLK, default=True): cv.boolean,
 			cv.Optional(CONF_USE_MICROPHONE, default=True): cv.boolean,
-            cv.Optional(CONF_MICROPHONE_TYPE, default="analog"): cv.enum(ES8311_MICROPHONE_TYPE_ENUM),
+            cv.Optional(CONF_MICROPHONE_TYPE, default="analog"): cv.one_of("analog", "digital", lower=True),
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
     .extend(i2c.i2c_device_schema(0x18))
 )
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
@@ -93,7 +94,14 @@ async def to_code(config):
     # Set other configuration
     cg.add(var.set_use_mclk(config[CONF_USE_MCLK]))
     cg.add(var.set_use_mic(config[CONF_USE_MICROPHONE]))
-    cg.add(var.set_microphone_type(config[CONF_MICROPHONE_TYPE]))
+    
+    # Set microphone type if specified
+    if CONF_MICROPHONE_TYPE in config:
+        mic_type = config[CONF_MICROPHONE_TYPE]
+        if mic_type == "analog":
+            cg.add(var.set_microphone_type(es8311_microphone_type.ES8311_MICROPHONE_ANALOG))
+        elif mic_type == "digital":
+            cg.add(var.set_microphone_type(es8311_microphone_type.ES8311_MICROPHONE_DIGITAL))
 
     gain_str = config[CONF_MIC_GAIN]
     if gain_str == "0DB":
