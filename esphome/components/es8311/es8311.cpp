@@ -27,7 +27,7 @@ void ES8311::setup() {
   ESP_LOGCONFIG(TAG, "Initializing ES8311 codec...");
 
   // Check if ES8311 is present
-  if (this->write(nullptr, 0, true) != esphome::i2c::ERROR_OK) {
+  if (this->write(nullptr, 0) != esphome::i2c::ERROR_OK) {
     ESP_LOGE(TAG, "ES8311 not found at address 0x%02X", this->address_);
     this->mark_failed();
     return;
