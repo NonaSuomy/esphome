@@ -227,7 +227,7 @@ void VL6180XSensor::update() {
         ESP_LOGW(TAG, "Update: Failed to write SYSRANGE__START");
         this->status_set_warning(); this->distance_sensor_->publish_state(NAN);
     } else {
-        uint8_t status = 0; uint16_t timeout = 0; const uint16_t max_timeout = 100; bool timed_out = false;
+        uint8_t status = 0; uint16_t timeout = 0; const uint16_t max_timeout = 500; bool timed_out = false;
         do {
           if (!this->read_byte(RESULT__INTERRUPT_STATUS_GPIO, &status)) {
             ESP_LOGW(TAG, "Update: Failed to read RESULT__INTERRUPT_STATUS_GPIO for Range");
