@@ -34,63 +34,38 @@ void ES8311::setup() {
   }
   ESP_LOGD(TAG, "ES8311 found at address 0x%02X", this->address_);
 
-  // --- Initialization sequence from the working YAML example ---
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG44_GPIO, 0x08));
-  delay(10);
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG44_GPIO, 0x08));
+  // Reset
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG00_RESET, 0x1F));
+  delay(20);
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG00_RESET, 0x00));
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG00_RESET, 0x80));  // Power-on command
 
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG01_CLK_MANAGER, 0x30));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG02_CLK_MANAGER, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG03_CLK_MANAGER, 0x10));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG16_ADC, 0x24));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG04_CLK_MANAGER, 0x10));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG05_CLK_MANAGER, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0B_SYSTEM, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0C_SYSTEM, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG10_SYSTEM, 0x1F));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG11_SYSTEM, 0x7F));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG00_RESET, 0x80));
-  delay(10);
+  ES8311_ERROR_FAILED(this->configure_clock_());
+  ES8311_ERROR_FAILED(this->configure_format_());
 
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG01_CLK_MANAGER, 0x3F));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG06_CLK_MANAGER, 0x00));
-
+  // Power up analog circuitry
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0D_SYSTEM, 0x01));
+  // Enable analog PGA, enable ADC modulator
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0E_SYSTEM, 0x02));
+  // Power up DAC
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG12_SYSTEM, 0x00));
+  // Enable output to HP drive
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG13_SYSTEM, 0x10));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG1B_ADC, 0x0A));
+  // ADC Equalizer bypass, cancel DC offset in digital domain
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG1C_ADC, 0x6A));
+  // Bypass DAC equalizer
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG37_DAC, 0x08));
+  // Additional settings from reference
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG1B_ADC, 0x0A));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG44_GPIO, 0x58));
 
-  // --- Configuration for 16-bit, I2S Normal, 16kHz sample rate ---
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG09_SDPIN, 0x0C));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0A_SDPOUT, 0x0C));
+  ES8311_ERROR_FAILED(this->configure_mic_());
 
-  // For 16kHz sample rate (assuming 12.288MHz MCLK)
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG02_CLK_MANAGER, 0x40));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG05_CLK_MANAGER, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG03_CLK_MANAGER, 0x10));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG04_CLK_MANAGER, 0x20));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG07_CLK_MANAGER, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG08_CLK_MANAGER, 0xFF));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG06_CLK_MANAGER, 0x03));
-
-  // --- Enable codec (from es8311_start) ---
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG09_SDPIN, 0x0C));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0A_SDPOUT, 0x0C));
-
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG17_ADC, 0xBF));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0E_SYSTEM, 0x02));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG12_SYSTEM, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG14_SYSTEM, 0x1A));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0D_SYSTEM, 0x01));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG15_ADC, 0x40));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG37_DAC, 0x08));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG45_GP, 0x00));
-  
-  // Set microphone gain to 30dB (0x05) as in the working example
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG16_ADC, 0x05));
-
-  // Set initial volume
-  this->set_volume(0.75);  // 0.75 = 0xBF = 0dB
+  // Set initial volume (muted initially to prevent pop)
+  this->set_mute_state_(true);
+  this->set_volume(0.75);
+  delay(50);
+  this->set_mute_state_(false);
 
   ESP_LOGI(TAG, "ES8311 initialization complete.");
   delay(100);
@@ -104,11 +79,9 @@ void ES8311::dump_config() {
                 "  Microphone Type: %s\n"
                 "  DAC Bits per Sample: %d\n"
                 "  Sample Rate: %d Hz",
-                YESNO(this->use_mclk_), 
-                YESNO(this->use_mic_),
-                (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"), 
-                (int)this->resolution_out_, 
-                (int)this->sample_frequency_);
+                YESNO(this->use_mclk_), YESNO(this->use_mic_),
+                (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"),
+                (int) this->resolution_out_, (int) this->sample_frequency_);
 
   if (this->is_failed()) {
     ESP_LOGCONFIG(TAG, "  Failed to initialize!");
@@ -157,12 +130,7 @@ bool ES8311::configure_clock_() {
   // Register 0x01: select clock source for internal MCLK and determine its frequency
   uint8_t reg01 = 0x3F;  // Enable all clocks
 
-  // Default to 12.288MHz MCLK for 16kHz sample rate if not specified
   uint32_t mclk_frequency = this->sample_frequency_ * this->mclk_multiple_;
-  if (this->sample_frequency_ == 16000 && this->mclk_multiple_ == 256) {
-    mclk_frequency = 12288000;  // 12.288MHz is optimal for 16kHz
-  }
-  
   if (!this->use_mclk_) {
     reg01 |= BIT(7);  // Use SCLK
     mclk_frequency = this->sample_frequency_ * (int) this->resolution_out_ * 2;
@@ -224,57 +192,63 @@ bool ES8311::configure_clock_() {
 
   // Register 0x08
   ES8311_ERROR_CHECK(this->write_byte(ES8311_REG08_CLK_MANAGER, coefficient->lrck_l));
-  
+
   // Successfully configured the clock
   return true;
 }
 
 bool ES8311::configure_format_() {
-  // For all resolutions, use the hardcoded values that are known to work
-  ESP_LOGI(TAG, "Using optimized format configuration for 16-bit resolution");
-  
   // Configure I2S mode and format
   uint8_t reg00;
   ES8311_ERROR_CHECK(this->read_byte(ES8311_REG00_RESET, &reg00));
-  reg00 &= 0xBF;  // Ensure bit 6 is cleared (slave mode)
+  reg00 &= 0xBF;
   ES8311_ERROR_CHECK(this->write_byte(ES8311_REG00_RESET, reg00));
-  
-  // For 16-bit: ES8311_SDPIN_REG09 and ES8311_SDPOUT_REG0A
-  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG09_SDPIN, 0x0C));
-  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG0A_SDPOUT, 0x0C));
-  
+
+  // Configure SDP in resolution
+  uint8_t reg09 = calculate_resolution_value(this->resolution_in_);
+  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG09_SDPIN, reg09));
+
+  // Configure SDP out resolution
+  uint8_t reg0a = calculate_resolution_value(this->resolution_out_);
+  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG0A_SDPOUT, reg0a));
+
+  // Successfully configured the format
   return true;
 }
 
 bool ES8311::configure_mic_() {
-  ESP_LOGI(TAG, "Configuring for Analog Microphone.");
-  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG14_SYSTEM, 0x1A));  // Analog Mic
-  
-  // Set microphone gain to 30dB (0x05)
-  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG16_ADC, 0x05));  // Analog Mic Gain
-  
-  // DMIC_SENSE
-  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG15_ADC, 0x40));  // DMIC_SENSE
-  
+  uint8_t reg14 = 0x1A;  // Enable analog MIC and max PGA gain
+  if (this->use_mic_ && this->microphone_type_ == ES8311_MICROPHONE_DIGITAL) {
+    reg14 |= BIT(6);  // Enable PDM digital microphone
+  }
+  ESP_LOGD(TAG, "Writing reg14: 0x%02X (Mic Type: %s)", reg14,
+           (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"));
+  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG14_SYSTEM, reg14));
+
+  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG16_ADC, this->mic_gain_));  // ADC gain scale up
+  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG17_ADC, 0xBF));             // Set ADC gain
+  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG15_ADC, 0x40));             // Set DMIC Sense
+
+  // Successfully configured the microphones
   return true;
 }
 
 bool ES8311::set_mute_state_(bool mute_state) {
   uint8_t reg31;
-  
+
   this->is_muted_ = mute_state;
-  
+
   if (!this->read_byte(ES8311_REG31_DAC, &reg31)) {
     ESP_LOGE(TAG, "Failed to read mute register");
     return false;
   }
-  
+
   if (mute_state) {
     reg31 |= BIT(6);  // Set mute bit
   } else {
     reg31 &= ~BIT(6);  // Clear mute bit
   }
-  
+
   return this->write_byte(ES8311_REG31_DAC, reg31);
 }
 
