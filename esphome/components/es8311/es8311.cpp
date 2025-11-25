@@ -77,20 +77,21 @@ void ES8311::setup() {
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG08_CLK_MANAGER, 0xFF));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG06_CLK_MANAGER, 0x03));
 
-  // --- Enable codec DAC only (ADC disabled to prevent startup tone) ---
+  // --- Enable codec with safe ADC volume (from working reference) ---
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG09_SDPIN, 0x0C));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0A_SDPOUT, 0x0C));
 
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG17_ADC, 0x00));     // ADC volume = 0 (muted)
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0E_SYSTEM, 0x00));  // ADC powered down
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG12_SYSTEM, 0x00));  // DAC powered up
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG14_SYSTEM, 0x00));  // Analog mic disabled
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0D_SYSTEM, 0x01));  // Power analog circuitry
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG37_DAC, 0x08));     // DAC ramp rate
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG45_GP, 0x00));      // GPIO control
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0D_SYSTEM, 0x01));  // Power up analog circuitry
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0E_SYSTEM, 0x02));  // Enable analog PGA, enable ADC modulator
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG12_SYSTEM, 0x00));  // Power-up DAC
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG13_SYSTEM, 0x10));  // Enable output to HP drive
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG14_SYSTEM, 0x1A));  // Enable analog MIC and max PGA gain
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG1C_ADC, 0x6A));     // ADC Equalizer bypass, cancel DC offset
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG17_ADC, 0xC8));     // Set ADC volume (0xC8 prevents tone)
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG37_DAC, 0x08));     // Bypass DAC equalizer
 
-  // Note: Microphone/ADC configuration removed from setup() to prevent startup tone
-  // The I2S microphone component will handle ADC initialization when needed
+  // Note: Microphone gain (REG16) not set during init to prevent startup tone
+  // The I2S microphone component will set gain when audio capture starts
 
   // Set initial volume
   this->set_volume(0.75);
