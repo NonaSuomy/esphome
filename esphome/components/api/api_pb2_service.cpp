@@ -193,7 +193,7 @@ void APIServerConnectionBase::read_message(uint32_t msg_size, uint32_t msg_type,
       break;
     }
 #endif
-#ifdef USE_API_SERVICES
+#ifdef USE_API_USER_DEFINED_ACTIONS
     case ExecuteServiceRequest::MESSAGE_TYPE: {
       ExecuteServiceRequest msg;
       msg.decode(msg_data, msg_size);
@@ -611,6 +611,17 @@ void APIServerConnectionBase::read_message(uint32_t msg_size, uint32_t msg_type,
       break;
     }
 #endif
+#ifdef USE_API_HOMEASSISTANT_ACTION_RESPONSES
+    case HomeassistantActionResponse::MESSAGE_TYPE: {
+      HomeassistantActionResponse msg;
+      msg.decode(msg_data, msg_size);
+#ifdef HAS_PROTO_MESSAGE_DUMP
+      ESP_LOGVV(TAG, "on_homeassistant_action_response: %s", msg.dump().c_str());
+#endif
+      this->on_homeassistant_action_response(msg);
+      break;
+    }
+#endif
     default:
       break;
   }
@@ -659,7 +670,7 @@ void APIServerConnection::on_subscribe_home_assistant_states_request(const Subsc
   this->subscribe_home_assistant_states(msg);
 }
 #endif
-#ifdef USE_API_SERVICES
+#ifdef USE_API_USER_DEFINED_ACTIONS
 void APIServerConnection::on_execute_service_request(const ExecuteServiceRequest &msg) { this->execute_service(msg); }
 #endif
 #ifdef USE_API_NOISE
