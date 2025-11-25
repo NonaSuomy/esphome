@@ -241,11 +241,11 @@ bool ES8311::configure_mic_() {
   if (this->use_mic_ && this->microphone_type_ == ES8311_MICROPHONE_DIGITAL) {
     reg14 |= BIT(6);  // Enable PDM digital microphone
   }
-  ESP_LOGD(TAG, "Writing reg14: 0x%02X (Mic Type: %s)", reg14, (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"));
+  ESP_LOGD(TAG, "Writing reg14: 0x%02X (Mic Type: %s)", reg14,
+           (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"));
   ES8311_ERROR_CHECK(this->write_byte(ES8311_REG14_SYSTEM, reg14));
 
   ES8311_ERROR_CHECK(this->write_byte(ES8311_REG16_ADC, this->mic_gain_));  // ADC gain scale up
-  ES8311_ERROR_CHECK(this->write_byte(ES8311_REG17_ADC, 0xBF));             // Set ADC gain
   ES8311_ERROR_CHECK(this->write_byte(ES8311_REG15_ADC, 0x40));             // Set DMIC Sense
 
   // Successfully configured the microphones
