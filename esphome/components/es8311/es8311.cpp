@@ -34,6 +34,10 @@ void ES8311::setup() {
   }
   ESP_LOGD(TAG, "ES8311 found at address 0x%02X", this->address_);
 
+  // Mute DAC output during initialization to prevent noise
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG31_DAC, 0x40));  // Bit 6 = mute
+  ESP_LOGD(TAG, "DAC muted during initialization");
+
   // --- Exact initialization sequence from working version ---
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG44_GPIO, 0x08));
   delay(10);
@@ -92,7 +96,9 @@ void ES8311::setup() {
   // Set initial volume
   this->set_volume(0.75);
 
-  ESP_LOGI(TAG, "ES8311 initialization complete.");
+  // Unmute DAC now that initialization is complete
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG31_DAC, 0x00));  // Bit 6 = unmute
+  ESP_LOGI(TAG, "ES8311 initialization complete, DAC unmuted");
   delay(100);
 }
 
