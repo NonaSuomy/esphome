@@ -38,6 +38,16 @@ void ES8311::setup() {
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG31_DAC, 0x40));  // Bit 6 = mute
   ESP_LOGD(TAG, "DAC muted during initialization");
 
+  // --- Software Reset Sequence (from reference code) ---
+  // This clears the internal state machine to prevent startup oscillation
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG00_RESET, 0x1F));
+  delay(20);
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG00_RESET, 0x00));
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG00_RESET, 0x80));  // Power-on command
+
+  // Mute again after reset (reset might clear the mute bit)
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG31_DAC, 0x40));
+
   // --- Exact initialization sequence from working version ---
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG44_GPIO, 0x08));
   delay(10);
@@ -53,7 +63,7 @@ void ES8311::setup() {
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0C_SYSTEM, 0x00));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG10_SYSTEM, 0x1F));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG11_SYSTEM, 0x7F));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG00_RESET, 0x80));
+  // ES8311_REG00_RESET 0x80 removed here as it's handled in reset sequence above
   delay(10);
 
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG01_CLK_MANAGER, 0x3F));
