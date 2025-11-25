@@ -58,7 +58,7 @@ void ES8311::setup() {
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG13_SYSTEM, 0x10));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG1B_ADC, 0x0A));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG1C_ADC, 0x6A));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG44_GPIO, 0x58));
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG44_GPIO, 0x08));
 
   // --- Configuration for 16-bit, I2S Normal, 16kHz sample rate ---
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG09_SDPIN, 0x0C));
@@ -104,11 +104,9 @@ void ES8311::dump_config() {
                 "  Microphone Type: %s\n"
                 "  DAC Bits per Sample: %d\n"
                 "  Sample Rate: %d Hz",
-                YESNO(this->use_mclk_), 
-                YESNO(this->use_mic_),
-                (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"), 
-                (int)this->resolution_out_, 
-                (int)this->sample_frequency_);
+                YESNO(this->use_mclk_), YESNO(this->use_mic_),
+                (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"),
+                (int) this->resolution_out_, (int) this->sample_frequency_);
 
   if (this->is_failed()) {
     ESP_LOGCONFIG(TAG, "  Failed to initialize!");
@@ -219,7 +217,7 @@ bool ES8311::configure_clock_() {
 
   // Register 0x08
   ES8311_ERROR_CHECK(this->write_byte(ES8311_REG08_CLK_MANAGER, coefficient->lrck_l));
-  
+
   // Successfully configured the clock
   return true;
 }
@@ -253,20 +251,20 @@ bool ES8311::configure_mic_() {
 
 bool ES8311::set_mute_state_(bool mute_state) {
   uint8_t reg31;
-  
+
   this->is_muted_ = mute_state;
-  
+
   if (!this->read_byte(ES8311_REG31_DAC, &reg31)) {
     ESP_LOGE(TAG, "Failed to read mute register");
     return false;
   }
-  
+
   if (mute_state) {
     reg31 |= BIT(6);  // Set mute bit
   } else {
     reg31 &= ~BIT(6);  // Clear mute bit
   }
-  
+
   return this->write_byte(ES8311_REG31_DAC, reg31);
 }
 
