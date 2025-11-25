@@ -43,6 +43,12 @@ void ES8311::setup() {
   ES8311_ERROR_FAILED(this->configure_clock_());
   ES8311_ERROR_FAILED(this->configure_format_());
 
+  // System control registers (required for ADC/microphone to function)
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0B_SYSTEM, 0x00));
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0C_SYSTEM, 0x00));
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG10_SYSTEM, 0x1F));
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG11_SYSTEM, 0x7F));
+
   // Power up analog circuitry
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0D_SYSTEM, 0x01));
   // Enable analog PGA, enable ADC modulator
@@ -79,9 +85,11 @@ void ES8311::dump_config() {
                 "  Microphone Type: %s\n"
                 "  DAC Bits per Sample: %d\n"
                 "  Sample Rate: %d Hz",
-                YESNO(this->use_mclk_), YESNO(this->use_mic_),
-                (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"),
-                (int) this->resolution_out_, (int) this->sample_frequency_);
+                YESNO(this->use_mclk_), 
+                YESNO(this->use_mic_),
+                (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"), 
+                (int)this->resolution_out_, 
+                (int)this->sample_frequency_);
 
   if (this->is_failed()) {
     ESP_LOGCONFIG(TAG, "  Failed to initialize!");
@@ -192,7 +200,7 @@ bool ES8311::configure_clock_() {
 
   // Register 0x08
   ES8311_ERROR_CHECK(this->write_byte(ES8311_REG08_CLK_MANAGER, coefficient->lrck_l));
-
+  
   // Successfully configured the clock
   return true;
 }
@@ -221,8 +229,7 @@ bool ES8311::configure_mic_() {
   if (this->use_mic_ && this->microphone_type_ == ES8311_MICROPHONE_DIGITAL) {
     reg14 |= BIT(6);  // Enable PDM digital microphone
   }
-  ESP_LOGD(TAG, "Writing reg14: 0x%02X (Mic Type: %s)", reg14,
-           (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"));
+  ESP_LOGD(TAG, "Writing reg14: 0x%02X (Mic Type: %s)", reg14, (this->microphone_type_ == ES8311_MICROPHONE_ANALOG ? "Analog" : "Digital"));
   ES8311_ERROR_CHECK(this->write_byte(ES8311_REG14_SYSTEM, reg14));
 
   ES8311_ERROR_CHECK(this->write_byte(ES8311_REG16_ADC, this->mic_gain_));  // ADC gain scale up
@@ -235,20 +242,20 @@ bool ES8311::configure_mic_() {
 
 bool ES8311::set_mute_state_(bool mute_state) {
   uint8_t reg31;
-
+  
   this->is_muted_ = mute_state;
-
+  
   if (!this->read_byte(ES8311_REG31_DAC, &reg31)) {
     ESP_LOGE(TAG, "Failed to read mute register");
     return false;
   }
-
+  
   if (mute_state) {
     reg31 |= BIT(6);  // Set mute bit
   } else {
     reg31 &= ~BIT(6);  // Clear mute bit
   }
-
+  
   return this->write_byte(ES8311_REG31_DAC, reg31);
 }
 
