@@ -77,21 +77,20 @@ void ES8311::setup() {
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG08_CLK_MANAGER, 0xFF));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG06_CLK_MANAGER, 0x03));
 
-  // --- Enable codec (from es8311_start) ---
+  // --- Enable codec DAC only (ADC disabled to prevent startup tone) ---
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG09_SDPIN, 0x0C));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0A_SDPOUT, 0x0C));
 
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG17_ADC, 0xBF));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0E_SYSTEM, 0x02));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG12_SYSTEM, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG14_SYSTEM, 0x1A));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0D_SYSTEM, 0x01));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG15_ADC, 0x40));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG37_DAC, 0x08));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG45_GP, 0x00));
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG17_ADC, 0x00));     // ADC volume = 0 (muted)
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0E_SYSTEM, 0x00));  // ADC powered down
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG12_SYSTEM, 0x00));  // DAC powered up
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG14_SYSTEM, 0x00));  // Analog mic disabled
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0D_SYSTEM, 0x01));  // Power analog circuitry
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG37_DAC, 0x08));     // DAC ramp rate
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG45_GP, 0x00));      // GPIO control
 
-  // Set microphone gain to 30dB (0x05)
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG16_ADC, 0x05));
+  // Note: Microphone/ADC configuration removed from setup() to prevent startup tone
+  // The I2S microphone component will handle ADC initialization when needed
 
   // Set initial volume
   this->set_volume(0.75);
