@@ -166,20 +166,7 @@ voice_assistant:
   microphone: nano_microphone
   media_player: speaker_player
   micro_wake_word: mww
-  on_end:
-    - wait_until:
-        condition:
-          - media_player.is_announcing:
-        timeout: 2s
-    - wait_until:
-        condition:
-          and:
-            - not:
-                media_player.is_announcing:
-            - not:
-                speaker.is_playing:
-        timeout: 30s
-    - micro_wake_word.start:
+
   on_client_connected:
     - micro_wake_word.start:
   on_client_disconnected:
