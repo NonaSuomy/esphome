@@ -190,5 +190,5 @@ media_player:
       - micro_wake_word.stop:
     on_idle:
       - logger.log: "Media player idle - restarting wake word"
-      - delay: 1s
+      - delay: 3s
       - micro_wake_word.start:
