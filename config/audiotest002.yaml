@@ -145,29 +145,35 @@ button:
           condition:
             - not:
                 speaker.is_playing:
-      - micro_wake_word.start:
+      # - micro_wake_word.start:
+
+  - platform: template
+    name: "Start Voice Assistant"
+    icon: "mdi:microphone"
+    on_press:
+      - voice_assistant.start:
 
 
 
-micro_wake_word:
-  id: mww
-  microphone: nano_microphone
-  models:
-    - okay_nabu
-    - hey_mycroft
-    - hey_jarvis
-  on_wake_word_detected:
-    - micro_wake_word.stop:
-    - logger.log: "Wake word detected - stopping wake word"
-    - voice_assistant.start:
-        wake_word: !lambda return wake_word;
+# micro_wake_word:
+#   id: mww
+#   microphone: nano_microphone
+#   models:
+#     - okay_nabu
+#     - hey_mycroft
+#     - hey_jarvis
+#   on_wake_word_detected:
+#     - micro_wake_word.stop:
+#     - logger.log: "Wake word detected - stopping wake word"
+#     - voice_assistant.start:
+#         wake_word: !lambda return wake_word;
 
 
 voice_assistant:
   id: va
   microphone: nano_microphone
   media_player: speaker_player
-  micro_wake_word: mww
+  # micro_wake_word: mww
 
   on_client_connected:
     - micro_wake_word.start:
@@ -175,9 +181,9 @@ voice_assistant:
     - micro_wake_word.stop:
 
   on_start:
-    - micro_wake_word.stop:
+    # - micro_wake_word.stop:
     - delay: 100ms
-    - logger.log: "Voice assistant started - stopping wake word"
+    - logger.log: "Voice assistant started"
 
   on_end:
     - logger.log: "Voice assistant ended - waiting for speaker"
@@ -185,7 +191,7 @@ voice_assistant:
         not:
           speaker.is_playing:
     - delay: 1s
-    - micro_wake_word.start:
+    # - micro_wake_word.start:
 
 media_player:
   - platform: speaker
