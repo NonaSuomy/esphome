@@ -27,7 +27,8 @@ void VADModel::log_model_config() {
 }
 
 bool StreamingModel::load_model_() {
-  RAMAllocator<uint8_t> arena_allocator;
+  // Force allocation in PSRAM to free internal SRAM for network stack
+  RAMAllocator<uint8_t> arena_allocator(RAMAllocator<uint8_t>::ALLOC_EXTERNAL);
 
   if (this->tensor_arena_ == nullptr) {
     this->tensor_arena_ = arena_allocator.allocate(this->tensor_arena_size_);
@@ -96,7 +97,8 @@ bool StreamingModel::load_model_() {
 void StreamingModel::unload_model() {
   this->interpreter_.reset();
 
-  RAMAllocator<uint8_t> arena_allocator;
+  // Force allocation in PSRAM to match load_model_()
+  RAMAllocator<uint8_t> arena_allocator(RAMAllocator<uint8_t>::ALLOC_EXTERNAL);
 
   if (this->tensor_arena_ != nullptr) {
     arena_allocator.deallocate(this->tensor_arena_, this->tensor_arena_size_);

@@ -55,7 +55,6 @@ class ES8311 : public audio_dac::AudioDac, public Component, public i2c::I2CDevi
   /////////////////////////
 
   void setup() override;
-  void loop() override;
   void dump_config() override;
 
   ////////////////////////
@@ -160,9 +159,6 @@ class ES8311 : public audio_dac::AudioDac, public Component, public i2c::I2CDevi
   uint32_t sample_frequency_;  // in Hz
   ES8311Resolution resolution_in_;
   ES8311Resolution resolution_out_;
-
-  bool startup_complete_{false};
-  uint32_t startup_time_{0};
 };
 
 }  // namespace es8311
