@@ -25,7 +25,7 @@ external_components:
     refresh: 0s
 
 logger:
-  level: VERBOSE
+  level: DEBUG
   hardware_uart: UART0
   baud_rate: 115200
 
@@ -172,6 +172,18 @@ voice_assistant:
   on_client_disconnected:
     - micro_wake_word.stop:
 
+  on_start:
+    - micro_wake_word.stop:
+    - logger.log: "Voice assistant started - stopping wake word"
+
+  on_end:
+    - logger.log: "Voice assistant ended - waiting for speaker"
+    - wait_until:
+        not:
+          speaker.is_playing:
+    - delay: 1s
+    - micro_wake_word.start:
+
 media_player:
   - platform: speaker
     name: "Voice Assistant Speaker"
@@ -184,10 +196,3 @@ media_player:
         file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/timer_finished.flac
       - id: wake_sound_file
         file: https://github.com/BigBobbas/ESP32-S3-Box3-Custom-ESPHome/raw/main/sounds/awake.flac
-    on_announcement:
-      - logger.log: "Announcement starting - stopping wake word"
-      - micro_wake_word.stop:
-    on_idle:
-      - logger.log: "Media player idle - restarting wake word"
-      - delay: 3s
-      - micro_wake_word.start:
