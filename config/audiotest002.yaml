@@ -157,6 +157,8 @@ micro_wake_word:
     - hey_mycroft
     - hey_jarvis
   on_wake_word_detected:
+    - micro_wake_word.stop:
+    - logger.log: "Wake word detected - stopping wake word"
     - voice_assistant.start:
         wake_word: !lambda return wake_word;
 
