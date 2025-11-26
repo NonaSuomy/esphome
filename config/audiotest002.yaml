@@ -1,0 +1,206 @@
+esphome:
+  name: esp32-p4-nano-test
+  friendly_name: esp32-p4-nano-test
+  on_boot:
+    priority: -100
+    then:
+      - delay: 6s
+      - switch.turn_on: power_amplifier_control
+      - logger.log: "Power Amplifier Enabled after settling"
+
+esp32:
+  variant: esp32p4
+  flash_size: 16MB
+  cpu_frequency: 360MHz
+  framework:
+    type: esp-idf
+    advanced:
+      enable_idf_experimental_features: true
+
+external_components:
+#  - source: github://NonaSuomy/esphome@es8311-analog-mic
+#  - source: github://NonaSuomy/esphome@es8311-analog-mic-002
+  - source: components
+    components: [ es8311 ]
+    refresh: 0s
+
+logger:
+  level: VERBOSE
+  hardware_uart: UART0
+  baud_rate: 115200
+
+debug:
+
+ethernet:
+  type: IP101
+  mdc_pin: GPIO31
+  mdio_pin: GPIO52
+  power_pin: GPIO51
+  clk:
+    mode: CLK_EXT_IN
+    pin: GPIO50
+  phy_addr: 1
+  use_address: !secret use_address_wired013
+
+api:
+  encryption:
+    key: !secret encryption_key013
+
+ota:
+  - platform: esphome
+    password: !secret ota_pass013
+
+web_server:
+  version: 3
+
+psram:
+  mode: hex
+  speed: 200MHz
+
+i2c:
+  id: i2c_bus
+  sda: GPIO07
+  scl: GPIO08
+  frequency: 400kHz
+  scan: true
+
+switch:
+  - platform: gpio
+    pin: GPIO53
+    id: power_amplifier_control
+    name: "Power Amplifier Control"
+    inverted: false
+    restore_mode: RESTORE_DEFAULT_OFF
+
+i2s_audio:
+  - id: i2s_audio_bus
+    i2s_mclk_pin: GPIO13
+    i2s_lrclk_pin: GPIO10
+    i2s_bclk_pin: GPIO12
+
+audio_dac:
+  - platform: es8311
+    id: es8311_codec
+    i2c_id: i2c_bus
+    address: 0x18
+    sample_rate: 16000
+    bits_per_sample: 16bit
+    mic_gain: 30dB
+    use_microphone: true
+
+microphone:
+  - platform: i2s_audio
+    id: nano_microphone
+    i2s_audio_id: i2s_audio_bus
+    i2s_din_pin: GPIO11
+    sample_rate: 16000
+    bits_per_sample: 16bit
+    adc_type: external
+    channel: left
+
+speaker:
+  - platform: i2s_audio
+    i2s_audio_id: i2s_audio_bus
+    id: nano_speaker
+    dac_type: external
+    i2s_dout_pin: GPIO9
+    sample_rate: 16000
+    bits_per_sample: 16bit
+    channel: left
+    buffer_duration: 1s
+
+rtttl:
+  speaker: nano_speaker
+  id: my_rtttl
+  gain: 0.8
+
+number:
+  - platform: template
+    name: "RTTTL Volume"
+    id: rtttl_volume
+    icon: "mdi:volume-high"
+    min_value: 0
+    max_value: 100
+    step: 5
+    initial_value: 80
+    optimistic: true
+    unit_of_measurement: "%"
+    set_action:
+      - lambda: |-
+          float gain = x / 100.0;
+          id(my_rtttl).set_gain(gain);
+          ESP_LOGI("rtttl", "Volume set to %.0f%% (gain=%.2f)", x, gain);
+
+button:
+  - platform: template
+    name: "Play Mario Bros Theme"
+    icon: "mdi:music"
+    on_press:
+      - micro_wake_word.stop:
+      - delay: 1s
+      - rtttl.play:
+          rtttl: "mario:d=4,o=5,b=100:16e6,16e6,32p,8e6,16c6,8e6,8g6,8p,8g,8p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,16p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b"
+      - delay: 0.5s
+      - wait_until:
+          condition:
+            - not:
+                speaker.is_playing:
+      - micro_wake_word.start:
+
+
+
+micro_wake_word:
+  id: mww
+  microphone: nano_microphone
+  models:
+    - okay_nabu
+    - hey_mycroft
+    - hey_jarvis
+  on_wake_word_detected:
+    - voice_assistant.start:
+        wake_word: !lambda return wake_word;
+
+
+voice_assistant:
+  id: va
+  microphone: nano_microphone
+  media_player: speaker_player
+  micro_wake_word: mww
+  on_end:
+    - wait_until:
+        condition:
+          - media_player.is_announcing:
+        timeout: 2s
+    - wait_until:
+        condition:
+          and:
+            - not:
+                media_player.is_announcing:
+            - not:
+                speaker.is_playing:
+        timeout: 30s
+    - micro_wake_word.start:
+  on_client_connected:
+    - micro_wake_word.start:
+  on_client_disconnected:
+    - micro_wake_word.stop:
+
+media_player:
+  - platform: speaker
+    name: "Voice Assistant Speaker"
+    id: speaker_player
+    buffer_size: 65536
+    announcement_pipeline:
+      speaker: nano_speaker
+    files:
+      - id: timer_finished_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/timer_finished.flac
+      - id: wake_sound_file
+        file: https://github.com/BigBobbas/ESP32-S3-Box3-Custom-ESPHome/raw/main/sounds/awake.flac
+    on_announcement:
+      - logger.log: "Announcement starting - stopping wake word"
+      - micro_wake_word.stop:
+    on_idle:
+      - logger.log: "Media player idle - restarting wake word"
+      - delay: 1s
+      - micro_wake_word.start:
