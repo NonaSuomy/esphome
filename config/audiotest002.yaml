@@ -107,7 +107,7 @@ speaker:
     sample_rate: 16000
     bits_per_sample: 16bit
     channel: left
-    buffer_duration: 200ms
+    buffer_duration: 500ms
 
 rtttl:
   speaker: nano_speaker
@@ -194,7 +194,7 @@ media_player:
   - platform: speaker
     name: "Voice Assistant Speaker"
     id: speaker_player
-    buffer_size: 4096
+    buffer_size: 32768
     announcement_pipeline:
       speaker: nano_speaker
     files:
