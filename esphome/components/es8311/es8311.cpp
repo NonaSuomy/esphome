@@ -93,7 +93,10 @@ void ES8311::setup() {
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0D_SYSTEM, 0x01));  // Power up analog circuitry
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0E_SYSTEM, 0x02));  // Enable analog PGA, enable ADC modulator
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG12_SYSTEM, 0x00));  // Power-up DAC
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG13_SYSTEM, 0x10));  // Enable output to HP drive
+
+  // Note: HP Output disabled initially to prevent analog startup tone (was 0x10)
+  // It will be enabled in loop() after settling delay
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG13_SYSTEM, 0x00));
 
   // Note: Analog mic disabled initially to prevent startup tone (was 0x1A)
   // It will be enabled in loop() after settling delay
@@ -127,11 +130,14 @@ void ES8311::loop() {
       // Enable Analog Microphone (Max PGA Gain)
       this->write_byte(ES8311_REG14_SYSTEM, 0x1A);
 
+      // Enable HP Output Drive
+      this->write_byte(ES8311_REG13_SYSTEM, 0x10);
+
       // Unmute DAC
       this->write_byte(ES8311_REG31_DAC, 0x00);
 
       this->startup_complete_ = true;
-      ESP_LOGI(TAG, "Audio enabled: Mic active, DAC unmuted");
+      ESP_LOGI(TAG, "Audio enabled: Mic active, HP Output active, DAC unmuted");
     }
   }
 }
