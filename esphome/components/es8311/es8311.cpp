@@ -94,10 +94,14 @@ void ES8311::setup() {
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0E_SYSTEM, 0x02));  // Enable analog PGA, enable ADC modulator
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG12_SYSTEM, 0x00));  // Power-up DAC
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG13_SYSTEM, 0x10));  // Enable output to HP drive
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG14_SYSTEM, 0x1A));  // Enable analog MIC and max PGA gain
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG1C_ADC, 0x6A));     // ADC Equalizer bypass, cancel DC offset
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG17_ADC, 0xC8));     // Set ADC volume (0xC8 prevents tone)
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG37_DAC, 0x08));     // Bypass DAC equalizer
+
+  // Note: Analog mic disabled initially to prevent startup tone (was 0x1A)
+  // It will be enabled in loop() after settling delay
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG14_SYSTEM, 0x00));
+
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG1C_ADC, 0x6A));  // ADC Equalizer bypass, cancel DC offset
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG17_ADC, 0xC8));  // Set ADC volume (0xC8 prevents tone)
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG37_DAC, 0x08));  // Bypass DAC equalizer
 
   // Note: Microphone gain (REG16) not set during init to prevent startup tone
   // The I2S microphone component will set gain when audio capture starts
@@ -105,10 +109,31 @@ void ES8311::setup() {
   // Set initial volume
   this->set_volume(0.75);
 
-  // Unmute DAC now that initialization is complete
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG31_DAC, 0x00));  // Bit 6 = unmute
-  ESP_LOGI(TAG, "ES8311 initialization complete, DAC unmuted");
+  // Note: DAC remains muted here (REG31 = 0x40 from earlier)
+  // It will be unmuted in loop() after settling delay
+
+  this->startup_time_ = millis();
+  this->startup_complete_ = false;
+
+  ESP_LOGI(TAG, "ES8311 initialization complete, waiting for system to settle...");
   delay(100);
+}
+
+void ES8311::loop() {
+  if (!this->startup_complete_) {
+    if (millis() - this->startup_time_ > 5000) {  // Wait 5 seconds for settling
+      ESP_LOGI(TAG, "Startup settling delay complete, enabling audio...");
+
+      // Enable Analog Microphone (Max PGA Gain)
+      this->write_byte(ES8311_REG14_SYSTEM, 0x1A);
+
+      // Unmute DAC
+      this->write_byte(ES8311_REG31_DAC, 0x00);
+
+      this->startup_complete_ = true;
+      ESP_LOGI(TAG, "Audio enabled: Mic active, DAC unmuted");
+    }
+  }
 }
 
 void ES8311::dump_config() {

@@ -9,17 +9,17 @@ namespace es8311 {
 
 enum ES8311MicGain {
   ES8311_MIC_GAIN_MIN = -1,
-  ES8311_MIC_GAIN_0DB,    // 0
-  ES8311_MIC_GAIN_3DB,    // 1
-  ES8311_MIC_GAIN_6DB,    // 2
-  ES8311_MIC_GAIN_9DB,    // 3
-  ES8311_MIC_GAIN_12DB,   // 4
-  ES8311_MIC_GAIN_15DB,   // 5
-  ES8311_MIC_GAIN_18DB,   // 6
-  ES8311_MIC_GAIN_21DB,   // 7
-  ES8311_MIC_GAIN_24DB,   // 8
-  ES8311_MIC_GAIN_27DB,   // 9
-  ES8311_MIC_GAIN_30DB,   // 10
+  ES8311_MIC_GAIN_0DB,   // 0
+  ES8311_MIC_GAIN_3DB,   // 1
+  ES8311_MIC_GAIN_6DB,   // 2
+  ES8311_MIC_GAIN_9DB,   // 3
+  ES8311_MIC_GAIN_12DB,  // 4
+  ES8311_MIC_GAIN_15DB,  // 5
+  ES8311_MIC_GAIN_18DB,  // 6
+  ES8311_MIC_GAIN_21DB,  // 7
+  ES8311_MIC_GAIN_24DB,  // 8
+  ES8311_MIC_GAIN_27DB,  // 9
+  ES8311_MIC_GAIN_30DB,  // 10
   ES8311_MIC_GAIN_MAX
 };
 
@@ -31,10 +31,7 @@ enum ES8311Resolution : uint8_t {
   ES8311_RESOLUTION_32 = 32
 };
 
-enum ES8311MicrophoneType {
-  ES8311_MICROPHONE_ANALOG,
-  ES8311_MICROPHONE_DIGITAL
-};
+enum ES8311MicrophoneType { ES8311_MICROPHONE_ANALOG, ES8311_MICROPHONE_DIGITAL };
 
 struct ES8311Coefficient {
   uint32_t mclk;     // mclk frequency
@@ -58,6 +55,7 @@ class ES8311 : public audio_dac::AudioDac, public Component, public i2c::I2CDevi
   /////////////////////////
 
   void setup() override;
+  void loop() override;
   void dump_config() override;
 
   ////////////////////////
@@ -162,6 +160,9 @@ class ES8311 : public audio_dac::AudioDac, public Component, public i2c::I2CDevi
   uint32_t sample_frequency_;  // in Hz
   ES8311Resolution resolution_in_;
   ES8311Resolution resolution_out_;
+
+  bool startup_complete_{false};
+  uint32_t startup_time_{0};
 };
 
 }  // namespace es8311
