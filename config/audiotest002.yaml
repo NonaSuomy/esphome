@@ -107,7 +107,7 @@ speaker:
     sample_rate: 16000
     bits_per_sample: 16bit
     channel: left
-    buffer_duration: 1s
+    buffer_duration: 500ms
 
 rtttl:
   speaker: nano_speaker
