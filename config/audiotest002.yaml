@@ -174,7 +174,7 @@ voice_assistant:
 
   on_start:
     - micro_wake_word.stop:
-    - delay: 500ms
+    - delay: 2s
     - logger.log: "Voice assistant started - stopping wake word"
 
   on_end:
@@ -189,7 +189,7 @@ media_player:
   - platform: speaker
     name: "Voice Assistant Speaker"
     id: speaker_player
-    buffer_size: 8192
+    buffer_size: 16384
     announcement_pipeline:
       speaker: nano_speaker
     files:
