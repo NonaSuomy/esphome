@@ -175,10 +175,7 @@ voice_assistant:
   media_player: speaker_player
   # micro_wake_word: mww
 
-  on_client_connected:
-    # - micro_wake_word.start:
-  on_client_disconnected:
-    # - micro_wake_word.stop:
+
 
   on_start:
     # - micro_wake_word.stop:
