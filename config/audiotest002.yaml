@@ -108,6 +108,7 @@ speaker:
     bits_per_sample: 16bit
     channel: left
     buffer_duration: 500ms
+    timeout: never
 
 rtttl:
   speaker: nano_speaker
