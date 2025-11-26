@@ -53,17 +53,16 @@ void ES8311::setup() {
   delay(10);
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG44_GPIO, 0x08));
 
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG01_CLK_MANAGER, 0x30));
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG01_CLK_MANAGER, 0x3F));  // 0x3F from reference (was 0x30)
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG02_CLK_MANAGER, 0x00));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG03_CLK_MANAGER, 0x10));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG16_ADC, 0x24));
+  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG16_ADC, 0x24));  // Note: This is NOT mic gain, it's ADC config
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG04_CLK_MANAGER, 0x10));
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG05_CLK_MANAGER, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0B_SYSTEM, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG0C_SYSTEM, 0x00));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG10_SYSTEM, 0x1F));
-  ES8311_ERROR_FAILED(this->write_byte(ES8311_REG11_SYSTEM, 0x7F));
-  // ES8311_REG00_RESET 0x80 removed here as it's handled in reset sequence above
+
+  // Removed REG0B, REG0C, REG10, REG11 - Not in reference code
+  // These likely control internal bias/VREF and were causing the tone
+
   delay(10);
 
   ES8311_ERROR_FAILED(this->write_byte(ES8311_REG01_CLK_MANAGER, 0x3F));
