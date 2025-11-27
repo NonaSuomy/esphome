@@ -16,8 +16,8 @@ esp32:
     type: esp-idf
     advanced:
       enable_idf_experimental_features: true
-  sdkconfig_options:
-    CONFIG_LWIP_MAX_SOCKETS: "20"  # Increase from default 10 for voice_assistant + TTS
+    sdkconfig_options:
+      CONFIG_LWIP_MAX_SOCKETS: "20"  # Increase from default 10 for voice_assistant + TTS
 
 external_components:
 #  - source: github://NonaSuomy/esphome@es8311-analog-mic
