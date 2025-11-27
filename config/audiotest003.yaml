@@ -168,7 +168,9 @@ micro_wake_word:
     - wait_until:
         not:
           speaker.is_playing:
-    - speaker.play: !lambda 'return id(wake_sound_file);'
+    - media_player.play:
+        id: speaker_player
+        media_id: wake_sound_file
     - voice_assistant.start:
         wake_word: !lambda return wake_word;
 
