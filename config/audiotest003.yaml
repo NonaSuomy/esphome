@@ -170,7 +170,7 @@ micro_wake_word:
           speaker.is_playing:
     - media_player.play:
         id: speaker_player
-        media_id: wake_sound_file
+        media: wake_sound_file
     - voice_assistant.start:
         wake_word: !lambda return wake_word;
 
