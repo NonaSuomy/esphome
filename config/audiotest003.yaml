@@ -165,9 +165,10 @@ micro_wake_word:
   on_wake_word_detected:
     - micro_wake_word.stop:
     - logger.log: "Wake word detected - stopping wake word"
-    - media_player.play_media:
-        id: speaker_player
-        media: "wake_sound_file"
+    - wait_until:
+        not:
+          speaker.is_playing:
+    - speaker.play: !lambda 'return id(wake_sound_file);'
     - voice_assistant.start:
         wake_word: !lambda return wake_word;
 
