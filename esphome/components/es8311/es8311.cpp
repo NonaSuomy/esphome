@@ -135,7 +135,7 @@ void ES8311::dump_config() {
 bool ES8311::set_volume(float volume) {
   volume = clamp(volume, 0.0f, 1.0f);
   // Limit max volume to 0xBF (0dB) to prevent digital clipping/static
-  uint8_t reg32 = remap<uint8_t, float>(volume, 0.0f, 1.0f, 0, 0xBF);
+  uint8_t reg32 = remap<uint8_t, float>(volume, 0.0f, 1.0f, 0, 255);
   return this->write_byte(ES8311_REG32_DAC, reg32);
 }
 
