@@ -1,6 +1,6 @@
 {
   "name": "USB HIDX",
-  "description": "USB HID device support with hot-plug capability for ESP32-S3",
+  "description": "USB HID device support with hot-plug capability for ESP32-S3/S2/P4",
   "version": "1.0.0",
   "codeowners": ["@nonasuomy"],
   "dependencies": ["esp32", "usb_host"],
