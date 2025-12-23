@@ -1,0 +1,48 @@
+import esphome.codegen as cg
+from esphome.components import binary_sensor
+import esphome.config_validation as cv
+from esphome.const import CONF_ID, CONF_NAME
+
+from .. import USBHIDXComponent, usb_hidx_ns
+
+CONF_USB_HIDX_ID = "usb_hidx_id"
+CONF_TYPE = "type"
+CONF_KEY = "key"
+CONF_LEFT_BUTTON = "left_button"
+CONF_RIGHT_BUTTON = "right_button"
+CONF_MIDDLE_BUTTON = "middle_button"
+CONF_BUTTON_A = "button_a"
+CONF_BUTTON_B = "button_b"
+
+CONFIG_SCHEMA = binary_sensor.binary_sensor_schema().extend(
+    {
+        cv.GenerateID(CONF_USB_HIDX_ID): cv.use_id(USBHIDXComponent),
+        cv.Required(CONF_TYPE): cv.one_of("keyboard", "mouse", "gamepad", lower=True),
+        cv.Optional(CONF_KEY): cv.hex_uint8_t,
+        cv.Optional(CONF_LEFT_BUTTON): cv.boolean,
+        cv.Optional(CONF_RIGHT_BUTTON): cv.boolean,
+        cv.Optional(CONF_MIDDLE_BUTTON): cv.boolean,
+        cv.Optional(CONF_BUTTON_A): cv.boolean,
+        cv.Optional(CONF_BUTTON_B): cv.boolean,
+    }
+)
+
+
+async def to_code(config):
+    parent = await cg.get_variable(config[CONF_USB_HIDX_ID])
+    var = await binary_sensor.new_binary_sensor(config)
+
+    device_type = config[CONF_TYPE]
+
+    if device_type == "keyboard":
+        if CONF_KEY in config:
+            cg.add(parent.register_keyboard_key_sensor(var, config[CONF_KEY]))
+    elif device_type == "mouse":
+        if config.get(CONF_LEFT_BUTTON):
+            cg.add(parent.register_mouse_left_sensor(var))
+        elif config.get(CONF_RIGHT_BUTTON):
+            cg.add(parent.register_mouse_right_sensor(var))
+        elif config.get(CONF_MIDDLE_BUTTON):
+            cg.add(parent.register_mouse_middle_sensor(var))
+    elif device_type == "gamepad":
+        pass  # Gamepad button registration

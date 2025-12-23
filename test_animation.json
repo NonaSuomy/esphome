@@ -1,0 +1,30 @@
+{
+  "Name": "anim_test_blink_01",
+  "NumKeyFrames": 3,
+  "keyframes": [
+    {
+      "Name": "eyes_open",
+      "DurationMs": 1000,
+      "triggerTime_ms": 0,
+      "audioRef": "",
+      "leftEye": [0, 0, 0, 0, 0, 0, 0, 0],
+      "rightEye": [0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      "Name": "eyes_closed",
+      "DurationMs": 100,
+      "triggerTime_ms": 0,
+      "audioRef": "Play__Robot_Vic_Sfx__Scrn_Blink",
+      "leftEye": [255, 255, 255, 255, 255, 255, 255, 255],
+      "rightEye": [255, 255, 255, 255, 255, 255, 255, 255]
+    },
+    {
+      "Name": "eyes_open_again",
+      "DurationMs": 1000,
+      "triggerTime_ms": 0,
+      "audioRef": "",
+      "leftEye": [0, 0, 0, 0, 0, 0, 0, 0],
+      "rightEye": [0, 0, 0, 0, 0, 0, 0, 0]
+    }
+  ]
+}

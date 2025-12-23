@@ -1,0 +1,43 @@
+======================================================================
+ESPHome Compilation Error Report
+Time: 2025-12-08 17:24:42
+Config: config/vector-eyes-ttgo.yaml
+Exit Code: 1
+======================================================================
+
+🔴 LINKER ERRORS (5):
+----------------------------------------------------------------------
+
+1. <command-line>: note: this is the location of the previous definition
+/home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ld: .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o:(.literal._ZN7esphome11vector_eyes10VectorEyes5setupEv+0x30): undefined reference to `_ZN7esphome11vector_eyes10VectorEyes19load_audio_mappingsEv'
+/home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ld: .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o:(.literal._ZN7esphome11vector_eyes10VectorEyes12play_triggerENS0_16AnimationTriggerE+0x24): undefined reference to `_ZN7esphome11vector_eyes10VectorEyes24play_animation_from_fileERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+
+2. /home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ld: .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o:(.literal._ZN7esphome11vector_eyes10VectorEyes5setupEv+0x30): undefined reference to `_ZN7esphome11vector_eyes10VectorEyes19load_audio_mappingsEv'
+/home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ld: .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o:(.literal._ZN7esphome11vector_eyes10VectorEyes12play_triggerENS0_16AnimationTriggerE+0x24): undefined reference to `_ZN7esphome11vector_eyes10VectorEyes24play_animation_from_fileERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+/home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ld: .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o: in function `_ZN7esphome11vector_eyes10VectorEyes5setupEv':
+
+3. /home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ld: .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o: in function `_ZN7esphome11vector_eyes10VectorEyes5setupEv':
+/home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp:29:(.text._ZN7esphome11vector_eyes10VectorEyes5setupEv+0x4e): undefined reference to `_ZN7esphome11vector_eyes10VectorEyes19load_audio_mappingsEv'
+/home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ld: .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o: in function `_ZStplIcSt11char_traitsIcESaIcEENSt7__cxx1112basic_stringIT_T0_T1_EEOS8_PKS5_':
+
+4. /home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ld: .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o: in function `_ZStplIcSt11char_traitsIcESaIcEENSt7__cxx1112basic_stringIT_T0_T1_EEOS8_PKS5_':
+/home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0/bits/basic_string.h:3735:(.text._ZN7esphome11vector_eyes10VectorEyes12play_triggerENS0_16AnimationTriggerE+0xb5): undefined reference to `_ZN7esphome11vector_eyes10VectorEyes24play_animation_from_fileERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+/home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ld: .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o: in function `_ZN7esphome11vector_eyes10VectorEyes14play_animationERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE':
+
+5. /home/nonasuomy/.platformio/packages/toolchain-xtensa-esp-elf/bin/../lib/gcc/xtensa-esp-elf/14.2.0/../../../../xtensa-esp-elf/bin/ld: .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o: in function `_ZN7esphome11vector_eyes10VectorEyes14play_animationERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE':
+/home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp:474:(.text._ZN7esphome11vector_eyes10VectorEyes14play_animationERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE+0x4c): undefined reference to `_ZN7esphome11vector_eyes10VectorEyes24play_animation_from_fileERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+collect2: error: ld returned 1 exit status
+
+🔴 COMPILATION ERRORS (1):
+----------------------------------------------------------------------
+
+1. /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp:474:(.text._ZN7esphome11vector_eyes10VectorEyes14play_animationERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE+0x4c): undefined reference to `_ZN7esphome11vector_eyes10VectorEyes24play_animation_from_fileERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+collect2: error: ld returned 1 exit status
+*** [.pioenvs/vector-eyes-ttgo/firmware.elf] Error 1
+
+⚠️  WARNINGS (4):
+----------------------------------------------------------------------
+1. src/esphome/core/defines.h:45:9: warning: "USE_STORAGE" redefined
+2. src/esphome/core/defines.h:45:9: warning: "USE_STORAGE" redefined
+3. src/esphome/core/defines.h:45:9: warning: "USE_STORAGE" redefined
+4. src/esphome/core/defines.h:45:9: warning: "USE_STORAGE" redefined

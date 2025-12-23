@@ -1,0 +1,11 @@
+JSON syntax error in /tmp/tmp_0h3kbc7.json: Expecting property name enclosed in double quotes: line 1 column 38 (char 37)
+Mapping file not found: nonexistent_file.json
+No mapping found for audio event: test
+No mapping found for audio event: event1
+Running AudioMapper reload tests...
+
+✓ Reload with syntax error test passed
+✓ Reload with missing file test passed
+✓ Reload preserves on success test passed
+
+✅ All reload tests passed!

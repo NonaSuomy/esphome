@@ -1,0 +1,47 @@
+======================================================================
+Special Character Sanitization Demonstration
+======================================================================
+
+Real Vector Audio Event Names:
+----------------------------------------------------------------------
+  Play__Robot_Vic_Sfx__Blink                    → PLAY_ROBOT_VIC_SFX_BLINK
+  Play__Robot_Vic_Sfx__Curious_Short            → PLAY_ROBOT_VIC_SFX_CURIOUS_SHORT
+  Play__Robot_Vic_Sfx__Happy_Long               → PLAY_ROBOT_VIC_SFX_HAPPY_LONG
+  Stop__Robot_Vic_Sfx__Alert                    → STOP_ROBOT_VIC_SFX_ALERT
+  Play__Robot_Vic__Wake_Up                      → PLAY_ROBOT_VIC_WAKE_UP
+
+Special Character Handling:
+----------------------------------------------------------------------
+  Spaces               Event With Spaces              → EVENT_WITH_SPACES
+  Colons               Event:With:Colons              → EVENT_WITH_COLONS
+  Dashes               Event-With-Dashes              → EVENT_NEGWITH_NEGDASHES
+  Dots                 Event.With.Dots                → EVENT_DOTWITH_DOTDOTS
+  Slashes              Event/With/Slashes             → EVENT_SLASHWITH_SLASHSLASHES
+  Parentheses          Event(With)Parens              → EVENT_LPARENWITH_RPARENPARENS
+  Brackets             Event[With]Brackets            → EVENT_LBRACKWITH_RBRACKBRACKETS
+  Braces               Event{With}Braces              → EVENT_LBRACEWITH_RBRACEBRACES
+  Angle Brackets       Event<With>Angles              → EVENT_LTWITH_GTANGLES
+  Ampersands           Event&With&Ampersands          → EVENT_AMPWITH_AMPAMPERSANDS
+  Pipes                Event|With|Pipes               → EVENT_PIPEWITH_PIPEPIPES
+  Exclamation Marks    Event!With!Bangs               → EVENT_BANGWITH_BANGBANGS
+  Question Marks       Event?With?Questions           → EVENT_QUESTWITH_QUESTQUESTIONS
+  At Signs             Event@With@Ats                 → EVENT_ATWITH_ATATS
+  Hash Signs           Event#With#Hashes              → EVENT_HASHWITH_HASHHASHES
+  Dollar Signs         Event$With$Dollars             → EVENT_DOLLARWITH_DOLLARDOLLARS
+  Percent Signs        Event%With%Percents            → EVENT_PERCENTWITH_PERCENTPERCENTS
+  Plus Signs           Event+With+Plus                → EVENT_PLUSWITH_PLUSPLUS
+  Equals Signs         Event=With=Equals              → EVENT_EQWITH_EQEQUALS
+  Asterisks            Event*With*Stars               → EVENT_STARWITH_STARSTARS
+
+Edge Cases:
+----------------------------------------------------------------------
+  Starts with digit         '123StartWithDigit        ' → '_123STARTWITHDIGIT'
+  Empty string              '                         ' → 'UNNAMED'
+  Only underscores          '___                      ' → 'UNNAMED'
+  Multiple underscores      'Multiple___Underscores   ' → 'MULTIPLE_UNDERSCORES'
+  Leading/trailing spaces   '  Leading_Trailing       ' → 'LEADING_TRAILING'
+  Mixed case                'MixedCase_Event          ' → 'MIXEDCASE_EVENT'
+
+======================================================================
+All identifiers are valid C++ identifiers!
+======================================================================

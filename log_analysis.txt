@@ -1,0 +1,77 @@
+Analyzing esp32_logs.txt...
+================================================================================
+
+Total lines: 3886
+
+================================================================================
+BOOT & INITIALIZATION MESSAGES
+================================================================================
+INFO Starting log output from /dev/ttyUSB0 with baud rate 115200
+
+================================================================================
+STORAGE & SD CARD MESSAGES
+================================================================================
+❌ NO STORAGE MESSAGES FOUND - Storage component may not be initializing!
+
+================================================================================
+FILE OPERATIONS
+================================================================================
+❌ NO FILE OPERATIONS FOUND - SD card not being accessed!
+
+================================================================================
+VECTOR EYES COMPONENT
+================================================================================
+INFO Reading configuration config/vector-eyes-ttgo.yaml...
+
+================================================================================
+SPI ERRORS (sample)
+================================================================================
+Total SPI errors: 2364
+
+First 10 SPI errors:
+[22:29:22.986][W][spi-esE (10859480) spi_master: check_trans_valid(1083): invalid dev handle
+[22:29:22.987][E][spi-esp-idf:077]: Transmit failed - err 102
+[22:29:23.008][E][spi-esp-idf:077]: TransE (10859507) spi_master: check_trans_valid(1083): invalid dev handle
+[22:29:23.031][E][spE (10859523) spi_master: check_trans_valid(1083): invalid dev handle
+[22:29:23.052][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (10859539) spi_master: check_trans_valid(1083): invalid dev handle
+[22:29:23.053][E][spi-esp-idf:077]: Transmit failed - err 102
+[22:29:23.054][W][spi-esp-idf:033]: SPI device not ready, E (10859556) spi_master: check_trans_valid(1083): invalid dev handle
+[22:29:23.074][E][spi-esp-idf:077]: Transmit failed - err 102
+[22:29:23.075][W][spi-esp-idf:033]: SE (10859572) spi_master: check_trans_valid(1083): invalid dev handle
+[22:29:23.096][E][spi-esp-idf:077]: Transmit failed - err 102
+
+⚠️  CRITICAL: Massive SPI errors detected!
+This suggests SPI bus configuration issues with display or SD card
+
+================================================================================
+OTHER ERRORS (non-SPI)
+================================================================================
+No other errors found
+
+================================================================================
+SUMMARY
+================================================================================
+Total lines: 3886
+Storage messages: 0
+File operations: 0
+Vector eyes messages: 1
+SPI errors: 2364
+Other errors: 0
+Warnings: 1191
+
+================================================================================
+DIAGNOSIS
+================================================================================
+❌ CRITICAL: Severe SPI bus errors detected
+   - Display or SD card SPI configuration is incorrect
+   - Device may be in a boot loop or crash state
+   - Recommendation: Check SPI pin assignments and bus configuration
+❌ PROBLEM: No storage component initialization detected
+   - Storage component may not be starting
+   - SD card may not be detected
+   - Check YAML configuration for storage/sd_storage components
+❌ PROBLEM: No file operations detected
+   - SD card is not being accessed
+   - Files are not being read from SD card
+
+================================================================================

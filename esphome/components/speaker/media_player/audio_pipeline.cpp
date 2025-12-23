@@ -121,9 +121,18 @@ AudioPipelineState AudioPipeline::process_state() {
           }
 
           if (event.audio_stream_info.has_value()) {
+            auto &info = event.audio_stream_info.value();
             ESP_LOGD(TAG, "Decoded audio has %d channels, %" PRId32 " Hz sample rate, and %d bits per sample",
-                     event.audio_stream_info.value().get_channels(), event.audio_stream_info.value().get_sample_rate(),
-                     event.audio_stream_info.value().get_bits_per_sample());
+                     info.get_channels(), info.get_sample_rate(), info.get_bits_per_sample());
+            
+            // Calculate and log bitrate
+            uint32_t bitrate = info.get_sample_rate() * info.get_channels() * info.get_bits_per_sample();
+            ESP_LOGI(TAG, "Audio stream bitrate: %" PRIu32 " bps (%" PRIu32 " kbps)", bitrate, bitrate / 1000);
+            ESP_LOGI(TAG, "Audio format: %d-bit %s, %d channel(s) @ %" PRId32 " Hz",
+                     info.get_bits_per_sample(),
+                     event.file_type.has_value() ? audio_file_type_to_string(event.file_type.value()) : "unknown",
+                     info.get_channels(),
+                     info.get_sample_rate());
           }
 
           if (event.decoding_err.has_value()) {
@@ -404,6 +413,14 @@ void AudioPipeline::read_task(void *params) {
       } else {
         // Send the file type to the pipeline
         event.file_type = this_pipeline->current_audio_file_type_;
+        
+        // Log the URL/file being played
+        if (event_bits & EventGroupBits::READER_COMMAND_INIT_FILE) {
+          ESP_LOGI(TAG, "Starting playback from file");
+        } else {
+          ESP_LOGI(TAG, "Starting playback from URL: %s", this_pipeline->current_uri_.c_str());
+        }
+        
         xQueueSend(this_pipeline->info_error_queue_, &event, portMAX_DELAY);
         xEventGroupSetBits(this_pipeline->event_group_, EventGroupBits::READER_MESSAGE_LOADED_MEDIA_TYPE);
       }

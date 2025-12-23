@@ -1,0 +1,12 @@
+No mapping found for audio event: Play__Robot_Vic_Sfx__Unknown
+Running AudioMapper tests...
+
+✓ Exact match test passed
+✓ Pattern match test passed
+✓ Specificity precedence test passed
+✓ Unmapped event test passed
+✓ Config file loading test passed
+✓ Reload mappings test passed
+✓ Find best match test passed
+
+✅ All tests passed!

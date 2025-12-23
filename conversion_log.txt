@@ -1,0 +1,1820 @@
+Found 903 WEM files to convert
+Input directory: /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux
+Output directory: /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/converted_wav
+Using wwtools: /home/nonasuomy/code/esphome003/esphome/wwise-audio-tools/build/bin/wwtools
+
+✗ 1001552319.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1001552319.wem
+  100163230.wem → OGG exists, using existing
+✓ 100163230.wem → 100163230.wav
+✗ 1003586302.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1003586302.wem
+✗ 1005827565.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1005827565.wem
+✗ 1007989201.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1007989201.wem
+✗ 1009167493.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1009167493.wem
+✗ 1009403007.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1009403007.wem
+✗ 1009807964.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1009807964.wem
+✗ 1012579904.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1012579904.wem
+✗ 1012884034.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1012884034.wem
+✗ 1013953420.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1013953420.wem
+✗ 10149754.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/10149754.wem
+✗ 1015040968.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1015040968.wem
+✗ 1018790529.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1018790529.wem
+✗ 1019276733.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1019276733.wem
+✗ 1019633639.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1019633639.wem
+✗ 1020521897.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1020521897.wem
+✗ 1020619153.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1020619153.wem
+✗ 1020807744.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1020807744.wem
+✗ 1021035593.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1021035593.wem
+✗ 1021514386.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1021514386.wem
+  102332682.wem → OGG exists, using existing
+✓ 102332682.wem → 102332682.wav
+✗ 1024649604.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1024649604.wem
+  1026827428.wem → OGG exists, using existing
+✓ 1026827428.wem → 1026827428.wav
+  10269281.wem → OGG exists, using existing
+✓ 10269281.wem → 10269281.wav
+✗ 1027492748.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1027492748.wem
+✗ 10290630.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/10290630.wem
+✗ 1029581732.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1029581732.wem
+✗ 1030876957.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1030876957.wem
+✗ 1032116021.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1032116021.wem
+✗ 1032865427.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1032865427.wem
+✗ 1034016546.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1034016546.wem
+✗ 1034050609.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1034050609.wem
+✗ 10340955.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/10340955.wem
+✗ 1036533731.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1036533731.wem
+✗ 103813503.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/103813503.wem
+✗ 1038501366.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1038501366.wem
+  1038650406.wem → OGG exists, using existing
+✓ 1038650406.wem → 1038650406.wav
+✗ 1038819193.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1038819193.wem
+✗ 1040184298.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1040184298.wem
+✗ 104253207.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/104253207.wem
+✗ 104267344.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/104267344.wem
+✗ 1043073766.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1043073766.wem
+✗ 1044112795.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1044112795.wem
+✗ 1046074645.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1046074645.wem
+✗ 1048563825.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1048563825.wem
+✗ 1049288816.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1049288816.wem
+✗ 1050885500.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1050885500.wem
+  1052205531.wem → OGG exists, using existing
+✓ 1052205531.wem → 1052205531.wav
+✗ 1052757462.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1052757462.wem
+✗ 105485286.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/105485286.wem
+✗ 1057428532.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1057428532.wem
+✗ 1058553873.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1058553873.wem
+✗ 1060349974.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1060349974.wem
+✗ 1060666896.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1060666896.wem
+✗ 1062258683.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1062258683.wem
+✗ 106357601.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/106357601.wem
+✗ 106634771.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/106634771.wem
+✗ 1067599833.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1067599833.wem
+✗ 1067902202.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1067902202.wem
+✗ 1068878282.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1068878282.wem
+✗ 1069169764.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1069169764.wem
+✗ 106966969.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/106966969.wem
+✗ 107191902.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/107191902.wem
+✗ 107202747.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/107202747.wem
+✗ 1073112591.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1073112591.wem
+✗ 1073698158.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1073698158.wem
+✗ 109457011.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/109457011.wem
+✗ 110723761.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/110723761.wem
+✗ 110790847.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/110790847.wem
+✗ 111754219.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/111754219.wem
+✗ 112328288.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/112328288.wem
+✗ 112355485.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/112355485.wem
+✗ 112413797.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/112413797.wem
+✗ 113938813.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/113938813.wem
+✗ 114373713.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/114373713.wem
+✗ 114767728.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/114767728.wem
+✗ 116272786.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/116272786.wem
+✗ 116588275.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/116588275.wem
+✗ 11735783.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/11735783.wem
+✗ 117954389.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/117954389.wem
+✗ 121500419.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/121500419.wem
+✗ 122050353.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/122050353.wem
+✗ 122211013.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/122211013.wem
+✗ 12231739.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/12231739.wem
+✗ 123286519.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/123286519.wem
+✗ 124622791.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/124622791.wem
+✗ 125786384.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/125786384.wem
+✗ 126498081.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/126498081.wem
+✗ 126698803.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/126698803.wem
+  127401098.wem → OGG exists, using existing
+✓ 127401098.wem → 127401098.wav
+  128158229.wem → OGG exists, using existing
+✓ 128158229.wem → 128158229.wav
+  129045740.wem → OGG exists, using existing
+✓ 129045740.wem → 129045740.wav
+✗ 129934893.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/129934893.wem
+  130124266.wem → OGG exists, using existing
+✓ 130124266.wem → 130124266.wav
+  130619583.wem → OGG exists, using existing
+✓ 130619583.wem → 130619583.wav
+✗ 131000796.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/131000796.wem
+  131917627.wem → OGG exists, using existing
+✓ 131917627.wem → 131917627.wav
+  132695882.wem → OGG exists, using existing
+✓ 132695882.wem → 132695882.wav
+✗ 133579188.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/133579188.wem
+  133664144.wem → OGG exists, using existing
+✓ 133664144.wem → 133664144.wav
+✗ 134456530.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/134456530.wem
+✗ 135365165.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/135365165.wem
+✗ 135473222.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/135473222.wem
+✗ 136332054.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/136332054.wem
+✗ 136630072.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/136630072.wem
+✗ 137054178.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/137054178.wem
+✗ 137664842.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/137664842.wem
+  138030978.wem → OGG exists, using existing
+✓ 138030978.wem → 138030978.wav
+✗ 138636000.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/138636000.wem
+✗ 13924732.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/13924732.wem
+✗ 139526080.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/139526080.wem
+  139593247.wem → OGG exists, using existing
+✓ 139593247.wem → 139593247.wav
+✗ 141012947.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/141012947.wem
+✗ 143638772.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/143638772.wem
+✗ 144912679.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/144912679.wem
+  145087302.wem → OGG exists, using existing
+✓ 145087302.wem → 145087302.wav
+  146256453.wem → OGG exists, using existing
+✓ 146256453.wem → 146256453.wav
+✗ 146296610.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/146296610.wem
+✗ 147113579.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/147113579.wem
+✗ 147514845.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/147514845.wem
+  148359960.wem → OGG exists, using existing
+✓ 148359960.wem → 148359960.wav
+✗ 1488967.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/1488967.wem
+✗ 149780638.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/149780638.wem
+✗ 150691295.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/150691295.wem
+✗ 151313985.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/151313985.wem
+✗ 153232528.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/153232528.wem
+✗ 155568382.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/155568382.wem
+✗ 156894034.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/156894034.wem
+  157638400.wem → OGG exists, using existing
+✓ 157638400.wem → 157638400.wav
+✗ 158291622.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/158291622.wem
+  160197389.wem → OGG exists, using existing
+✓ 160197389.wem → 160197389.wav
+  1606327.wem → OGG exists, using existing
+✓ 1606327.wem → 1606327.wav
+✗ 161482613.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/161482613.wem
+✗ 162580873.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/162580873.wem
+✗ 163256730.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/163256730.wem
+✗ 164366255.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/164366255.wem
+✗ 164750690.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/164750690.wem
+✗ 164977245.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/164977245.wem
+✗ 166634650.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/166634650.wem
+✗ 166865618.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/166865618.wem
+✗ 168867284.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/168867284.wem
+✗ 16888597.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/16888597.wem
+✗ 171857671.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/171857671.wem
+✗ 17408433.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/17408433.wem
+✗ 17501087.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/17501087.wem
+✗ 175376750.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/175376750.wem
+✗ 175844308.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/175844308.wem
+✗ 176676321.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/176676321.wem
+✗ 179428574.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/179428574.wem
+✗ 181411093.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/181411093.wem
+  182016966.wem → OGG exists, using existing
+✓ 182016966.wem → 182016966.wav
+  182166788.wem → OGG exists, using existing
+✓ 182166788.wem → 182166788.wav
+✗ 18275890.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/18275890.wem
+  184441720.wem → OGG exists, using existing
+✓ 184441720.wem → 184441720.wav
+✗ 185724365.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/185724365.wem
+✗ 188027522.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/188027522.wem
+✗ 18815874.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/18815874.wem
+✗ 188168510.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/188168510.wem
+✗ 189391689.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/189391689.wem
+  190098477.wem → OGG exists, using existing
+✓ 190098477.wem → 190098477.wav
+✗ 190217658.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/190217658.wem
+✗ 190374322.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/190374322.wem
+✗ 190575510.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/190575510.wem
+✗ 191172541.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/191172541.wem
+✗ 19173391.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/19173391.wem
+✗ 192672482.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/192672482.wem
+✗ 193016690.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/193016690.wem
+  194201568.wem → OGG exists, using existing
+✓ 194201568.wem → 194201568.wav
+✗ 195507011.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/195507011.wem
+✗ 195685236.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/195685236.wem
+✗ 195927670.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/195927670.wem
+✗ 19614876.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/19614876.wem
+✗ 196189166.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/196189166.wem
+✗ 197472623.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/197472623.wem
+✗ 197786330.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/197786330.wem
+✗ 198761454.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/198761454.wem
+✗ 201781107.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/201781107.wem
+✗ 202339607.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/202339607.wem
+✗ 202783267.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/202783267.wem
+✗ 203295425.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/203295425.wem
+✗ 204614011.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/204614011.wem
+✗ 206223969.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/206223969.wem
+✗ 207153695.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/207153695.wem
+  208274446.wem → OGG exists, using existing
+✓ 208274446.wem → 208274446.wav
+✗ 209365681.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/209365681.wem
+✗ 210544127.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/210544127.wem
+✗ 212610190.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/212610190.wem
+✗ 212874134.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/212874134.wem
+✗ 213059240.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/213059240.wem
+✗ 213325354.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/213325354.wem
+✗ 213347081.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/213347081.wem
+✗ 215431877.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/215431877.wem
+✗ 215959221.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/215959221.wem
+  216881581.wem → OGG exists, using existing
+✓ 216881581.wem → 216881581.wav
+✗ 219042262.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/219042262.wem
+✗ 220239306.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/220239306.wem
+  221317702.wem → OGG exists, using existing
+✓ 221317702.wem → 221317702.wav
+✗ 221605079.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/221605079.wem
+  221638684.wem → OGG exists, using existing
+✓ 221638684.wem → 221638684.wav
+✗ 222450177.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/222450177.wem
+✗ 223611109.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/223611109.wem
+✗ 224503854.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/224503854.wem
+✗ 224710796.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/224710796.wem
+✗ 225071803.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/225071803.wem
+  22569275.wem → OGG exists, using existing
+✓ 22569275.wem → 22569275.wav
+✗ 226563493.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/226563493.wem
+✗ 227510323.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/227510323.wem
+✗ 22751206.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/22751206.wem
+✗ 2278030.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/2278030.wem
+✗ 229633506.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/229633506.wem
+✗ 229684932.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/229684932.wem
+✗ 230776526.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/230776526.wem
+✗ 2316551.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/2316551.wem
+✗ 231906206.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/231906206.wem
+✗ 232390184.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/232390184.wem
+  232712834.wem → OGG exists, using existing
+✓ 232712834.wem → 232712834.wav
+✗ 233442675.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/233442675.wem
+✗ 233476272.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/233476272.wem
+  233492359.wem → OGG exists, using existing
+✓ 233492359.wem → 233492359.wav
+  233745196.wem → OGG exists, using existing
+✓ 233745196.wem → 233745196.wav
+  234232315.wem → OGG exists, using existing
+✓ 234232315.wem → 234232315.wav
+✗ 234584847.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/234584847.wem
+✗ 236539388.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/236539388.wem
+✗ 237790303.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/237790303.wem
+  239341284.wem → OGG exists, using existing
+✓ 239341284.wem → 239341284.wav
+✗ 239504915.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/239504915.wem
+✗ 239834573.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/239834573.wem
+✗ 240120140.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/240120140.wem
+✗ 245680289.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/245680289.wem
+  246020135.wem → OGG exists, using existing
+✓ 246020135.wem → 246020135.wav
+✗ 246669155.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/246669155.wem
+✗ 247820993.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/247820993.wem
+✗ 247835548.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/247835548.wem
+✗ 247932517.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/247932517.wem
+✗ 248364784.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/248364784.wem
+  2487526.wem → OGG exists, using existing
+✓ 2487526.wem → 2487526.wav
+✗ 248857383.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/248857383.wem
+✗ 251005921.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/251005921.wem
+✗ 252240184.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/252240184.wem
+✗ 252699236.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/252699236.wem
+✗ 254957967.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/254957967.wem
+  256130445.wem → OGG exists, using existing
+✓ 256130445.wem → 256130445.wav
+  256459301.wem → OGG exists, using existing
+✓ 256459301.wem → 256459301.wav
+✗ 256935929.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/256935929.wem
+✗ 257804518.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/257804518.wem
+✗ 258997047.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/258997047.wem
+✗ 26036688.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/26036688.wem
+✗ 263674405.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/263674405.wem
+✗ 263696503.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/263696503.wem
+  263778981.wem → OGG exists, using existing
+✓ 263778981.wem → 263778981.wav
+✗ 26395260.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/26395260.wem
+✗ 264145958.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/264145958.wem
+  264213628.wem → OGG exists, using existing
+✓ 264213628.wem → 264213628.wav
+✗ 265112922.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/265112922.wem
+✗ 26557292.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/26557292.wem
+✗ 265627029.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/265627029.wem
+✗ 265880053.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/265880053.wem
+✗ 266632773.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/266632773.wem
+✗ 266933651.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/266933651.wem
+✗ 267180682.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/267180682.wem
+✗ 268033897.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/268033897.wem
+✗ 268113049.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/268113049.wem
+✗ 268170670.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/268170670.wem
+✗ 268726307.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/268726307.wem
+✗ 269035462.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/269035462.wem
+✗ 269844392.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/269844392.wem
+✗ 2707732.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/2707732.wem
+✗ 270954399.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/270954399.wem
+✗ 271683329.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/271683329.wem
+✗ 271856587.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/271856587.wem
+✗ 271863219.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/271863219.wem
+✗ 272251756.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/272251756.wem
+✗ 2730658.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/2730658.wem
+✗ 274582167.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/274582167.wem
+✗ 277303427.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/277303427.wem
+✗ 277564232.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/277564232.wem
+✗ 278273558.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/278273558.wem
+✗ 27873017.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/27873017.wem
+✗ 280403431.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/280403431.wem
+  280407689.wem → OGG exists, using existing
+✓ 280407689.wem → 280407689.wav
+✗ 281769983.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/281769983.wem
+✗ 281849376.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/281849376.wem
+✗ 284482563.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/284482563.wem
+✗ 285502270.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/285502270.wem
+✗ 285605846.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/285605846.wem
+✗ 28570199.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/28570199.wem
+✗ 287827914.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/287827914.wem
+✗ 289147447.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/289147447.wem
+✗ 289215484.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/289215484.wem
+✗ 28960978.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/28960978.wem
+✗ 289708520.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/289708520.wem
+✗ 290050951.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/290050951.wem
+✗ 291133127.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/291133127.wem
+✗ 293006644.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/293006644.wem
+✗ 294124160.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/294124160.wem
+  296507729.wem → OGG exists, using existing
+✓ 296507729.wem → 296507729.wav
+✗ 296854804.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/296854804.wem
+✗ 299028975.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/299028975.wem
+✗ 301675200.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/301675200.wem
+✗ 302269099.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/302269099.wem
+✗ 303102827.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/303102827.wem
+✗ 303589073.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/303589073.wem
+✗ 309265174.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/309265174.wem
+  309983430.wem → OGG exists, using existing
+✓ 309983430.wem → 309983430.wav
+✗ 310582578.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/310582578.wem
+✗ 312170596.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/312170596.wem
+✗ 314620430.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/314620430.wem
+✗ 315701369.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/315701369.wem
+✗ 315806754.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/315806754.wem
+  316180428.wem → OGG exists, using existing
+✓ 316180428.wem → 316180428.wav
+✗ 316256790.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/316256790.wem
+✗ 317532769.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/317532769.wem
+  319435599.wem → OGG exists, using existing
+✓ 319435599.wem → 319435599.wav
+✗ 320748227.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/320748227.wem
+✗ 321168154.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/321168154.wem
+✗ 321233396.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/321233396.wem
+✗ 321390483.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/321390483.wem
+  321438858.wem → OGG exists, using existing
+✓ 321438858.wem → 321438858.wav
+✗ 323704025.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/323704025.wem
+  32392575.wem → OGG exists, using existing
+✓ 32392575.wem → 32392575.wav
+✗ 324964976.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/324964976.wem
+✗ 325141571.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/325141571.wem
+✗ 325417000.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/325417000.wem
+✗ 326125814.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/326125814.wem
+✗ 327243111.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/327243111.wem
+✗ 333956717.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/333956717.wem
+✗ 334876485.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/334876485.wem
+✗ 335489382.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/335489382.wem
+✗ 335690201.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/335690201.wem
+✗ 335937227.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/335937227.wem
+✗ 337283903.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/337283903.wem
+✗ 33778776.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/33778776.wem
+✗ 33886092.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/33886092.wem
+✗ 339517985.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/339517985.wem
+✗ 339530229.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/339530229.wem
+✗ 339900049.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/339900049.wem
+✗ 339909708.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/339909708.wem
+  343667273.wem → OGG exists, using existing
+✓ 343667273.wem → 343667273.wav
+✗ 345749326.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/345749326.wem
+✗ 349961276.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/349961276.wem
+✗ 35291410.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/35291410.wem
+✗ 352943209.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/352943209.wem
+✗ 354457250.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/354457250.wem
+✗ 355588167.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/355588167.wem
+  355718631.wem → OGG exists, using existing
+✓ 355718631.wem → 355718631.wav
+✗ 35588111.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/35588111.wem
+✗ 356279492.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/356279492.wem
+✗ 359485239.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/359485239.wem
+✗ 360049950.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/360049950.wem
+✗ 360494062.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/360494062.wem
+✗ 361877593.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/361877593.wem
+✗ 362362777.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/362362777.wem
+✗ 363871174.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/363871174.wem
+✗ 369664963.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/369664963.wem
+✗ 369718911.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/369718911.wem
+  373045139.wem → OGG exists, using existing
+✓ 373045139.wem → 373045139.wav
+  375650073.wem → OGG exists, using existing
+✓ 375650073.wem → 375650073.wav
+  376113429.wem → OGG exists, using existing
+✓ 376113429.wem → 376113429.wav
+✗ 377171477.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/377171477.wem
+✗ 377367858.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/377367858.wem
+✗ 377762050.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/377762050.wem
+✗ 380894750.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/380894750.wem
+✗ 381127508.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/381127508.wem
+✗ 38116879.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/38116879.wem
+✗ 381548159.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/381548159.wem
+✗ 381855927.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/381855927.wem
+✗ 382736331.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/382736331.wem
+✗ 383088792.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/383088792.wem
+✗ 383623213.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/383623213.wem
+✗ 384248499.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/384248499.wem
+✗ 385451478.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/385451478.wem
+✗ 385539564.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/385539564.wem
+✗ 386426513.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/386426513.wem
+✗ 388299063.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/388299063.wem
+✗ 388374989.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/388374989.wem
+✗ 389445309.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/389445309.wem
+✗ 390079175.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/390079175.wem
+✗ 39040893.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/39040893.wem
+✗ 390531128.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/390531128.wem
+✗ 390571195.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/390571195.wem
+✗ 390975124.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/390975124.wem
+✗ 392222669.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/392222669.wem
+✗ 39258194.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/39258194.wem
+  3936921.wem → OGG exists, using existing
+✓ 3936921.wem → 3936921.wav
+✗ 393881771.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/393881771.wem
+✗ 39491202.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/39491202.wem
+✗ 397869776.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/397869776.wem
+  398319987.wem → OGG exists, using existing
+✓ 398319987.wem → 398319987.wav
+✗ 398897657.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/398897657.wem
+✗ 399531650.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/399531650.wem
+✗ 400319865.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/400319865.wem
+  400563988.wem → OGG exists, using existing
+✓ 400563988.wem → 400563988.wav
+✗ 400961630.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/400961630.wem
+✗ 401449339.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/401449339.wem
+✗ 403224447.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/403224447.wem
+✗ 40446947.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/40446947.wem
+✗ 405075971.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/405075971.wem
+✗ 405994502.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/405994502.wem
+✗ 406061652.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/406061652.wem
+✗ 407325176.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/407325176.wem
+✗ 407562232.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/407562232.wem
+✗ 409862759.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/409862759.wem
+✗ 410272243.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/410272243.wem
+✗ 41118270.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/41118270.wem
+✗ 411227803.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/411227803.wem
+  411256602.wem → OGG exists, using existing
+✓ 411256602.wem → 411256602.wav
+✗ 411784234.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/411784234.wem
+✗ 412679760.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/412679760.wem
+✗ 413246880.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/413246880.wem
+✗ 416200507.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/416200507.wem
+✗ 416416079.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/416416079.wem
+✗ 418020848.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/418020848.wem
+✗ 419518738.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/419518738.wem
+✗ 420833453.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/420833453.wem
+✗ 42181344.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/42181344.wem
+✗ 423438606.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/423438606.wem
+✗ 424244784.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/424244784.wem
+✗ 425543334.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/425543334.wem
+✗ 427042249.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/427042249.wem
+✗ 427416536.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/427416536.wem
+✗ 430116195.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/430116195.wem
+  430361251.wem → OGG exists, using existing
+✓ 430361251.wem → 430361251.wav
+✗ 431295538.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/431295538.wem
+✗ 431451890.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/431451890.wem
+✗ 433634835.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/433634835.wem
+  43456441.wem → OGG exists, using existing
+✓ 43456441.wem → 43456441.wav
+✗ 435354155.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/435354155.wem
+✗ 435405483.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/435405483.wem
+✗ 436024225.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/436024225.wem
+✗ 436473335.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/436473335.wem
+✗ 437631004.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/437631004.wem
+  441233065.wem → OGG exists, using existing
+✓ 441233065.wem → 441233065.wav
+✗ 44265920.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/44265920.wem
+✗ 442906664.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/442906664.wem
+✗ 442939314.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/442939314.wem
+  444370117.wem → OGG exists, using existing
+✓ 444370117.wem → 444370117.wav
+✗ 444693207.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/444693207.wem
+✗ 445027534.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/445027534.wem
+✗ 445634161.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/445634161.wem
+✗ 446437209.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/446437209.wem
+✗ 447076663.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/447076663.wem
+✗ 447389.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/447389.wem
+  448031221.wem → OGG exists, using existing
+✓ 448031221.wem → 448031221.wav
+✗ 448045021.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/448045021.wem
+✗ 449122759.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/449122759.wem
+  450506169.wem → OGG exists, using existing
+✓ 450506169.wem → 450506169.wav
+✗ 450599960.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/450599960.wem
+✗ 45079499.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/45079499.wem
+✗ 451527750.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/451527750.wem
+✗ 452329168.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/452329168.wem
+✗ 457643134.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/457643134.wem
+✗ 460036227.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/460036227.wem
+✗ 460893960.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/460893960.wem
+✗ 462482136.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/462482136.wem
+✗ 462646033.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/462646033.wem
+✗ 463877779.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/463877779.wem
+✗ 463929022.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/463929022.wem
+✗ 464311248.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/464311248.wem
+✗ 464653549.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/464653549.wem
+✗ 467229523.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/467229523.wem
+✗ 46728149.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/46728149.wem
+✗ 468139309.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/468139309.wem
+✗ 468966674.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/468966674.wem
+✗ 470869941.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/470869941.wem
+✗ 471992505.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/471992505.wem
+✗ 473161517.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/473161517.wem
+✗ 473816878.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/473816878.wem
+✗ 474274991.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/474274991.wem
+✗ 475363126.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/475363126.wem
+✗ 475803836.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/475803836.wem
+  476533724.wem → OGG exists, using existing
+✓ 476533724.wem → 476533724.wav
+✗ 478923049.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/478923049.wem
+✗ 48058543.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/48058543.wem
+✗ 482455144.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/482455144.wem
+  483309252.wem → OGG exists, using existing
+✓ 483309252.wem → 483309252.wav
+✗ 484291993.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/484291993.wem
+✗ 484853542.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/484853542.wem
+✗ 485036909.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/485036909.wem
+✗ 485395267.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/485395267.wem
+  486951064.wem → OGG exists, using existing
+✓ 486951064.wem → 486951064.wav
+✗ 487935627.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/487935627.wem
+✗ 48793637.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/48793637.wem
+✗ 488485103.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/488485103.wem
+✗ 492880518.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/492880518.wem
+✗ 493931936.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/493931936.wem
+✗ 494375481.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/494375481.wem
+  49595874.wem → OGG exists, using existing
+✓ 49595874.wem → 49595874.wav
+✗ 499747321.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/499747321.wem
+✗ 500741977.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/500741977.wem
+✗ 503701545.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/503701545.wem
+✗ 503997402.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/503997402.wem
+✗ 505113188.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/505113188.wem
+  50593520.wem → OGG exists, using existing
+✓ 50593520.wem → 50593520.wav
+✗ 506882885.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/506882885.wem
+✗ 508729718.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/508729718.wem
+✗ 513571345.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/513571345.wem
+✗ 516050159.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/516050159.wem
+✗ 517454657.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/517454657.wem
+  519864525.wem → OGG exists, using existing
+✓ 519864525.wem → 519864525.wav
+✗ 521543324.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/521543324.wem
+✗ 525624503.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/525624503.wem
+  52603633.wem → OGG exists, using existing
+✓ 52603633.wem → 52603633.wav
+✗ 530209234.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/530209234.wem
+✗ 530377418.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/530377418.wem
+  530382434.wem → OGG exists, using existing
+✓ 530382434.wem → 530382434.wav
+  53113617.wem → OGG exists, using existing
+✓ 53113617.wem → 53113617.wav
+✗ 531318322.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/531318322.wem
+  533736829.wem → OGG exists, using existing
+✓ 533736829.wem → 533736829.wav
+  533897542.wem → OGG exists, using existing
+✓ 533897542.wem → 533897542.wav
+✗ 533950896.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/533950896.wem
+✗ 535381558.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/535381558.wem
+✗ 536768976.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/536768976.wem
+✗ 537357337.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/537357337.wem
+✗ 538120519.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/538120519.wem
+✗ 542226290.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/542226290.wem
+  544013114.wem → OGG exists, using existing
+✓ 544013114.wem → 544013114.wav
+✗ 544085204.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/544085204.wem
+✗ 544088212.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/544088212.wem
+✗ 546098856.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/546098856.wem
+✗ 547190639.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/547190639.wem
+  548962197.wem → OGG exists, using existing
+✓ 548962197.wem → 548962197.wav
+  549002685.wem → OGG exists, using existing
+✓ 549002685.wem → 549002685.wav
+  549491250.wem → OGG exists, using existing
+✓ 549491250.wem → 549491250.wav
+✗ 549559560.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/549559560.wem
+✗ 549759248.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/549759248.wem
+  549838879.wem → OGG exists, using existing
+✓ 549838879.wem → 549838879.wav
+✗ 551068451.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/551068451.wem
+✗ 552855875.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/552855875.wem
+✗ 554114233.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/554114233.wem
+✗ 554561827.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/554561827.wem
+✗ 555311662.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/555311662.wem
+✗ 555743800.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/555743800.wem
+✗ 556614505.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/556614505.wem
+✗ 557810698.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/557810698.wem
+✗ 557883551.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/557883551.wem
+✗ 559011635.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/559011635.wem
+✗ 559380551.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/559380551.wem
+✗ 55948109.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/55948109.wem
+✗ 559691364.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/559691364.wem
+✗ 559904672.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/559904672.wem
+✗ 56018471.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/56018471.wem
+✗ 562697845.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/562697845.wem
+✗ 566726099.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/566726099.wem
+✗ 569823939.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/569823939.wem
+✗ 570387616.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/570387616.wem
+✗ 572174374.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/572174374.wem
+  57236298.wem → OGG exists, using existing
+✓ 57236298.wem → 57236298.wav
+✗ 572640128.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/572640128.wem
+✗ 576027531.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/576027531.wem
+✗ 576469817.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/576469817.wem
+✗ 576775184.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/576775184.wem
+  577632823.wem → OGG exists, using existing
+✓ 577632823.wem → 577632823.wav
+✗ 578091280.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/578091280.wem
+✗ 578952590.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/578952590.wem
+  579032398.wem → OGG exists, using existing
+✓ 579032398.wem → 579032398.wav
+  579915581.wem → OGG exists, using existing
+✓ 579915581.wem → 579915581.wav
+✗ 580057996.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/580057996.wem
+✗ 580075086.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/580075086.wem
+✗ 58047264.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/58047264.wem
+✗ 58064316.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/58064316.wem
+✗ 581831941.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/581831941.wem
+  582436748.wem → OGG exists, using existing
+✓ 582436748.wem → 582436748.wav
+  583200834.wem → OGG exists, using existing
+✓ 583200834.wem → 583200834.wav
+✗ 583518691.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/583518691.wem
+✗ 584169212.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/584169212.wem
+✗ 5847641.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/5847641.wem
+✗ 585892132.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/585892132.wem
+✗ 586487040.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/586487040.wem
+✗ 586922403.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/586922403.wem
+✗ 587953082.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/587953082.wem
+  589551175.wem → OGG exists, using existing
+✓ 589551175.wem → 589551175.wav
+✗ 590583778.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/590583778.wem
+✗ 59294599.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/59294599.wem
+  593379648.wem → OGG exists, using existing
+✓ 593379648.wem → 593379648.wav
+  593753384.wem → OGG exists, using existing
+✓ 593753384.wem → 593753384.wav
+✗ 596138464.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/596138464.wem
+✗ 596488415.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/596488415.wem
+✗ 598280041.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/598280041.wem
+✗ 598519637.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/598519637.wem
+✗ 598946172.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/598946172.wem
+✗ 599226162.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/599226162.wem
+✗ 60087899.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/60087899.wem
+✗ 604419715.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/604419715.wem
+  604501369.wem → OGG exists, using existing
+✓ 604501369.wem → 604501369.wav
+  60609844.wem → OGG exists, using existing
+✓ 60609844.wem → 60609844.wav
+✗ 606163827.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/606163827.wem
+  606834844.wem → OGG exists, using existing
+✓ 606834844.wem → 606834844.wav
+✗ 606849527.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/606849527.wem
+✗ 60708415.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/60708415.wem
+  607406117.wem → OGG exists, using existing
+✓ 607406117.wem → 607406117.wav
+✗ 608762676.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/608762676.wem
+✗ 61009288.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/61009288.wem
+✗ 612233369.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/612233369.wem
+✗ 612523715.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/612523715.wem
+✗ 612643068.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/612643068.wem
+✗ 614686729.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/614686729.wem
+✗ 6152056.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/6152056.wem
+  616926645.wem → OGG exists, using existing
+✓ 616926645.wem → 616926645.wav
+✗ 617186311.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/617186311.wem
+✗ 617489988.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/617489988.wem
+✗ 618115822.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/618115822.wem
+✗ 620152320.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/620152320.wem
+✗ 624759969.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/624759969.wem
+✗ 625486981.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/625486981.wem
+✗ 62624703.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/62624703.wem
+✗ 626539635.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/626539635.wem
+✗ 629115464.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/629115464.wem
+✗ 62934756.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/62934756.wem
+✗ 631734210.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/631734210.wem
+  632443384.wem → OGG exists, using existing
+✓ 632443384.wem → 632443384.wav
+✗ 633533385.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/633533385.wem
+✗ 634695729.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/634695729.wem
+✗ 635985345.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/635985345.wem
+✗ 639902253.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/639902253.wem
+✗ 642063486.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/642063486.wem
+✗ 642910093.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/642910093.wem
+✗ 643504766.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/643504766.wem
+✗ 643892850.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/643892850.wem
+✗ 64425688.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/64425688.wem
+✗ 644335092.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/644335092.wem
+✗ 64562329.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/64562329.wem
+✗ 645707199.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/645707199.wem
+✗ 646676421.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/646676421.wem
+✗ 647230858.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/647230858.wem
+✗ 650799156.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/650799156.wem
+✗ 654466139.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/654466139.wem
+✗ 65602748.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/65602748.wem
+✗ 65797494.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/65797494.wem
+✗ 658439504.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/658439504.wem
+✗ 660087763.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/660087763.wem
+✗ 660651509.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/660651509.wem
+✗ 666183107.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/666183107.wem
+✗ 667120945.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/667120945.wem
+✗ 667920071.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/667920071.wem
+✗ 668149450.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/668149450.wem
+✗ 669503230.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/669503230.wem
+✗ 669568414.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/669568414.wem
+✗ 669734478.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/669734478.wem
+✗ 671442025.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/671442025.wem
+✗ 67158322.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/67158322.wem
+✗ 672491669.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/672491669.wem
+✗ 672523313.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/672523313.wem
+✗ 675116803.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/675116803.wem
+✗ 675765334.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/675765334.wem
+✗ 676000479.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/676000479.wem
+✗ 676608943.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/676608943.wem
+✗ 678101874.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/678101874.wem
+  680145437.wem → OGG exists, using existing
+✓ 680145437.wem → 680145437.wav
+✗ 680497189.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/680497189.wem
+✗ 680946871.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/680946871.wem
+✗ 68103626.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/68103626.wem
+✗ 682322628.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/682322628.wem
+✗ 682391043.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/682391043.wem
+  685558094.wem → OGG exists, using existing
+✓ 685558094.wem → 685558094.wav
+✗ 68825692.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/68825692.wem
+✗ 690474711.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/690474711.wem
+✗ 692558659.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/692558659.wem
+✗ 692693565.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/692693565.wem
+  6931291.wem → OGG exists, using existing
+✓ 6931291.wem → 6931291.wav
+✗ 693349085.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/693349085.wem
+✗ 694133480.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/694133480.wem
+✗ 696945539.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/696945539.wem
+✗ 69783903.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/69783903.wem
+✗ 698479539.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/698479539.wem
+✗ 701056473.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/701056473.wem
+✗ 702065200.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/702065200.wem
+  702653149.wem → OGG exists, using existing
+✓ 702653149.wem → 702653149.wav
+✗ 703712056.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/703712056.wem
+✗ 704089230.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/704089230.wem
+✗ 707348964.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/707348964.wem
+✗ 707877558.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/707877558.wem
+✗ 70882140.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/70882140.wem
+✗ 709350056.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/709350056.wem
+✗ 711520139.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/711520139.wem
+✗ 71241458.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/71241458.wem
+✗ 713026362.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/713026362.wem
+✗ 713242013.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/713242013.wem
+  71453838.wem → OGG exists, using existing
+✓ 71453838.wem → 71453838.wav
+✗ 715125.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/715125.wem
+✗ 71750205.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/71750205.wem
+  718027870.wem → OGG exists, using existing
+✓ 718027870.wem → 718027870.wav
+✗ 718894403.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/718894403.wem
+✗ 719291722.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/719291722.wem
+✗ 71932548.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/71932548.wem
+✗ 721392430.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/721392430.wem
+  721504132.wem → OGG exists, using existing
+✓ 721504132.wem → 721504132.wav
+  723718654.wem → OGG exists, using existing
+✓ 723718654.wem → 723718654.wav
+  724506544.wem → OGG exists, using existing
+✓ 724506544.wem → 724506544.wav
+✗ 728271172.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/728271172.wem
+  72890478.wem → OGG exists, using existing
+✓ 72890478.wem → 72890478.wav
+✗ 733278349.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/733278349.wem
+✗ 735254791.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/735254791.wem
+✗ 735737061.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/735737061.wem
+✗ 738267360.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/738267360.wem
+✗ 739067659.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/739067659.wem
+✗ 741162256.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/741162256.wem
+✗ 74121184.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/74121184.wem
+✗ 743245831.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/743245831.wem
+  74502508.wem → OGG exists, using existing
+✓ 74502508.wem → 74502508.wav
+✗ 745748483.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/745748483.wem
+✗ 746032171.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/746032171.wem
+✗ 747299733.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/747299733.wem
+✗ 750781964.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/750781964.wem
+✗ 7508443.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/7508443.wem
+✗ 753033640.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/753033640.wem
+✗ 753153704.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/753153704.wem
+  753745311.wem → OGG exists, using existing
+✓ 753745311.wem → 753745311.wav
+✗ 754673942.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/754673942.wem
+✗ 754697273.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/754697273.wem
+✗ 754906000.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/754906000.wem
+  756065191.wem → OGG exists, using existing
+✓ 756065191.wem → 756065191.wav
+  758246951.wem → OGG exists, using existing
+✓ 758246951.wem → 758246951.wav
+✗ 760682968.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/760682968.wem
+✗ 760704955.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/760704955.wem
+✗ 760805942.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/760805942.wem
+✗ 762893566.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/762893566.wem
+  764180780.wem → OGG exists, using existing
+✓ 764180780.wem → 764180780.wav
+✗ 764845086.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/764845086.wem
+  766188798.wem → OGG exists, using existing
+✓ 766188798.wem → 766188798.wav
+  766331100.wem → OGG exists, using existing
+✓ 766331100.wem → 766331100.wav
+✗ 768404791.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/768404791.wem
+✗ 769117544.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/769117544.wem
+  7704223.wem → OGG exists, using existing
+✓ 7704223.wem → 7704223.wav
+  77062981.wem → OGG exists, using existing
+✓ 77062981.wem → 77062981.wav
+✗ 771240503.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/771240503.wem
+✗ 771839792.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/771839792.wem
+✗ 772164625.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/772164625.wem
+✗ 772436630.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/772436630.wem
+✗ 77282459.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/77282459.wem
+✗ 773034051.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/773034051.wem
+  774355091.wem → OGG exists, using existing
+✓ 774355091.wem → 774355091.wav
+✗ 776370976.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/776370976.wem
+✗ 781086982.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/781086982.wem
+✗ 785014563.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/785014563.wem
+✗ 785223634.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/785223634.wem
+✗ 785233140.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/785233140.wem
+✗ 788615941.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/788615941.wem
+✗ 790668567.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/790668567.wem
+  791603559.wem → OGG exists, using existing
+✓ 791603559.wem → 791603559.wav
+  79251465.wem → OGG exists, using existing
+✓ 79251465.wem → 79251465.wav
+✗ 793975384.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/793975384.wem
+✗ 796133871.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/796133871.wem
+✗ 797069195.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/797069195.wem
+✗ 798725762.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/798725762.wem
+✗ 798994491.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/798994491.wem
+  800794505.wem → OGG exists, using existing
+✓ 800794505.wem → 800794505.wav
+✗ 800964721.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/800964721.wem
+✗ 801285541.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/801285541.wem
+✗ 801498834.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/801498834.wem
+✗ 804950849.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/804950849.wem
+✗ 805423319.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/805423319.wem
+✗ 80659507.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/80659507.wem
+✗ 808113696.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/808113696.wem
+  808598561.wem → OGG exists, using existing
+✓ 808598561.wem → 808598561.wav
+✗ 809639402.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/809639402.wem
+✗ 810919921.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/810919921.wem
+✗ 814123033.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/814123033.wem
+✗ 81459039.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/81459039.wem
+✗ 815558874.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/815558874.wem
+  817918248.wem → OGG exists, using existing
+✓ 817918248.wem → 817918248.wav
+  819419062.wem → OGG exists, using existing
+✓ 819419062.wem → 819419062.wav
+✗ 820832547.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/820832547.wem
+✗ 82432731.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/82432731.wem
+✗ 824688092.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/824688092.wem
+✗ 826217668.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/826217668.wem
+✗ 826684627.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/826684627.wem
+✗ 828483131.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/828483131.wem
+✗ 829054705.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/829054705.wem
+  830937823.wem → OGG exists, using existing
+✓ 830937823.wem → 830937823.wav
+✗ 833456135.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/833456135.wem
+  833481870.wem → OGG exists, using existing
+✓ 833481870.wem → 833481870.wav
+✗ 833517949.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/833517949.wem
+  834582578.wem → OGG exists, using existing
+✓ 834582578.wem → 834582578.wav
+✗ 837431799.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/837431799.wem
+  839679838.wem → OGG exists, using existing
+✓ 839679838.wem → 839679838.wav
+✗ 842183435.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/842183435.wem
+  846186181.wem → OGG exists, using existing
+✓ 846186181.wem → 846186181.wav
+✗ 84914266.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/84914266.wem
+✗ 852151867.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/852151867.wem
+✗ 854593138.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/854593138.wem
+✗ 855009038.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/855009038.wem
+✗ 855213129.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/855213129.wem
+✗ 856277576.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/856277576.wem
+✗ 858041845.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/858041845.wem
+✗ 8596014.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/8596014.wem
+✗ 860244211.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/860244211.wem
+✗ 863652456.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/863652456.wem
+✗ 86384283.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/86384283.wem
+✗ 864647165.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/864647165.wem
+✗ 866838562.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/866838562.wem
+✗ 868117451.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/868117451.wem
+  868342888.wem → OGG exists, using existing
+✓ 868342888.wem → 868342888.wav
+✗ 871680653.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/871680653.wem
+✗ 872224018.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/872224018.wem
+  87283465.wem → OGG exists, using existing
+✓ 87283465.wem → 87283465.wav
+✗ 87535588.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/87535588.wem
+✗ 876493421.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/876493421.wem
+✗ 878785344.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/878785344.wem
+✗ 880138525.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/880138525.wem
+  880870144.wem → OGG exists, using existing
+✓ 880870144.wem → 880870144.wav
+  883237117.wem → OGG exists, using existing
+✓ 883237117.wem → 883237117.wav
+✗ 883625499.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/883625499.wem
+✗ 885122933.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/885122933.wem
+✗ 885348858.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/885348858.wem
+✗ 885518248.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/885518248.wem
+✗ 886620625.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/886620625.wem
+✗ 891069340.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/891069340.wem
+✗ 893117323.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/893117323.wem
+  893695355.wem → OGG exists, using existing
+✓ 893695355.wem → 893695355.wav
+  895438234.wem → OGG exists, using existing
+✓ 895438234.wem → 895438234.wav
+✗ 897070951.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/897070951.wem
+✗ 897718446.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/897718446.wem
+✗ 898312853.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/898312853.wem
+  8990726.wem → OGG exists, using existing
+✓ 8990726.wem → 8990726.wav
+✗ 899231751.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/899231751.wem
+✗ 899341022.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/899341022.wem
+✗ 899714071.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/899714071.wem
+✗ 899890640.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/899890640.wem
+✗ 903740128.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/903740128.wem
+✗ 904326589.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/904326589.wem
+✗ 904531898.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/904531898.wem
+  904770373.wem → OGG exists, using existing
+✓ 904770373.wem → 904770373.wav
+✗ 906354236.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/906354236.wem
+✗ 90811512.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/90811512.wem
+✗ 908441484.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/908441484.wem
+  908932215.wem → OGG exists, using existing
+✓ 908932215.wem → 908932215.wav
+✗ 909968742.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/909968742.wem
+✗ 910565851.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/910565851.wem
+✗ 91193635.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/91193635.wem
+  916452747.wem → OGG exists, using existing
+✓ 916452747.wem → 916452747.wav
+✗ 916754958.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/916754958.wem
+✗ 917261751.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/917261751.wem
+✗ 919471011.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/919471011.wem
+✗ 920210506.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/920210506.wem
+✗ 920315529.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/920315529.wem
+✗ 921668592.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/921668592.wem
+✗ 921863983.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/921863983.wem
+✗ 922875304.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/922875304.wem
+  924512541.wem → OGG exists, using existing
+✓ 924512541.wem → 924512541.wav
+✗ 924521218.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/924521218.wem
+✗ 924565420.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/924565420.wem
+✗ 925810777.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/925810777.wem
+✗ 926845344.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/926845344.wem
+✗ 927816428.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/927816428.wem
+✗ 930138304.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/930138304.wem
+✗ 934150695.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/934150695.wem
+✗ 934426459.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/934426459.wem
+✗ 940143681.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/940143681.wem
+✗ 941177176.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/941177176.wem
+✗ 941415363.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/941415363.wem
+✗ 941605535.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/941605535.wem
+✗ 942282162.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/942282162.wem
+✗ 942857672.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/942857672.wem
+✗ 946058236.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/946058236.wem
+✗ 946700487.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/946700487.wem
+✗ 947352273.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/947352273.wem
+✗ 94852671.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/94852671.wem
+✗ 949770136.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/949770136.wem
+✗ 951245051.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/951245051.wem
+✗ 951378080.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/951378080.wem
+  951396372.wem → OGG exists, using existing
+✓ 951396372.wem → 951396372.wav
+✗ 952926182.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/952926182.wem
+✗ 953035461.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/953035461.wem
+✗ 957319689.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/957319689.wem
+✗ 958078346.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/958078346.wem
+  958512583.wem → OGG exists, using existing
+✓ 958512583.wem → 958512583.wav
+✗ 964108558.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/964108558.wem
+✗ 964590964.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/964590964.wem
+✗ 965400869.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/965400869.wem
+✗ 966562407.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/966562407.wem
+✗ 967408489.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/967408489.wem
+✗ 967572836.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/967572836.wem
+✗ 968088556.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/968088556.wem
+✗ 969696874.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/969696874.wem
+✗ 970110245.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/970110245.wem
+✗ 971398625.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/971398625.wem
+✗ 97177374.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/97177374.wem
+✗ 972160913.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/972160913.wem
+✗ 97323929.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/97323929.wem
+✗ 973934898.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/973934898.wem
+✗ 974718992.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/974718992.wem
+✗ 975812487.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/975812487.wem
+  975954736.wem → OGG exists, using existing
+✓ 975954736.wem → 975954736.wav
+  97610591.wem → OGG exists, using existing
+✓ 97610591.wem → 97610591.wav
+✗ 976566991.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/976566991.wem
+✗ 976754774.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/976754774.wem
+✗ 97957083.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/97957083.wem
+  97984813.wem → OGG exists, using existing
+✓ 97984813.wem → 97984813.wav
+  980979572.wem → OGG exists, using existing
+✓ 980979572.wem → 980979572.wav
+✗ 982319375.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/982319375.wem
+✗ 982456714.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/982456714.wem
+✗ 982577383.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/982577383.wem
+✗ 983559397.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/983559397.wem
+✗ 983843686.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/983843686.wem
+✗ 98658757.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/98658757.wem
+✗ 987475017.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/987475017.wem
+✗ 989623.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/989623.wem
+✗ 99293937.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/99293937.wem
+✗ 99479845.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/99479845.wem
+✗ 996552662.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/996552662.wem
+✗ 997048718.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/997048718.wem
+✗ 998006074.wem (WEM→OGG failed)
+  Error: Failed to convert /home/nonasuomy/code/esphome003/esphome/wire-os-externals/victor-audio-assets/victor_robot/victor_linux/998006074.wem
+
+============================================================
+Conversion complete!
+  WEM→OGG conversions: 0
+  OGG→WAV conversions: 144
+  Skipped (already converted): 0
+  Failed: 759
+  Total WEM files: 903
+============================================================

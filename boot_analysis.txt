@@ -1,0 +1,146 @@
+Analyzing boot_capture2.txt...
+================================================================================
+
+Total lines: 7709
+
+================================================================================
+BOOT & INITIALIZATION MESSAGES
+================================================================================
+INFO Starting log output from /dev/ttyUSB0 with baud rate 115200
+[22:42:23.214]rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+[22:42:23.244]I (29) boot: ESP-IDF 5.5.1 2nd stage bootloader
+[22:42:23.245]I (29) boot: compile time Dec  8 2025 19:27:37
+[22:42:23.245]I (29) boot: Multicore bootloader
+[22:42:23.246]I (30) boot: chip revision: v1.0
+[22:42:23.246]I (33) boot.esp32: SPI Speed      : 40MHz
+[22:42:23.247]I (37) boot.esp32: SPI Mode       : DIO
+[22:42:23.265]I (40) boot.esp32: SPI Flash Size : 4MB
+[22:42:23.266]I (44) boot: Enabling RNG early entropy source...
+[22:42:23.267]I (48) boot: Partition Table:
+[22:42:23.268]I (51) boot: ## Label            Usage          Type ST Offset   Length
+[22:42:23.287]I (57) boot:  0 nvs              WiFi data        01 02 00009000 00005000
+[22:42:23.288]I (64) boot:  1 otadata          OTA data         01 00 0000e000 00002000
+[22:42:23.290]I (70) boot:  2 app0             OTA app          00 10 00010000 00300000
+[22:42:23.291]I (77) boot:  3 spiffs           Unknown data     01 82 00310000 000f0000
+[22:42:23.295]I (83) boot: End of partition table
+[22:42:23.675]I (475) boot: Loaded app from partition at offset 0x10000
+[22:42:23.676]I (475) boot: Disabling RNG early entropy source...
+[22:42:24.621][I][logger:121]: Log initialized
+
+================================================================================
+STORAGE & SD CARD MESSAGES
+================================================================================
+[22:42:24.633][D][vector_eyes.storage_adapter:613]: Initialized 2 buffer pools of 4096 bytes each
+[22:42:24.676][C][storage:065]: Setting up Storage Host Component...
+[22:42:24.698]0;35m[C][storage:070]:   Mounts configured: 0
+[22:42:24.699][C][storage:075]:   Device nodes configured: 0
+[22:42:24.701][C][component:199]: Setup storage took 0ms
+[22:42:25.732][I][sd_storage.spi:046]: Initializing SD card in SPI mode
+[22:42:25.734][I][sd_storage.spi:106]: Mounting SD card via SPI
+[22:42:25.735][D][sd_storage.spi:109]: SPI Interface: 1
+[22:42:25.736][D][sd_storage.spi:110]: CS Pin: 0
+[22:42:25.742][D][sd_storage.spi:132]: slot_config.host_id: 1, slot_config.gpio_cs: 0
+[22:42:25.743][D][sd_storage.spi:138]: host.slot: 1
+[22:42:25.820][I][sd_storage.spi:183]: SD card mounted successfully at /sd
+[22:42:25.821][I][sd_storage.spi:184]:   Max frequency: 20000 kHz
+[22:42:25.822][I][sd_storage.spi:185]:   Real frequency: 20000 kHz
+[22:42:25.841][I][sd_storage.spi:188]: Notifying 0 mount ready callbacks for '/sd'
+[22:42:25.843][D][storage:368]: Registered storage device: SD Card (SPI) (id: sd_card, type: 1)
+[22:42:25.844][D][storage:104]: Registered mount: /sd (platform: sd_mmc)
+[22:42:25.845][D][sd_storage.spi:198]: Registered with storage registry
+[22:42:25.863][C][component:199]: Setup sd_storage took 135ms
+[22:42:25.922][I][vector_eyes:020]: Initializing storage component...
+[22:42:25.923][I][vector_eyes.storage_adapter:292]: Set preferred mount path: /sd
+[22:42:26.475][D][vector_eyes.storage_adapter:391]: Preferred mount path not found or has no animations, trying all devices
+[22:42:27.061][D][vector_eyes.storage_adapter:409]: No storage device with animations directory found
+[22:42:27.063][W][vector_eyes.storage_adapter:054]: No storage device with animations found, will fall back to internal animations
+[22:42:27.084][W][vector_eyes:035]: Storage adapter initialization failed, will try SD card fallback
+[22:42:27.085][W][vector_eyes:088]: No storage available, using internal animations only
+[22:42:27.479][W][component:481]: storage took a long time for an operation (268 ms)
+[22:42:28.325][C][storage:086]: Storage Host Component:
+[22:42:28.326][C][storage:087]:   Mounts: 1
+[22:42:28.327][C][storage:089]:     - /sd (platform: sd_mmc)
+
+================================================================================
+FILE OPERATIONS
+================================================================================
+❌ NO FILE OPERATIONS FOUND - SD card not being accessed!
+
+================================================================================
+VECTOR EYES COMPONENT
+================================================================================
+INFO Reading configuration config/vector-eyes-ttgo.yaml...
+[22:42:14.287][D][vector_eyes:552]: play_trigger called with trigger 1
+[22:42:14.296][D][vector_eyes:554]: Animation base for trigger: anim_keepalive_blink_01
+[22:42:14.297][W][vector_eyes:584]: No animation played for trigger 1
+[22:42:24.633][D][vector_eyes.storage_adapter:613]: Initialized 2 buffer pools of 4096 bytes each
+[22:42:25.921][C][vector_eyes:014]: Setting up Vector Eyes...
+[22:42:25.922][I][vector_eyes:020]: Initializing storage component...
+[22:42:25.923][I][vector_eyes.storage_adapter:292]: Set preferred mount path: /sd
+[22:42:26.475][D][vector_eyes.storage_adapter:391]: Preferred mount path not found or has no animations, trying all devices
+[22:42:27.061][D][vector_eyes.storage_adapter:409]: No storage device with animations directory found
+[22:42:27.063][W][vector_eyes.storage_adapter:054]: No storage device with animations found, will fall back to internal animations
+[22:42:27.084][W][vector_eyes:035]: Storage adapter initialization failed, will try SD card fallback
+[22:42:27.085][W][vector_eyes:088]: No storage available, using internal animations only
+[22:42:27.086][C][component:199]: Setup vector_eyes took 1165ms
+[22:42:31.295][C][vector_eyes:111]: Vector Eyes:
+[22:42:31.296][C][vector_eyes:125]:   Storage: Not available (using internal animations)
+[22:42:31.296][C][vector_eyes:128]:   Volume: 1.00
+[22:42:31.842][C][wifi:893]:   Hostname: 'vector-eyes-ttgo'
+[22:42:32.108][C][esphome.ota:093]:   Address: vector-eyes-ttgo.local:3232
+[22:42:32.684][C][wifi:893]:   Hostname: 'vector-eyes-ttgo'
+[22:42:32.685][C][api:223]:   Address: vector-eyes-ttgo.local:6053
+[22:42:32.930][C][mdns:175]:   Hostname: vector-eyes-ttgo
+[22:42:35.887][D][vector_eyes:552]: play_trigger called with trigger 1
+[22:42:35.897][D][vector_eyes:554]: Animation base for trigger: anim_keepalive_blink_01
+[22:42:35.897][W][vector_eyes:584]: No animation played for trigger 1
+[22:42:35.912][W][component:481]: vector_eyes took a long time for an operation (56 ms)
+
+================================================================================
+SPI ERRORS (sample)
+================================================================================
+Total SPI errors: 4542
+
+First 10 SPI errors:
+[22:41:53.560][E][spi-esp-idf:077]: Transmit failed - err 102
+[22:41:53.561][E][spi-esp-idf:077]: Transmit failed - err 102
+[22:41:53.567][E][spi-esp-idf:077]: Transmit failed - err 102
+[22:41:53.645]E (64024) spi_master: check_trans_valid(1083): invalid dev handle
+[22:41:53.646]E (64025) spi_master: check_trans_valid(1083): invalid dev handle
+[22:41:53.668]E (64031) spi_master: check_trans_valid(1083): invalid dev handle
+[22:41:53.668][E][spi-esp-idf:077]: Transmit failed - err 102
+[22:41:53.668][W][spi-esp-idf:033]: SPI device not ready, cannot bE (64047) spi_master: check_trans_valid(1083): invalid dev handle
+[22:41:53.690][E][spi-esp-idf:077]: Transmit failed - err 102
+[22:41:53.690][W][spi-esp-idf:033]: SPI devicE (64063) spi_master: check_trans_valid(1083): invalid dev handle
+
+⚠️  CRITICAL: Massive SPI errors detected!
+This suggests SPI bus configuration issues with display or SD card
+
+================================================================================
+OTHER ERRORS (non-SPI)
+================================================================================
+No other errors found
+
+================================================================================
+SUMMARY
+================================================================================
+Total lines: 7709
+Storage messages: 47
+File operations: 0
+Vector eyes messages: 26
+SPI errors: 4542
+Other errors: 0
+Warnings: 2300
+
+================================================================================
+DIAGNOSIS
+================================================================================
+❌ CRITICAL: Severe SPI bus errors detected
+   - Display or SD card SPI configuration is incorrect
+   - Device may be in a boot loop or crash state
+   - Recommendation: Check SPI pin assignments and bus configuration
+❌ PROBLEM: No file operations detected
+   - SD card is not being accessed
+   - Files are not being read from SD card
+
+================================================================================

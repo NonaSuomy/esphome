@@ -1,0 +1,33 @@
+Setting up SD card at: /run/media/nonasuomy/TTGOCAM
+
+Creating directories...
+Found 1 JSON files in root
+Found 0 WAV files in root
+
+Moving JSON files to /animations...
+
+Final structure:
+================
+drwxr-xr-x 2 nonasuomy nonasuomy 160K Dec  8 18:59 animations
+drwxr-xr-x 2 nonasuomy nonasuomy 132K Dec  8 18:59 audio
+-rw-r--r-- 1 nonasuomy nonasuomy 5.1K Dec  8 18:58 audio_mappings.json
+
+Animations directory:
+  1191 animation files
+/run/media/nonasuomy/TTGOCAM/animations/anim_attention_lookatdevice_01.json
+/run/media/nonasuomy/TTGOCAM/animations/anim_avs_back2listen_03.json
+/run/media/nonasuomy/TTGOCAM/animations/anim_avs_error_getin_01.json
+/run/media/nonasuomy/TTGOCAM/animations/anim_avs_error_getout_01.json
+/run/media/nonasuomy/TTGOCAM/animations/anim_avs_error_loop_01.json
+  ... and 1186 more
+
+Audio directory:
+  1347 audio files
+/run/media/nonasuomy/TTGOCAM/audio/1000932328.wem.wav
+/run/media/nonasuomy/TTGOCAM/audio/1001552319.wem.wav
+/run/media/nonasuomy/TTGOCAM/audio/1003586302.wem.wav
+/run/media/nonasuomy/TTGOCAM/audio/1005827565.wem.wav
+/run/media/nonasuomy/TTGOCAM/audio/1007707804.wem.wav
+  ... and 1342 more
+
+✅ SD card setup complete!

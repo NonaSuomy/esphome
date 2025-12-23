@@ -1,0 +1,15 @@
+Starting property-based tests...
+============================================================
+
+[TEST 1] Running: Complete keyframe extraction
+✓ PASSED: Complete keyframe extraction
+
+[TEST 2] Running: Keyframe ordering preservation
+✓ PASSED: Keyframe ordering preservation
+
+[TEST 3] Running: JSON structure navigation
+✓ PASSED: JSON structure navigation
+
+============================================================
+RESULTS: 3 passed, 0 failed
+============================================================

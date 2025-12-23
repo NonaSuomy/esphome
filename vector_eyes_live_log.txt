@@ -1,0 +1,284 @@
+INFO ESPHome 2025.12.0-dev
+INFO Reading configuration config/vector-eyes-ttgo.yaml...
+WARNING GPIO2 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO12 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO15 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+INFO Starting log output from /dev/ttyUSB0 with baud rate 115200
+[13:20:34.113][D][vector_eyes:719]: Behavior tick: Playing NothingToDoBoredIdle
+[13:20:34.114][D][vector_eyes:729]: play_trigger called with trigger ID 259
+[13:20:34.133][D][behavior_engine:174]: Trigger 'NothingToDoBoredIdle' mapped to group 'ag_hiking_lookaround'
+[13:20:34.135][I][vector_eyes:752]: Trigger 'NothingToDoBoredIdle' selected animation 'anim_lookinplaceforfaces_keepalive_medium_head_angle_40'
+[13:20:34.135][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:34.139][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:34.238][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:34.239][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:34.451][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:34.457][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:20:34.460][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:34.540][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:34.752][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:20:34.753][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:34.754][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:34.856][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:34.860][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:35.068][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:35.071][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:20:35.075][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:35.160][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:35.369][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:20:35.392][D][vector_eyes:266]: Opening animation stream: /animations/anim_lookinplaceforfaces_keepalive_medium_head_angle_40.json
+[13:20:35.409][D][vector_eyes.storage_adapter:349]: Opened file for streaming: /animations/anim_lookinplaceforfaces_keepalive_medium_head_angle_40.json (took 10 ms)
+[13:20:35.417][D][vector_eyes.storage_adapter:743]: Tracking file handle: /animations/anim_lookinplaceforfaces_keepalive_medium_head_angle_40.json (total open: 1)
+[13:20:35.760][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Scrn_Curious
+[13:20:35.764][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Head_Up_Micro_Curious
+[13:20:35.786][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Head_Down_Micro_Happy
+[13:20:35.787][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Scrn_Curious_Short
+[13:20:35.804][I][vector_eyes:284]: Loaded animation via stream: /animations/anim_lookinplaceforfaces_keepalive_medium_head_angle_40.json
+[13:20:35.807][D][vector_eyes.animation:022]: Playing animation with 20 keyframes
+[13:20:35.820][D][vector_eyes.storage_adapter:408]: Closed file handle
+[13:20:35.822][D][vector_eyes.storage_adapter:754]: Untracking file handle: /animations/anim_lookinplaceforfaces_keepalive_medium_head_angle_40.json (open for 386 ms, read 26361/26361 bytes)
+[13:20:35.898][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:35.901][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:35.904][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:35.906][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:36.834][D][vector_eyes.animation:075]: Animation finished
+[13:20:37.145][D][vector_eyes:719]: Behavior tick: Playing NothingToDoBoredIdle
+[13:20:37.146][D][vector_eyes:729]: play_trigger called with trigger ID 259
+[13:20:37.165][D][behavior_engine:174]: Trigger 'NothingToDoBoredIdle' mapped to group 'ag_hiking_lookaround'
+[13:20:37.167][I][vector_eyes:752]: Trigger 'NothingToDoBoredIdle' selected animation 'anim_lookinplaceforfaces_keepalive_short_head_angle_20'
+[13:20:37.168][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:37.171][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:37.267][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:37.268][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:37.485][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:37.489][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:20:37.495][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:37.575][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:37.798][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:20:37.799][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:37.806][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:37.894][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:37.902][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:38.109][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:38.110][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:20:38.126][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:38.198][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:38.406][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:20:38.418][D][vector_eyes:266]: Opening animation stream: /animations/anim_lookinplaceforfaces_keepalive_short_head_angle_20.json
+[13:20:38.446][D][vector_eyes.storage_adapter:349]: Opened file for streaming: /animations/anim_lookinplaceforfaces_keepalive_short_head_angle_20.json (took 11 ms)
+[13:20:38.457][D][vector_eyes.storage_adapter:743]: Tracking file handle: /animations/anim_lookinplaceforfaces_keepalive_short_head_angle_20.json (total open: 1)
+[13:20:38.503][I][vector_eyes:284]: Loaded animation via stream: /animations/anim_lookinplaceforfaces_keepalive_short_head_angle_20.json
+[13:20:38.517][D][vector_eyes.animation:022]: Playing animation with 3 keyframes
+[13:20:38.527][D][vector_eyes.storage_adapter:408]: Closed file handle
+[13:20:38.537][D][vector_eyes.storage_adapter:754]: Untracking file handle: /animations/anim_lookinplaceforfaces_keepalive_short_head_angle_20.json (open for 65 ms, read 3583/3583 bytes)
+[13:20:38.604][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:38.607][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:38.611][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:38.615][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:38.884][D][vector_eyes.animation:075]: Animation finished
+[13:20:40.669][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:40.671][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:40.673][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:40.674][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:42.736][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:42.737][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:42.738][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:42.739][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:44.799][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:44.800][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:44.801][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:44.802][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:45.195][D][vector_eyes:719]: Behavior tick: Playing NothingToDoBoredIdle
+[13:20:45.199][D][vector_eyes:729]: play_trigger called with trigger ID 259
+[13:20:45.216][D][behavior_engine:174]: Trigger 'NothingToDoBoredIdle' mapped to group 'ag_hiking_lookaround'
+[13:20:45.218][I][vector_eyes:752]: Trigger 'NothingToDoBoredIdle' selected animation 'anim_lookinplaceforfaces_keepalive_short_head_angle_-20'
+[13:20:45.219][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:45.222][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:45.312][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:45.314][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:45.529][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:45.532][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:20:45.541][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:45.621][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:45.831][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:20:45.833][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:45.836][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:45.937][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:45.945][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:46.147][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:46.150][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:20:46.153][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:46.243][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:46.435][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:20:46.467][D][vector_eyes:266]: Opening animation stream: /animations/anim_lookinplaceforfaces_keepalive_short_head_angle_-20.json
+[13:20:46.483][D][vector_eyes.storage_adapter:349]: Opened file for streaming: /animations/anim_lookinplaceforfaces_keepalive_short_head_angle_-20.json (took 8 ms)
+[13:20:46.485][D][vector_eyes.storage_adapter:743]: Tracking file handle: /animations/anim_lookinplaceforfaces_keepalive_short_head_angle_-20.json (total open: 1)
+[13:20:46.555][I][vector_eyes:284]: Loaded animation via stream: /animations/anim_lookinplaceforfaces_keepalive_short_head_angle_-20.json
+[13:20:46.557][D][vector_eyes.animation:022]: Playing animation with 3 keyframes
+[13:20:46.574][D][vector_eyes.storage_adapter:408]: Closed file handle
+[13:20:46.577][D][vector_eyes.storage_adapter:754]: Untracking file handle: /animations/anim_lookinplaceforfaces_keepalive_short_head_angle_-20.json (open for 79 ms, read 3585/3585 bytes)
+[13:20:46.858][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:46.860][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:46.861][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:46.862][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:46.938][D][vector_eyes.animation:075]: Animation finished
+[13:20:48.236][D][vector_eyes:719]: Behavior tick: Playing NothingToDoBoredIdle
+[13:20:48.238][D][vector_eyes:729]: play_trigger called with trigger ID 259
+[13:20:48.257][D][behavior_engine:174]: Trigger 'NothingToDoBoredIdle' mapped to group 'ag_hiking_lookaround'
+[13:20:48.263][I][vector_eyes:752]: Trigger 'NothingToDoBoredIdle' selected animation 'anim_lookinplaceforfaces_keepalive_medium'
+[13:20:48.265][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:48.269][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:48.354][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:48.356][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:48.569][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:48.574][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:20:48.577][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:48.660][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:48.872][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:20:48.873][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:48.876][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:48.976][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:48.978][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:49.188][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:49.190][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:20:49.193][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:49.279][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:49.479][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:20:49.512][D][vector_eyes:266]: Opening animation stream: /animations/anim_lookinplaceforfaces_keepalive_medium.json
+[13:20:49.529][D][vector_eyes.storage_adapter:349]: Opened file for streaming: /animations/anim_lookinplaceforfaces_keepalive_medium.json (took 8 ms)
+[13:20:49.531][D][vector_eyes.storage_adapter:743]: Tracking file handle: /animations/anim_lookinplaceforfaces_keepalive_medium.json (total open: 1)
+[13:20:49.869][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Scrn_Curious
+[13:20:49.871][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Head_Up_Micro_Curious
+[13:20:49.887][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Head_Down_Micro_Happy
+[13:20:49.889][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Scrn_Curious_Short
+[13:20:49.907][I][vector_eyes:284]: Loaded animation via stream: /animations/anim_lookinplaceforfaces_keepalive_medium.json
+[13:20:49.908][D][vector_eyes.animation:022]: Playing animation with 20 keyframes
+[13:20:49.909][D][vector_eyes.storage_adapter:408]: Closed file handle
+[13:20:49.918][D][vector_eyes.storage_adapter:754]: Untracking file handle: /animations/anim_lookinplaceforfaces_keepalive_medium.json (open for 371 ms, read 26341/26341 bytes)
+[13:20:50.006][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:50.007][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:50.008][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:50.010][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:50.933][D][vector_eyes.animation:075]: Animation finished
+[13:20:52.034][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:52.035][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:52.036][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:52.037][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:54.099][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:54.099][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:54.100][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:54.101][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:56.166][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:56.171][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:56.176][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:56.182][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:58.232][D][vector_eyes:619]: VectorEyes::loop running
+[13:20:58.234][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:20:58.235][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:20:58.236][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:20:58.334][D][vector_eyes:719]: Behavior tick: Playing NothingToDoBoredIdle
+[13:20:58.335][D][vector_eyes:729]: play_trigger called with trigger ID 259
+[13:20:58.355][D][behavior_engine:174]: Trigger 'NothingToDoBoredIdle' mapped to group 'ag_hiking_lookaround'
+[13:20:58.357][I][vector_eyes:752]: Trigger 'NothingToDoBoredIdle' selected animation 'anim_lookinplaceforfaces_keepalive_long_head_angle_-20'
+[13:20:58.358][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:58.361][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:58.453][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:58.456][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:58.676][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:58.677][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:20:58.678][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:58.766][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:58.977][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:20:58.978][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:58.979][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:59.084][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:59.086][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:59.306][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:20:59.310][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:20:59.313][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:20:59.396][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:20:59.594][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:20:59.627][D][vector_eyes:266]: Opening animation stream: /animations/anim_lookinplaceforfaces_keepalive_long_head_angle_-20.json
+[13:20:59.642][D][vector_eyes.storage_adapter:349]: Opened file for streaming: /animations/anim_lookinplaceforfaces_keepalive_long_head_angle_-20.json (took 10 ms)
+[13:20:59.645][D][vector_eyes.storage_adapter:743]: Tracking file handle: /animations/anim_lookinplaceforfaces_keepalive_long_head_angle_-20.json (total open: 1)
+[13:21:00.290][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Blink
+[13:21:00.291][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Head_Down_Micro_Curious
+[13:21:00.315][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Head_Down_Short_Curious
+[13:21:00.316][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Scrn_Curious
+[13:21:00.334][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Scrn_Curious_Short
+[13:21:00.335][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Scrn_Curious_Short
+[13:21:00.337][W][vector_eyes:1097]: No audio mapping found for event: Play__Robot_Vic_Sfx__Head_Down_Micro_Neutral
+[13:21:00.359][I][vector_eyes:284]: Loaded animation via stream: /animations/anim_lookinplaceforfaces_keepalive_long_head_angle_-20.json
+[13:21:00.365][D][vector_eyes.animation:022]: Playing animation with 32 keyframes
+[13:21:00.375][D][vector_eyes.storage_adapter:408]: Closed file handle
+[13:21:00.381][D][vector_eyes.storage_adapter:754]: Untracking file handle: /animations/anim_lookinplaceforfaces_keepalive_long_head_angle_-20.json (open for 712 ms, read 48343/48343 bytes)
+[13:21:00.460][D][vector_eyes:619]: VectorEyes::loop running
+[13:21:00.461][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:21:00.464][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:21:00.465][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:21:02.348][D][vector_eyes.animation:075]: Animation finished
+[13:21:02.465][D][vector_eyes:619]: VectorEyes::loop running
+[13:21:02.465][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:21:02.466][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:21:02.467][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:21:02.782][D][number:034]: 'Volume': Sending state 100.000000
+[13:21:04.530][D][vector_eyes:619]: VectorEyes::loop running
+[13:21:04.531][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:21:04.532][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:21:04.533][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:21:06.597][D][vector_eyes:619]: VectorEyes::loop running
+[13:21:06.597][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:21:06.598][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:21:06.599][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:21:07.390][D][vector_eyes:719]: Behavior tick: Playing NothingToDoBoredIdle
+[13:21:07.393][D][vector_eyes:729]: play_trigger called with trigger ID 259
+[13:21:07.411][D][behavior_engine:174]: Trigger 'NothingToDoBoredIdle' mapped to group 'ag_hiking_lookaround'
+[13:21:07.413][I][vector_eyes:752]: Trigger 'NothingToDoBoredIdle' selected animation 'anim_lookinplaceforfaces_keepalive_short'
+[13:21:07.414][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:21:07.416][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:21:07.518][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:21:07.521][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:21:07.735][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:21:07.737][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:21:07.745][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:21:07.824][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:21:08.035][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:21:08.036][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:21:08.037][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 1/3), retrying in 100 ms...
+[13:21:08.144][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:21:08.146][W][vector_eyes.storage_adapter:253]: file_exists (primary device) failed (attempt 2/3), retrying in 200 ms...
+[13:21:08.356][W][nfs_client:1269]: LOOKUP failed: status=2
+[13:21:08.358][E][vector_eyes.storage_adapter:248]: file_exists (primary device) failed after 3 attempts
+[13:21:08.360][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 1/3), retrying in 100 ms...
+[13:21:08.447][W][vector_eyes.storage_adapter:253]: file_exists (alternative device) failed (attempt 2/3), retrying in 200 ms...
+[13:21:08.644][E][vector_eyes.storage_adapter:248]: file_exists (alternative device) failed after 3 attempts
+[13:21:08.666][D][vector_eyes:266]: Opening animation stream: /animations/anim_lookinplaceforfaces_keepalive_short.json
+[13:21:08.680][D][vector_eyes.storage_adapter:349]: Opened file for streaming: /animations/anim_lookinplaceforfaces_keepalive_short.json (took 11 ms)
+[13:21:08.695][D][vector_eyes.storage_adapter:743]: Tracking file handle: /animations/anim_lookinplaceforfaces_keepalive_short.json (total open: 1)
+[13:21:08.765][I][vector_eyes:284]: Loaded animation via stream: /animations/anim_lookinplaceforfaces_keepalive_short.json
+[13:21:08.766][D][vector_eyes.animation:022]: Playing animation with 3 keyframes
+[13:21:08.779][D][vector_eyes.storage_adapter:408]: Closed file handle
+[13:21:08.781][D][vector_eyes.storage_adapter:754]: Untracking file handle: /animations/anim_lookinplaceforfaces_keepalive_short.json (open for 76 ms, read 3568/3568 bytes)
+[13:21:08.867][D][vector_eyes:619]: VectorEyes::loop running
+[13:21:08.868][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:21:08.870][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:21:08.870][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:21:09.145][D][vector_eyes.animation:075]: Animation finished
+[13:21:10.937][D][vector_eyes:619]: VectorEyes::loop running
+[13:21:10.938][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:21:10.939][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:21:10.940][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:21:13.005][D][vector_eyes:619]: VectorEyes::loop running
+[13:21:13.007][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:21:13.008][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:21:13.010][D][behavior_engine:026]: Storage adapter is set, available=1
+[13:21:15.072][D][vector_eyes:619]: VectorEyes::loop running
+[13:21:15.073][D][vector_eyes:620]: BehaviorEngine ptr is valid
+[13:21:15.074][D][behavior_engine:025]: BehaviorEngine::loop running, maps_loaded_=1
+[13:21:15.076][D][behavior_engine:026]: Storage adapter is set, available=1

@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/home/nonasuomy/code/esphome003/esphome/esphome/components/vector_eyes/run_property_tests.py", line 12, in <module>
+    from test_property_keyframe_extraction import (
+  File "/home/nonasuomy/code/esphome003/esphome/esphome/components/vector_eyes/test_property_keyframe_extraction.py", line 13, in <module>
+    from json_parser import JSONParser
+  File "/home/nonasuomy/code/esphome003/esphome/esphome/components/vector_eyes/json_parser.py", line 9, in <module>
+    from .animation_data import AnimationData, KeyframeData, AudioEventData
+ImportError: attempted relative import with no known parent package
+Starting property-based tests...
+============================================================
+FATAL ERROR: Failed to run tests
+Error: attempted relative import with no known parent package

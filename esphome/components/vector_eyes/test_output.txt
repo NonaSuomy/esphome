@@ -1,0 +1,35 @@
+Testing special character sanitization...
+============================================================
+✓ PASS: 'Play__Robot_Vic_Sfx__Blink' -> 'PLAY_ROBOT_VIC_SFX_BLINK'
+✓ PASS: 'Play__Robot_Vic__Happy_Short' -> 'PLAY_ROBOT_VIC_HAPPY_SHORT'
+✓ PASS: 'Stop__Audio_Event' -> 'STOP_AUDIO_EVENT'
+✓ PASS: 'Event-With-Dashes' -> 'EVENT_NEGWITH_NEGDASHES'
+✓ PASS: 'Event With Spaces' -> 'EVENT_WITH_SPACES'
+✓ PASS: 'Event:With:Colons' -> 'EVENT_WITH_COLONS'
+✓ PASS: 'Event.With.Dots' -> 'EVENT_DOTWITH_DOTDOTS'
+✓ PASS: 'Event/With/Slashes' -> 'EVENT_SLASHWITH_SLASHSLASHES'
+✓ PASS: 'Event(With)Parens' -> 'EVENT_LPARENWITH_RPARENPARENS'
+✓ PASS: 'Event[With]Brackets' -> 'EVENT_LBRACKWITH_RBRACKBRACKETS'
+✓ PASS: 'Event{With}Braces' -> 'EVENT_LBRACEWITH_RBRACEBRACES'
+✓ PASS: 'Event<With>Angles' -> 'EVENT_LTWITH_GTANGLES'
+✓ PASS: 'Event&With&Ampersands' -> 'EVENT_AMPWITH_AMPAMPERSANDS'
+✓ PASS: 'Event|With|Pipes' -> 'EVENT_PIPEWITH_PIPEPIPES'
+✓ PASS: 'Event!With!Bangs' -> 'EVENT_BANGWITH_BANGBANGS'
+✓ PASS: 'Event?With?Questions' -> 'EVENT_QUESTWITH_QUESTQUESTIONS'
+✓ PASS: 'Event@With@Ats' -> 'EVENT_ATWITH_ATATS'
+✓ PASS: 'Event#With#Hashes' -> 'EVENT_HASHWITH_HASHHASHES'
+✓ PASS: 'Event$With$Dollars' -> 'EVENT_DOLLARWITH_DOLLARDOLLARS'
+✓ PASS: 'Event%With%Percents' -> 'EVENT_PERCENTWITH_PERCENTPERCENTS'
+✓ PASS: 'Event+With+Plus' -> 'EVENT_PLUSWITH_PLUSPLUS'
+✓ PASS: 'Event=With=Equals' -> 'EVENT_EQWITH_EQEQUALS'
+✓ PASS: 'Event*With*Stars' -> 'EVENT_STARWITH_STARSTARS'
+✓ PASS: '123StartWithDigit' -> '_123STARTWITHDIGIT'
+✓ PASS: '' -> 'UNNAMED'
+✓ PASS: '___' -> 'UNNAMED'
+✓ PASS: 'Multiple___Underscores' -> 'MULTIPLE_UNDERSCORES'
+
+============================================================
+RESULTS: 27 passed, 0 failed
+============================================================
+
+✓ All tests PASSED!

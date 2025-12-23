@@ -1,0 +1,37 @@
+======================================================================
+ESPHome Compilation
+Config: config/vector-eyes-ttgo.yaml
+Time: 2025-12-08 19:19:42
+======================================================================
+
+📦 Existing firmware: config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/firmware.elf
+   Age: 31.9 minutes
+
+🔨 Starting compilation...
+
+✅ COMPILATION SUCCESSFUL
+
+⚠️  Firmware exists but may not be new
+   Path: config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/firmware.elf
+   Size: 20,225,824 bytes (19.29 MB)
+   Modified: 2025-12-08 18:47:45
+
+📤 Uploading to /dev/ttyUSB0...
+✅ UPLOAD SUCCESSFUL
+
+⏳ Waiting 3 seconds for device to reset...
+
+📡 Capturing serial logs from /dev/ttyUSB0 for 15 seconds...
+   Waiting for device to boot and collecting logs...
+✅ Serial logs captured: serial_boot_log.txt
+   Lines captured: 2012
+⚠️  Found 1635 potential issues in logs
+   - Storage device not found: [19:20:19.743][D][vector_eyes.storage_adapter:409]: No storage device with anima
+   - Storage device not found: [19:20:19.745][W][vector_eyes.storage_adapter:054]: No storage device with anima
+   - Initialization failure: [19:20:19.765][W][vector_eyes:035]: Storage adapter initialization failed, will 
+   - Device not ready: [19:20:19.940][W][spi-esp-idf:033]: SPI device not ready, cannot begin transacti
+   - Invalid device handle: [19:20:19.941]E (2668) spi_master: check_trans_valid(1083): invalid dev handle
+
+✅ All operations completed successfully
+📄 Status: compile_status.txt
+📄 Serial logs: serial_boot_log.txt

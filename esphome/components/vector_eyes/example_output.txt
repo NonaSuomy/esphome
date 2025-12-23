@@ -1,0 +1,68 @@
+[INFO] audio_mapper: Loaded 5 exact mappings
+[INFO] audio_mapper: Loaded 37 pattern mappings
+[INFO] audio_mapper: Successfully reloaded mappings from audio_mappings.json
+[WARNING] audio_mapper: No mapping found for audio event: Play__Robot_Vic_Sfx__Unknown_Event
+[INFO] audio_mapper: Loaded 5 exact mappings
+[INFO] audio_mapper: Loaded 37 pattern mappings
+[INFO] audio_mapper: Successfully reloaded mappings from audio_mappings.json
+[INFO] audio_mapper: Loaded 5 exact mappings
+[INFO] audio_mapper: Loaded 37 pattern mappings
+[INFO] audio_mapper: Successfully reloaded mappings from audio_mappings.json
+[INFO] audio_mapper: Loaded 5 exact mappings
+[INFO] audio_mapper: Loaded 37 pattern mappings
+[INFO] audio_mapper: Successfully reloaded mappings from audio_mappings.json
+[INFO] audio_mapper: Loaded 5 exact mappings
+[INFO] audio_mapper: Loaded 37 pattern mappings
+[INFO] audio_mapper: Successfully reloaded mappings from audio_mappings.json
+[INFO] audio_mapper: Loaded 5 exact mappings
+[INFO] audio_mapper: Loaded 37 pattern mappings
+[INFO] audio_mapper: Successfully reloaded mappings from audio_mappings.json
+============================================================
+AudioMapper Usage Examples
+============================================================
+
+=== Basic Usage Example ===
+
+✓ Play__Robot_Vic_Sfx__Blink -> blink.wav
+✓ Play__Robot_Vic_Sfx__Scrn_Happy_Short -> happy_short.wav
+✓ Play__Robot_Vic_Sfx__Scrn_Curious_Long -> curious.wav
+✗ Play__Robot_Vic_Sfx__Unknown_Event -> (unmapped)
+
+=== Integration with AnimationData Example ===
+
+✓ t=0ms: Play__Robot_Vic_Sfx__Blink -> blink.wav
+✓ t=500ms: Play__Robot_Vic_Sfx__Scrn_Happy_Short -> happy_short.wav
+✓ t=1000ms: Play__Robot_Vic_Sfx__Emote_Curious_Long -> emote_curious.wav
+
+=== Hot-Reload Example ===
+
+Initial mapping: Blink -> blink
+
+(Simulating configuration file update...)
+✓ Mappings reloaded successfully
+After reload: Blink -> blink
+
+=== Pattern Matching Example ===
+
+Should match 'Scrn_Happy' pattern
+  Play__Robot_Vic_Sfx__Scrn_Happy -> happy.wav
+
+Should match more specific 'Scrn_Happy_Short' pattern
+  Play__Robot_Vic_Sfx__Scrn_Happy_Short -> happy_short.wav
+
+Should match more specific 'Scrn_Happy_Long' pattern
+  Play__Robot_Vic_Sfx__Scrn_Happy_Long -> happy.wav
+
+Should match 'Head_Down_Micro_Curious' pattern
+  Play__Robot_Vic_Sfx__Head_Down_Micro_Curious -> head_curious.wav
+
+
+=== Mapping Statistics Example ===
+
+Exact mappings loaded: 5
+Pattern mappings loaded: 37
+Total mappings: 42
+
+============================================================
+Examples completed!
+============================================================

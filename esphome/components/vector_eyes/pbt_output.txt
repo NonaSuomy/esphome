@@ -1,0 +1,22 @@
+Running property-based tests for special character sanitization...
+============================================================
+
+[TEST 1] Running: Sanitized output is valid C++ identifier (100 examples)
+✓ PASSED: Sanitized output is valid C++ identifier
+
+[TEST 2] Running: Sanitization is deterministic (100 examples)
+✓ PASSED: Sanitization is deterministic
+
+[TEST 3] Running: No consecutive underscores (100 examples)
+✓ PASSED: No consecutive underscores
+
+[TEST 4] Running: No leading or trailing underscores (100 examples)
+✓ PASSED: No leading or trailing underscores
+
+============================================================
+RESULTS: 4 passed, 0 failed
+============================================================
+
+✓ All property-based tests PASSED!
+Property 23: Special character sanitization is validated.
+Validates: Requirements 7.2

@@ -1,0 +1,64 @@
+Analyzing boot_logs_20251208_224009.txt...
+================================================================================
+
+Total lines: 20
+
+================================================================================
+BOOT & INITIALIZATION MESSAGES
+================================================================================
+ESP32 Boot Log Capture
+📋 Logs will be saved to: boot_logs_20251208_224009.txt
+⚡ RESET THE DEVICE NOW to capture boot sequence!
+📄 Log file: boot_logs_20251208_224009.txt
+
+================================================================================
+STORAGE & SD CARD MESSAGES
+================================================================================
+❌ NO STORAGE MESSAGES FOUND - Storage component may not be initializing!
+
+================================================================================
+FILE OPERATIONS
+================================================================================
+❌ NO FILE OPERATIONS FOUND - SD card not being accessed!
+
+================================================================================
+VECTOR EYES COMPONENT
+================================================================================
+❌ NO VECTOR EYES MESSAGES FOUND
+
+================================================================================
+SPI ERRORS (sample)
+================================================================================
+No SPI errors
+
+================================================================================
+OTHER ERRORS (non-SPI)
+================================================================================
+No other errors found
+
+================================================================================
+SUMMARY
+================================================================================
+Total lines: 20
+Storage messages: 0
+File operations: 0
+Vector eyes messages: 0
+SPI errors: 0
+Other errors: 0
+Warnings: 0
+
+================================================================================
+DIAGNOSIS
+================================================================================
+❌ PROBLEM: No storage component initialization detected
+   - Storage component may not be starting
+   - SD card may not be detected
+   - Check YAML configuration for storage/sd_storage components
+❌ PROBLEM: No file operations detected
+   - SD card is not being accessed
+   - Files are not being read from SD card
+❌ PROBLEM: No vector_eyes component messages
+   - Component may not be initializing
+   - May be crashing during setup
+
+================================================================================

@@ -1,0 +1,33 @@
+INFO ESPHome 2025.12.0-dev
+INFO Reading configuration config/vector-eyes-ttgo.yaml...
+WARNING GPIO2 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO12 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO15 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO0 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+INFO Generating C++ source...
+INFO Compiling app... Build path: /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo
+Processing vector-eyes-ttgo (board: esp32dev; framework: arduino, espidf; platform: https://github.com/pioarduino/platform-espressif32/releases/download/55.03.31-2/platform-espressif32.zip)
+--------------------------------------------------------------------------------
+INFO Package configuration completed successfully
+INFO Package configuration completed successfully
+HARDWARE: ESP32 240MHz, 320KB RAM, 4MB Flash
+ - contrib-piohome @ 3.4.4 
+ - framework-arduinoespressif32 @ 3.3.2 
+ - framework-arduinoespressif32-libs @ 5.5.0+sha.129cd0d247 
+ - framework-espidf @ 3.50501.0 (5.5.1) 
+ - tool-cmake @ 4.0.3 
+ - tool-esp-rom-elfs @ 2024.10.11 
+ - tool-esptoolpy @ 5.1.0 
+ - tool-mklittlefs @ 3.2.0 
+ - tool-ninja @ 1.13.1 
+ - tool-scons @ 4.40801.0 (4.8.1) 
+ - toolchain-xtensa-esp-elf @ 14.2.0+20241119
+Reading CMake configuration...

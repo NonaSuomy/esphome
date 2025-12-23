@@ -1,0 +1,83 @@
+INFO ESPHome 2025.12.0-dev
+INFO Reading configuration config/vector-eyes-ttgo.yaml...
+WARNING GPIO2 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO12 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO15 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO0 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+INFO Generating C++ source...
+INFO Compiling app... Build path: /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo
+Processing vector-eyes-ttgo (board: esp32dev; framework: espidf; platform: https://github.com/pioarduino/platform-espressif32/releases/download/55.03.31-2/platform-espressif32.zip)
+--------------------------------------------------------------------------------
+INFO Package configuration completed successfully
+INFO Package configuration completed successfully
+HARDWARE: ESP32 240MHz, 320KB RAM, 4MB Flash
+ - contrib-piohome @ 3.4.4 
+ - framework-espidf @ 3.50501.0 (5.5.1) 
+ - tool-cmake @ 4.0.3 
+ - tool-esp-rom-elfs @ 2024.10.11 
+ - tool-esptoolpy @ 5.1.0 
+ - tool-mklittlefs @ 3.2.0 
+ - tool-ninja @ 1.13.1 
+ - tool-scons @ 4.40801.0 (4.8.1) 
+ - toolchain-xtensa-esp-elf @ 14.2.0+20241119
+Reading CMake configuration...
+Dependency Graph
+|-- ArduinoJson @ 7.0.4
+|-- esp-audio-libs @ 2.0.1
+|-- noise-c @ 0.1.10
+Compiling .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/storage_adapter.cpp.o
+In file included from src/esphome/core/automation.h:4,
+                 from src/esphome/components/storage/storage.h:9,
+                 from src/esphome/components/vector_eyes/storage_adapter.h:7,
+                 from src/esphome/components/vector_eyes/storage_adapter.cpp:1:
+src/esphome/core/defines.h:45:9: warning: "USE_STORAGE" redefined
+   45 | #define USE_STORAGE
+      |         ^~~~~~~~~~~
+<command-line>: note: this is the location of the previous definition
+Linking .pioenvs/vector-eyes-ttgo/firmware.elf
+                            Memory Type Usage Summary                             
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Memory Type/Section ┃ Used [bytes] ┃ Used [%] ┃ Remain [bytes] ┃ Total [bytes] ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ Flash Code          │       728328 │          │                │               │
+│    .text            │       728328 │          │                │               │
+│ Flash Data          │       176340 │          │                │               │
+│    .rodata          │       176084 │          │                │               │
+│    .appdesc         │          256 │          │                │               │
+│ IRAM                │       121519 │    92.71 │           9553 │        131072 │
+│    .text            │       120491 │    91.93 │                │               │
+│    .vectors         │         1028 │     0.78 │                │               │
+│ DRAM                │        40676 │    22.51 │         140060 │        180736 │
+│    .bss             │        23656 │    13.09 │                │               │
+│    .data            │        17020 │     9.42 │                │               │
+└─────────────────────┴──────────────┴──────────┴────────────────┴───────────────┘
+Total image size: 1043207 bytes (.bin may be padded larger)
+Note: The reported total sizes may be smaller than those in the technical reference manual due to reserved memory and application configuration. The total flash size available for the application is not included by default, as it cannot be reliably determined due to the presence of other data like the bootloader, partition table, and application partition size.
+RAM:   [=         ]  12.4% (used 40676 bytes from 327680 bytes)
+Flash: [===       ]  33.2% (used 1042951 bytes from 3145728 bytes)
+Building .pioenvs/vector-eyes-ttgo/firmware.bin
+Creating ESP32 image...
+Successfully created ESP32 image.
+merge_factory_bin([".pioenvs/vector-eyes-ttgo/firmware.bin"], [".pioenvs/vector-eyes-ttgo/firmware.elf"])
+Info: bootloader.bin not found - skipping
+Info: partition-table.bin not found - skipping
+Info: ota_data_initial.bin not found - skipping
+Info: vector-eyes-ttgo.bin not found - skipping
+Using FLASH_EXTRA_IMAGES from PlatformIO environment
+Merging binaries into /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/firmware.factory.bin
+Merging binaries with esptool
+SHA digest in image updated.
+Wrote 0x10eba0 bytes to file '/home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/firmware.factory.bin', ready to flash to offset 0x0.
+Successfully created /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/firmware.factory.bin
+esp32_copy_ota_bin([".pioenvs/vector-eyes-ttgo/firmware.bin"], [".pioenvs/vector-eyes-ttgo/firmware.elf"])
+Copied firmware to /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/firmware.ota.bin
+========================= [SUCCESS] Took 17.29 seconds =========================
+INFO Successfully compiled program.

@@ -1,0 +1,23 @@
+========================================
+ESP32 Boot Log Capture
+Date: Mon Dec  8 10:40:09 PM EST 2025
+========================================
+
+🔌 Waiting for device connection...
+📋 Logs will be saved to: boot_logs_20251208_224009.txt
+
+⚡ RESET THE DEVICE NOW to capture boot sequence!
+⏱️  Capturing for 60 seconds...
+🛑 Press Ctrl+C to stop early
+
+timeout: failed to run command ‘esphome’: No such file or directory
+
+========================================
+✅ Log capture complete!
+📄 Log file: boot_logs_20251208_224009.txt
+========================================
+
+🔍 Running automated analysis...
+
+📊 Analysis saved to: boot_logs_20251208_224009_analysis.txt
+

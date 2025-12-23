@@ -1,0 +1,6 @@
+usage: esphome [-h] [-v] [-q] [-l {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+               [-s key value] [--mdns-address-cache MDNS_ADDRESS_CACHE]
+               [--dns-address-cache DNS_ADDRESS_CACHE] [--testing-mode]
+               [--version]
+               command ...
+esphome: error: unrecognized arguments: --verbose

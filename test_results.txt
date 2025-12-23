@@ -1,0 +1,9 @@
+Starting tests...
+
+[TEST 1] Complete keyframe extraction
+✓ PASSED
+
+[TEST 2] Keyframe ordering preservation
+✓ PASSED
+
+Done!

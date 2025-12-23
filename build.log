@@ -1,0 +1,149 @@
+INFO ESPHome 2025.12.0-dev
+INFO Reading configuration /home/nonasuomy/code/esphome003/esphome/vector-eyes-ttgo.yaml...
+WARNING GPIO2 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO12 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO15 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+INFO Generating C++ source...
+INFO Compiling app... Build path: /home/nonasuomy/code/esphome003/esphome/.esphome/build/vector-eyes-ttgo
+Processing vector-eyes-ttgo (board: esp32dev; framework: arduino, espidf; platform: https://github.com/pioarduino/platform-espressif32/releases/download/55.03.31-2/platform-espressif32.zip)
+--------------------------------------------------------------------------------
+INFO Package configuration completed successfully
+INFO Package configuration completed successfully
+HARDWARE: ESP32 240MHz, 320KB RAM, 4MB Flash
+ - contrib-piohome @ 3.4.4 
+ - framework-arduinoespressif32 @ 3.3.2 
+ - framework-arduinoespressif32-libs @ 5.5.0+sha.129cd0d247 
+ - framework-espidf @ 3.50501.0 (5.5.1) 
+ - tool-cmake @ 4.0.3 
+ - tool-esp-rom-elfs @ 2024.10.11 
+ - tool-esptoolpy @ 5.1.0 
+ - tool-mklittlefs @ 3.2.0 
+ - tool-ninja @ 1.13.1 
+ - tool-scons @ 4.40801.0 (4.8.1) 
+ - toolchain-xtensa-esp-elf @ 14.2.0+20241119
+Reading CMake configuration...
+Dependency Graph
+|-- Networking @ 3.3.2
+|-- ESPmDNS @ 3.3.2
+|-- Update @ 3.3.2
+|-- SPI @ 3.3.2
+|-- esp-audio-libs @ 2.0.1
+|-- noise-c @ 0.1.10
+Compiling .pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/decode/wav_decoder.cpp.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_add_s16_ae32.S.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_add_s16_aes3.S.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_add_s16_ansi.c.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_biquad_f32_ae32.S.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_biquad_f32_aes3.S.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_biquad_f32_ansi.c.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_dotprod_f32_ae32.S.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_dotprod_f32_aes3.S.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_dotprod_f32_ansi.c.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_dotprod_f32_m_ae32.S.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_mulc_s16_ae32.S.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/dsp/dsps_mulc_s16_ansi.c.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/memory_utils.cpp.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/quantization_utils.cpp.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/resample/art_biquad.cpp.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/resample/art_resampler.cpp.o
+Compiling .pioenvs/vector-eyes-ttgo/lib46a/esp-audio-libs/resample/resampler.cpp.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_core/ed25519/ref10/ed25519_ref10.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_core/salsa/ref/core_salsa_ref.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_hash/crypto_hash.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_hash/sha256/cp/hash_sha256_cp.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_hash/sha256/hash_sha256.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_onetimeauth/crypto_onetimeauth.c.o
+src/esphome/components/vector_eyes/vector_eyes.cpp:245:2: error: #else without #if
+  245 | #else
+      |  ^~~~
+src/esphome/components/vector_eyes/vector_eyes.cpp:248:2: error: #endif without #if
+  248 | #endif
+      |  ^~~~~
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_onetimeauth/poly1305/donna/poly1305_donna.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_onetimeauth/poly1305/onetimeauth_poly1305.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_scalarmult/crypto_scalarmult.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_scalarmult/curve25519/ref10/x25519_ref10.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_scalarmult/curve25519/scalarmult_curve25519.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_stream/chacha20/ref/chacha20_ref.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_stream/chacha20/stream_chacha20.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_stream/crypto_stream.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_stream/salsa20/ref/salsa20_ref.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_stream/salsa20/stream_salsa20.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_stream/salsa20/xmm6/salsa20_xmm6-asm.S.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_stream/salsa20/xmm6/salsa20_xmm6.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-avx2.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-sse2.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/crypto_verify/verify.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/randombytes/internal/randombytes_internal_random.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/randombytes/randombytes.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/randombytes/sysrandom/randombytes_sysrandom.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/sodium/codecs.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/sodium/core.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/sodium/runtime.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libcc2/libsodium/sodium/utils.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/openssl/cipher-aesgcm.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/ref/cipher-aesgcm.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/ref/cipher-chachapoly.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/ref/dh-curve25519.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/ref/hash-blake2b.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/ref/hash-blake2s.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/ref/hash-sha256.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/sodium/cipher-aesgcm.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/sodium/cipher-chachapoly.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/sodium/dh-curve25519.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/sodium/hash-blake2b.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/backend/sodium/hash-sha256.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/crypto/aes/rijndael-alg-fst.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/crypto/blake2/blake2b.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/crypto/blake2/blake2s.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/crypto/chacha/chacha.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/crypto/donna/curve25519-donna-c64.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/crypto/donna/curve25519-donna.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/crypto/donna/poly1305-donna.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/crypto/sha2/sha256.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/crypto/sha2/sha512.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/crypto/x25519/x25519.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/cipherstate.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/dhstate.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/errors.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/handshakestate.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/hashstate.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/internal.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/names.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/patterns.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/rand_os.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/rand_sodium.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/randstate.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/signstate.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/symmetricstate.c.o
+Compiling .pioenvs/vector-eyes-ttgo/libbeb/noise-c/protocol/util.c.o
+Generating LD script .pioenvs/vector-eyes-ttgo/esp-idf/esp_system/ld/memory.ld.in
+Generating LD script .pioenvs/vector-eyes-ttgo/esp-idf/esp_system/ld/sections.ld.in
+Compiling .pioenvs/vector-eyes-ttgo/app_trace/app_trace.c.o
+Generating LD script .pioenvs/vector-eyes-ttgo/memory.ld
+Compiling .pioenvs/vector-eyes-ttgo/app_trace/app_trace_util.c.o
+Compiling .pioenvs/vector-eyes-ttgo/app_trace/host_file_io.c.o
+Compiling .pioenvs/vector-eyes-ttgo/app_trace/port/port_uart.c.o
+Compiling .pioenvs/vector-eyes-ttgo/app_update/esp_ota_ops.c.o
+Compiling .pioenvs/vector-eyes-ttgo/app_update/esp_ota_app_desc.c.o
+Compiling .pioenvs/vector-eyes-ttgo/bootloader_support/src/bootloader_common.c.o
+Archiving .pioenvs/vector-eyes-ttgo/esp-idf/app_trace/libapp_trace.a
+Indexing .pioenvs/vector-eyes-ttgo/esp-idf/app_trace/libapp_trace.a
+Compiling .pioenvs/vector-eyes-ttgo/bootloader_support/src/bootloader_common_loader.c.o
+Compiling .pioenvs/vector-eyes-ttgo/bootloader_support/src/bootloader_clock_init.c.o
+Compiling .pioenvs/vector-eyes-ttgo/bootloader_support/src/bootloader_mem.c.o
+Compiling .pioenvs/vector-eyes-ttgo/bootloader_support/src/bootloader_random.c.o
+Compiling .pioenvs/vector-eyes-ttgo/bootloader_support/src/bootloader_efuse.c.o
+Compiling .pioenvs/vector-eyes-ttgo/bootloader_support/src/flash_encrypt.c.o
+Compiling .pioenvs/vector-eyes-ttgo/bootloader_support/src/secure_boot.c.o
+Compiling .pioenvs/vector-eyes-ttgo/bootloader_support/src/bootloader_random_esp32.c.o
+Compiling .pioenvs/vector-eyes-ttgo/bootloader_support/bootloader_flash/src/bootloader_flash.c.o
+*** [.pioenvs/vector-eyes-ttgo/src/esphome/components/vector_eyes/vector_eyes.cpp.o] Error 1
+========================= [FAILED] Took 30.70 seconds =========================

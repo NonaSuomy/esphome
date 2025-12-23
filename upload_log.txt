@@ -1,0 +1,31 @@
+=== Uploading Fixed Firmware to ESP32 ===
+
+Uploading to /dev/ttyUSB0...
+INFO ESPHome 2025.12.0-dev
+INFO Reading configuration config/vector-eyes-ttgo.yaml...
+WARNING GPIO2 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO12 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO15 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO0 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+esptool v5.1.0
+Serial port /dev/ttyUSB0:
+ERROR Running command failed: Could not open /dev/ttyUSB0, the port is busy or doesn't exist.
+([Errno 11] Could not exclusively lock port /dev/ttyUSB0: [Errno 11] Resource temporarily unavailable)
+
+ERROR Please try running esptool --before default-reset --after hard-reset --baud 460800 --port /dev/ttyUSB0 --chip esp32 write-flash -z --flash-size detect 0x10000 /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/firmware.bin 0x1000 /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/bootloader.bin 0x8000 /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/partitions.bin 0xe000 /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/ota_data_initial.bin locally.
+INFO Upload with baud rate 460800 failed. Trying again with baud rate 115200.
+esptool v5.1.0
+Serial port /dev/ttyUSB0:
+ERROR Running command failed: Could not open /dev/ttyUSB0, the port is busy or doesn't exist.
+([Errno 11] Could not exclusively lock port /dev/ttyUSB0: [Errno 11] Resource temporarily unavailable)
+
+ERROR Please try running esptool --before default-reset --after hard-reset --baud 115200 --port /dev/ttyUSB0 --chip esp32 write-flash -z --flash-size detect 0x10000 /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/firmware.bin 0x1000 /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/bootloader.bin 0x8000 /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/partitions.bin 0xe000 /home/nonasuomy/code/esphome003/esphome/config/.esphome/build/vector-eyes-ttgo/.pioenvs/vector-eyes-ttgo/ota_data_initial.bin locally.
+WARNING Failed to upload to ['/dev/ttyUSB0']

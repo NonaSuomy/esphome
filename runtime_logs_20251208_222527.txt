@@ -1,0 +1,49 @@
+========================================
+ESP32 Runtime Log Capture (Network)
+Date: Mon Dec  8 10:25:27 PM EST 2025
+========================================
+
+Capturing logs from config/vector-eyes-ttgo.yaml via network...
+Logs will be saved to: runtime_logs_20251208_222527.txt
+Press Ctrl+C to stop capture
+
+INFO ESPHome 2025.12.0-dev
+INFO Reading configuration config/vector-eyes-ttgo.yaml...
+WARNING GPIO2 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO12 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO15 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO0 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+Found multiple options for logging, please choose one:
+  [1] /dev/ttyUSB0 (CP2104 USB to UART Bridge Controller - CP2104 USB to UART Bridge Controller)
+  [2] Over The Air (vector-eyes-ttgo.local)
+(number): 
+========================================
+Log capture complete!
+Log file: runtime_logs_20251208_222527.txt
+========================================
+
+========================================
+SD Card & Storage Activity Analysis:
+========================================
+
+--- Storage/SD Card Messages ---
+
+--- File Operations ---
+
+--- Animation Loading ---
+
+--- Audio/WAV Files ---
+
+--- Errors/Warnings ---
+
+========================================
+Analysis complete!
+========================================

@@ -1,0 +1,53 @@
+======================================================================
+SERIAL LOG ANALYSIS
+======================================================================
+
+Total lines: 3284
+Storage/SD related: 0
+SPI errors: 2085
+Mount related: 0
+Setup related: 0
+
+======================================================================
+BOOT SEQUENCE (first 30 lines after boot):
+======================================================================
+INFO Starting log output from /dev/ttyUSB0 with baud rate 115200
+[18:49:32.455][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[18:49:32.456]E (81014) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.457]E (81016) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.477]E (81021) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.477][E][spi-esp-idf:077]: Transmit failed - err 102
+[18:49:32.478][W][spi-esp-idf:033]: SPI device not ready, cannot bE (81037) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.479]egin transaction
+[18:49:32.499][E][spi-esp-idf:077]: Transmit failed - err 102
+[18:49:32.500][W][spi-esp-idf:033]: SPI devicE (81053) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.500]e not ready, cannot begin transaction
+[18:49:32.501][E][spi-esp-idf:077]: Transmit failed - err 102
+[18:49:32.521][W][spi-esE (81070) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.522]p-idf:033]: SPI device not ready, cannot begin transaction
+[18:49:32.522][E][spi-esp-idf:077]: Transmit failed - err 102
+[18:49:32.544][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[18:49:32.545][E][spi-esp-idf:077]: TransE (81096) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.545]mit failed - err 102
+[18:49:32.546][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[18:49:32.566][E][spE (81112) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.566]i-esp-idf:077]: Transmit failed - err 102
+[18:49:32.567][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (81128) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.567]ion
+[18:49:32.588][E][spi-esp-idf:077]: Transmit failed - err 102
+[18:49:32.589][W][spi-esp-idf:033]: SPI device not ready, E (81144) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.589]cannot begin transaction
+[18:49:32.590][E][spi-esp-idf:077]: Transmit failed - err 102
+[18:49:32.610][W][spi-esp-idf:033]: SE (81160) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.611]PI device not ready, cannot begin transaction
+[18:49:32.611][E][spi-esp-idf:077]: Transmit failed - err 102
+
+======================================================================
+SPI ERRORS: 2085 total
+======================================================================
+Sample errors:
+[18:49:32.456]E (81014) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.457]E (81016) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.477]E (81021) spi_master: check_trans_valid(1083): invalid dev handle
+[18:49:32.477][E][spi-esp-idf:077]: Transmit failed - err 102
+[18:49:32.478][W][spi-esp-idf:033]: SPI device not ready, cannot bE (81037) spi_master: check_trans_valid(1083): invalid dev handle

@@ -1,0 +1,5264 @@
+{
+  "anim_uperformance_loosepixel_01": [
+    {
+      "durationTime_ms": 165,
+      "triggerTime_ms": 0,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 32
+    },
+    {
+      "durationTime_ms": 99,
+      "triggerTime_ms": 759,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 35
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 858,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 34
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 924,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 32
+    },
+    {
+      "durationTime_ms": 99,
+      "triggerTime_ms": 1716,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 35
+    },
+    {
+      "durationTime_ms": 99,
+      "triggerTime_ms": 1815,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 32
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 2805,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 39
+    },
+    {
+      "durationTime_ms": 165,
+      "triggerTime_ms": 2970,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 32
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 4620,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 42
+    },
+    {
+      "durationTime_ms": 132,
+      "triggerTime_ms": 4686,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 32
+    },
+    {
+      "durationTime_ms": 132,
+      "triggerTime_ms": 6402,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 46
+    },
+    {
+      "durationTime_ms": 165,
+      "triggerTime_ms": 7392,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 43
+    },
+    {
+      "durationTime_ms": 99,
+      "triggerTime_ms": 8118,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 45
+    },
+    {
+      "durationTime_ms": 165,
+      "triggerTime_ms": 8217,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 43
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 8448,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 50
+    },
+    {
+      "durationTime_ms": 165,
+      "triggerTime_ms": 8514,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 60
+    },
+    {
+      "durationTime_ms": 99,
+      "triggerTime_ms": 8679,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 60
+    },
+    {
+      "durationTime_ms": 297,
+      "triggerTime_ms": 8778,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 42
+    },
+    {
+      "durationTime_ms": 132,
+      "triggerTime_ms": 9075,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 40
+    },
+    {
+      "durationTime_ms": 264,
+      "triggerTime_ms": 11451,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 32
+    },
+    {
+      "durationTime_ms": 99,
+      "triggerTime_ms": 12903,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 43
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 13002,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 47
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 13068,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 32
+    },
+    {
+      "durationTime_ms": 132,
+      "triggerTime_ms": 13860,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 40
+    },
+    {
+      "durationTime_ms": 132,
+      "triggerTime_ms": 13992,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 42
+    },
+    {
+      "durationTime_ms": 132,
+      "triggerTime_ms": 14784,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 47
+    },
+    {
+      "durationTime_ms": 99,
+      "triggerTime_ms": 14916,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 47
+    },
+    {
+      "durationTime_ms": 495,
+      "triggerTime_ms": 15015,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 48
+    },
+    {
+      "durationTime_ms": 165,
+      "triggerTime_ms": 15510,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 47
+    },
+    {
+      "durationTime_ms": 165,
+      "triggerTime_ms": 15675,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 38
+    },
+    {
+      "durationTime_ms": 132,
+      "triggerTime_ms": 16401,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 37
+    },
+    {
+      "durationTime_ms": 99,
+      "triggerTime_ms": 16533,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 47
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 16632,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 52
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 16863,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 37
+    },
+    {
+      "durationTime_ms": 33,
+      "triggerTime_ms": 16929,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 32
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 16962,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 40
+    },
+    {
+      "durationTime_ms": 66,
+      "triggerTime_ms": 17028,
+      "Name": "LiftHeightKeyFrame",
+      "heightVariability_mm": 0,
+      "height_mm": 32
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": -3,
+      "triggerTime_ms": 0,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 165
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": -10,
+      "triggerTime_ms": 198,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": -3,
+      "triggerTime_ms": 264,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": -9,
+      "triggerTime_ms": 693,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": -3,
+      "triggerTime_ms": 759,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": -9,
+      "triggerTime_ms": 1683,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 9,
+      "triggerTime_ms": 1749,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 9,
+      "triggerTime_ms": 2640,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 33
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 1,
+      "triggerTime_ms": 2673,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 14,
+      "triggerTime_ms": 2772,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 165
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 23,
+      "triggerTime_ms": 2937,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 1584
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 3,
+      "triggerTime_ms": 4521,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 33
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 32,
+      "triggerTime_ms": 4554,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 18,
+      "triggerTime_ms": 4620,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 16,
+      "triggerTime_ms": 4752,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 18,
+      "triggerTime_ms": 4851,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 16,
+      "triggerTime_ms": 5313,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 25,
+      "triggerTime_ms": 5379,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 28,
+      "triggerTime_ms": 5577,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 165
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 28,
+      "triggerTime_ms": 5742,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 33,
+      "triggerTime_ms": 6336,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 35,
+      "triggerTime_ms": 6402,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 28,
+      "triggerTime_ms": 7359,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 21,
+      "triggerTime_ms": 8052,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 18,
+      "triggerTime_ms": 8151,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 198
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 34,
+      "triggerTime_ms": 8349,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 37,
+      "triggerTime_ms": 8448,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 45,
+      "triggerTime_ms": 8580,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 39,
+      "triggerTime_ms": 8679,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 25,
+      "triggerTime_ms": 8745,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 165
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 31,
+      "triggerTime_ms": 8910,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 21,
+      "triggerTime_ms": 9339,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 23,
+      "triggerTime_ms": 9405,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 25,
+      "triggerTime_ms": 10263,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 26,
+      "triggerTime_ms": 10329,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 27,
+      "triggerTime_ms": 11088,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 27,
+      "triggerTime_ms": 11154,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 19,
+      "triggerTime_ms": 11385,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 27,
+      "triggerTime_ms": 11517,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 28,
+      "triggerTime_ms": 11616,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 20,
+      "triggerTime_ms": 11748,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 27,
+      "triggerTime_ms": 11880,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 28,
+      "triggerTime_ms": 11979,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 20,
+      "triggerTime_ms": 12111,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 27,
+      "triggerTime_ms": 12243,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 28,
+      "triggerTime_ms": 12342,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 20,
+      "triggerTime_ms": 12474,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 27,
+      "triggerTime_ms": 12606,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 21,
+      "triggerTime_ms": 12705,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 37,
+      "triggerTime_ms": 12837,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 29,
+      "triggerTime_ms": 12969,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 7,
+      "triggerTime_ms": 13035,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 6,
+      "triggerTime_ms": 13101,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 330
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 3,
+      "triggerTime_ms": 13431,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 33
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 14,
+      "triggerTime_ms": 13464,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 9,
+      "triggerTime_ms": 13695,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 18,
+      "triggerTime_ms": 13761,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 20,
+      "triggerTime_ms": 13860,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 26,
+      "triggerTime_ms": 14718,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 28,
+      "triggerTime_ms": 14784,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 29,
+      "triggerTime_ms": 15015,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 10,
+      "triggerTime_ms": 15081,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": -3,
+      "triggerTime_ms": 15213,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": -8,
+      "triggerTime_ms": 15345,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": -6,
+      "triggerTime_ms": 15477,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 31,
+      "triggerTime_ms": 15576,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 19,
+      "triggerTime_ms": 15675,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 165
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 20,
+      "triggerTime_ms": 15840,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 20,
+      "triggerTime_ms": 16203,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 12,
+      "triggerTime_ms": 16269,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 165
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 4,
+      "triggerTime_ms": 16434,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 165
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 3,
+      "triggerTime_ms": 16599,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 165
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 15,
+      "triggerTime_ms": 16764,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 29,
+      "triggerTime_ms": 16830,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 18,
+      "triggerTime_ms": 16929,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 5,
+      "triggerTime_ms": 17028,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 16,
+      "triggerTime_ms": 17160,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 15,
+      "triggerTime_ms": 17259,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 9,
+      "triggerTime_ms": 17688,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 15,
+      "triggerTime_ms": 17787,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 0,
+      "triggerTime_ms": 19239,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": -5,
+      "triggerTime_ms": 19305,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 99
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 0,
+      "triggerTime_ms": 19404,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 132
+    },
+    {
+      "angleVariability_deg": 0,
+      "angle_deg": 0,
+      "triggerTime_ms": 19536,
+      "Name": "HeadAngleKeyFrame",
+      "durationTime_ms": 66
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.0,
+      "leftEye": [
+        8.107326060759817,
+        0.0,
+        1.5174507300664741,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 0.0,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.315991464547729,
+        0.0,
+        1.5174507300664741,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 0
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.0,
+      "leftEye": [
+        8.107326060759817,
+        0.0,
+        1.5174507300664741,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 0.0,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.315991464547729,
+        0.0,
+        1.5174507300664741,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 165
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.8208569431967185,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.0713055858262686,
+      "leftEye": [
+        12.892286505328542,
+        0.0,
+        1.5048608475273628,
+        1.1516653742027194,
+        0.0,
+        0.5731283006083302,
+        0.6023649983583362,
+        0.6199370389103667,
+        0.6518415183314878,
+        0.6199570841503876,
+        0.6518311231388234,
+        0.537776051613969,
+        0.5658837003656362,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.007699809290319091,
+        1,
+        1.0,
+        0.5,
+        0.17363803173874653,
+        1.4134948980171202e-05,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 6.086579111594325,
+      "faceCenterX": 4.748523125108633,
+      "rightEye": [
+        -10.523776376531423,
+        -0.1559504894395829,
+        1.518970365270289,
+        1.1849562271869294,
+        0.0,
+        0.573147697992013,
+        0.6023549391352809,
+        0.5314967945663635,
+        0.5725483071379154,
+        0.5761048436227527,
+        0.6250937102817067,
+        0.5377941294758722,
+        0.5658743254288807,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.25000000000000006,
+        0.09292552895015,
+        1.3358056615730973e-05,
+        0
+      ],
+      "triggerTime_ms": 231
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0114690429755437,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9580502615678409,
+      "leftEye": [
+        12.142781387155225,
+        0.0,
+        1.4922709649882515,
+        1.1580218456124358,
+        0.0,
+        0.5462566012166604,
+        0.6047299967166725,
+        0.6398740778207334,
+        0.7036830366629756,
+        0.6399141683007753,
+        0.703662246277647,
+        0.4755521032279382,
+        0.5317674007312724,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015399618580638182,
+        1,
+        1.0,
+        0.5,
+        0.347276063477493,
+        2.8269897960342405e-05,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -1.4065160970135924,
+      "faceCenterX": 9.4854753437459,
+      "rightEye": [
+        -7.877015833969658,
+        -0.3119009788791587,
+        1.5204900004741035,
+        1.224971389442193,
+        0.0,
+        0.5462953959840261,
+        0.6047098782705618,
+        0.4629935891327268,
+        0.5450966142758308,
+        0.5522096872455055,
+        0.6501874205634136,
+        0.47558825895174456,
+        0.5317486508577615,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.1858510579002999,
+        2.6716113231461946e-05,
+        0
+      ],
+      "triggerTime_ms": 297
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0004875342910196,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9795343152068992,
+      "leftEye": [
+        12.142781387155225,
+        0.0,
+        1.4922709649882515,
+        1.1580218456124358,
+        0.0,
+        0.5462566012166604,
+        0.6047299967166725,
+        0.6398740778207334,
+        0.7036830366629756,
+        0.6399141683007753,
+        0.703662246277647,
+        0.4755521032279382,
+        0.5317674007312724,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015399618580638182,
+        1,
+        1.0,
+        0.5,
+        0.347276063477493,
+        2.8269897960342405e-05,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -0.9270084836523707,
+      "faceCenterX": 9.485126876277315,
+      "rightEye": [
+        -7.877015833969658,
+        -0.3119009788791587,
+        1.5204900004741035,
+        1.224971389442193,
+        0.0,
+        0.5462953959840261,
+        0.6047098782705618,
+        0.4629935891327268,
+        0.5450966142758308,
+        0.5522096872455055,
+        0.6501874205634136,
+        0.47558825895174456,
+        0.5317486508577615,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.1858510579002999,
+        2.6716113231461946e-05,
+        0
+      ],
+      "triggerTime_ms": 363
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9687013595598533,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9687013595598533,
+      "leftEye": [
+        12.142781387155225,
+        0.0,
+        1.4922709649882515,
+        1.1580218456124358,
+        0.0,
+        0.5462566012166604,
+        0.6047299967166725,
+        0.6398740778207334,
+        0.7036830366629756,
+        0.6399141683007753,
+        0.703662246277647,
+        0.4755521032279382,
+        0.5317674007312724,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015399618580638182,
+        1,
+        1.0,
+        0.5,
+        0.347276063477493,
+        2.8269897960342405e-05,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 0.0,
+      "faceCenterX": 9.484863688346243,
+      "rightEye": [
+        -7.877015833969658,
+        -0.3119009788791587,
+        1.5204900004741035,
+        1.224971389442193,
+        0.0,
+        0.5462953959840261,
+        0.6047098782705618,
+        0.4629935891327268,
+        0.5450966142758308,
+        0.5522096872455055,
+        0.6501874205634136,
+        0.47558825895174456,
+        0.5317486508577615,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.1858510579002999,
+        2.6716113231461946e-05,
+        0
+      ],
+      "triggerTime_ms": 429
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9687013595598533,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9687013595598533,
+      "leftEye": [
+        12.142781387155225,
+        0.0,
+        1.4922709649882515,
+        1.1580218456124358,
+        0.0,
+        0.5462566012166604,
+        0.6047299967166725,
+        0.6398740778207334,
+        0.7036830366629756,
+        0.6399141683007753,
+        0.703662246277647,
+        0.4755521032279382,
+        0.5317674007312724,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015399618580638182,
+        1,
+        1.0,
+        0.5,
+        0.347276063477493,
+        2.8269897960342405e-05,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 0.0,
+      "faceCenterX": 9.484863688346243,
+      "rightEye": [
+        -7.877015833969658,
+        -0.3119009788791587,
+        1.5204900004741035,
+        1.224971389442193,
+        0.0,
+        0.5462953959840261,
+        0.6047098782705618,
+        0.4629935891327268,
+        0.5450966142758308,
+        0.5522096872455055,
+        0.6501874205634136,
+        0.47558825895174456,
+        0.5317486508577615,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.1858510579002999,
+        2.6716113231461946e-05,
+        0
+      ],
+      "triggerTime_ms": 627
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.7561448525513391,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.0210155592603505,
+      "leftEye": [
+        12.515622776341175,
+        0.0,
+        1.4923210549433767,
+        1.1579965558317982,
+        0.0,
+        0.5463635126364045,
+        0.6047205873626715,
+        0.6397947565577073,
+        0.7034767806221601,
+        0.6398347672859988,
+        0.7034560315950199,
+        0.4757996666799949,
+        0.5319031354303385,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015368984212078616,
+        1,
+        1.0,
+        0.5,
+        0.3485451553643444,
+        -0.00486787027674963,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 7.937868722472352,
+      "faceCenterX": 9.840410669073865,
+      "rightEye": [
+        -8.29207273342712,
+        -0.31128051613905683,
+        1.5204839544717739,
+        1.2248121855993084,
+        0.0,
+        0.5464022302295729,
+        0.6047005089380647,
+        0.46326613516128945,
+        0.5452058332506149,
+        0.5523047562270411,
+        0.6500875830297408,
+        0.47583575047943755,
+        0.5318844228558381,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.49900535300925924,
+        0.18740645695522684,
+        -0.004611157636447739,
+        0
+      ],
+      "triggerTime_ms": 693
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.8245140990420224,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.0127121819207248,
+      "leftEye": [
+        12.888464165527125,
+        0.0,
+        1.4925514687369528,
+        1.1578802228408653,
+        0.0,
+        0.5468553051672271,
+        0.6046773043342675,
+        0.6394298787477882,
+        0.7025280028344094,
+        0.6394695226180265,
+        0.7025074440549358,
+        0.47693845855945566,
+        0.5325275150460426,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015228066116704603,
+        1,
+        1.0,
+        0.5,
+        0.35438297804386076,
+        -0.027390115080415806,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 3.2479599854830496,
+      "faceCenterX": 9.83951156184222,
+      "rightEye": [
+        -8.70712963288458,
+        -0.3084263875345883,
+        1.5204561428610557,
+        1.2240798479220383,
+        0.0,
+        0.5468936677590883,
+        0.6046574100085779,
+        0.46451984689267767,
+        0.5457082405346214,
+        0.552742073542105,
+        0.6496283303748456,
+        0.47697421150682495,
+        0.5325089740469907,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.49442997685185186,
+        0.19456129260789085,
+        -0.02594537688497156,
+        0
+      ],
+      "triggerTime_ms": 759
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9913306479302506,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.948714454186629,
+      "leftEye": [
+        11.969382916099171,
+        0.0,
+        1.4933529080189565,
+        1.1574755863506634,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.5,
+        0.37468844823348296,
+        -0.10572835787577635,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -2.9088163231228714,
+      "faceCenterX": 10.195330166779188,
+      "rightEye": [
+        -7.85290931809606,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2215325864358815,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.478515625,
+        0.21944767748672211,
+        -0.10015135687983695,
+        0
+      ],
+      "triggerTime_ms": 825
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0020528528561103,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9807256671326063,
+      "leftEye": [
+        11.969382916099171,
+        0.0,
+        1.493795476933518,
+        1.1574761669352343,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.5,
+        0.37468844823348296,
+        -0.10572835787577635,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -2.9088163231228714,
+      "faceCenterX": 10.195330166779188,
+      "rightEye": [
+        -7.85290931809606,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2215325864358815,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.478515625,
+        0.21944767748672211,
+        -0.10015135687983695,
+        0
+      ],
+      "triggerTime_ms": 891
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9700462230162658,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9700462230162658,
+      "leftEye": [
+        11.969382916099171,
+        0.0,
+        1.4941109263488035,
+        1.1574802310272316,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.5,
+        0.37468844823348296,
+        -0.10572835787577635,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -2.9088163231228714,
+      "faceCenterX": 10.195330166779188,
+      "rightEye": [
+        -7.85290931809606,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2215325864358815,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.478515625,
+        0.21944767748672211,
+        -0.10015135687983695,
+        0
+      ],
+      "triggerTime_ms": 957
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9700462230162658,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9700462230162658,
+      "leftEye": [
+        11.969382916099171,
+        0.0,
+        1.4953165332857288,
+        1.1577205204665608,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.5,
+        0.37468844823348296,
+        -0.10572835787577635,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -2.9088163231228714,
+      "faceCenterX": 10.195330166779188,
+      "rightEye": [
+        -7.85290931809606,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2215325864358815,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.478515625,
+        0.21944767748672211,
+        -0.10015135687983695,
+        0
+      ],
+      "triggerTime_ms": 1320
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9381066277693912,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9808249015481298,
+      "leftEye": [
+        11.969382916099171,
+        0.0,
+        1.495756376611582,
+        1.1578321378503387,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.5,
+        0.3020711143870545,
+        -0.14156709056932726,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -1.7286555988172951,
+      "faceCenterX": 9.249028372865329,
+      "rightEye": [
+        -7.85290931809606,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2215325864358815,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.478515625,
+        0.1479863249267512,
+        -0.13407081096836718,
+        0
+      ],
+      "triggerTime_ms": 1386
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9700462230162658,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9700462230162658,
+      "leftEye": [
+        11.969382916099171,
+        0.0,
+        1.496361614486117,
+        1.1579733650472381,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.5,
+        0.3020711143870545,
+        -0.14156709056932726,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -3.906696844596421,
+      "faceCenterX": 8.302189454444864,
+      "rightEye": [
+        -7.85290931809606,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2215325864358815,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.478515625,
+        0.1479863249267512,
+        -0.13407081096836718,
+        0
+      ],
+      "triggerTime_ms": 1452
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9700462230162658,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9700462230162658,
+      "leftEye": [
+        11.969382916099171,
+        0.0,
+        1.4995597141324206,
+        1.1586095405909287,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.5,
+        0.3020711143870545,
+        -0.14156709056932726,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -3.906696844596421,
+      "faceCenterX": 8.302189454444864,
+      "rightEye": [
+        -7.85290931809606,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2215325864358815,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.478515625,
+        0.1479863249267512,
+        -0.13407081096836718,
+        0
+      ],
+      "triggerTime_ms": 1650
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.767897004302635,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.002371287292284,
+      "leftEye": [
+        10.292136220380819,
+        -0.14924949184647573,
+        1.510331968844906,
+        1.1903065452425712,
+        0.0,
+        0.5485844517854848,
+        0.6045171276794382,
+        0.5535206609445268,
+        0.6233418251562648,
+        0.5962311418141383,
+        0.6736194694844919,
+        0.4809167748711373,
+        0.5346902981236588,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.007368958109875757,
+        1,
+        1.0,
+        0.5,
+        0.13361037183417757,
+        -0.07933120196843335,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 9.202338110964448,
+      "faceCenterX": 1.6491816529183574,
+      "rightEye": [
+        -9.627157781158893,
+        -0.14924949184647573,
+        1.5335576182557111,
+        1.2100071317706176,
+        0.0,
+        0.5485844517854848,
+        0.6045171276794382,
+        0.5535206609445268,
+        0.6233418251562647,
+        0.5962311418141383,
+        0.6736194694844918,
+        0.4809167748711373,
+        0.5346902981236588,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.007368958109875618,
+        1,
+        1.0,
+        0.478515625,
+        -0.017218413788470777,
+        -0.07605806039763635,
+        0
+      ],
+      "triggerTime_ms": 1716
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0573656026952902,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9379441991387616,
+      "leftEye": [
+        8.614889524662473,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2218674753853818,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        -0.034850370718699564,
+        -0.017095313367539382,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 0.9092321297446375,
+      "faceCenterX": -0.3696085477703974,
+      "rightEye": [
+        -11.401406244221718,
+        0.0,
+        1.5467558296876462,
+        1.1984816771053535,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.478515625,
+        -0.1824231525036929,
+        -0.018045309826905512,
+        0
+      ],
+      "triggerTime_ms": 1782
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.034727245000728,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9860923137315813,
+      "leftEye": [
+        8.614889524662473,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2218674753853818,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        -0.034850370718699564,
+        -0.017095313367539382,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 2.556913188358159,
+      "faceCenterX": -0.3690549109193313,
+      "rightEye": [
+        -11.401406244221718,
+        0.0,
+        1.5467558296876462,
+        1.1984816771053535,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.478515625,
+        -0.1824231525036929,
+        -0.018045309826905512,
+        0
+      ],
+      "triggerTime_ms": 1848
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9926845807108275,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.012940697757796,
+      "leftEye": [
+        8.614889524662473,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2218674753853818,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        -0.034850370718699564,
+        -0.017095313367539382,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 2.555265059782265,
+      "faceCenterX": -0.3689620029231975,
+      "rightEye": [
+        -11.401406244221718,
+        0.0,
+        1.5467558296876462,
+        1.1984816771053535,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.478515625,
+        -0.1824231525036929,
+        -0.018045309826905512,
+        0
+      ],
+      "triggerTime_ms": 1914
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9700462230162658,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9916061413808046,
+      "leftEye": [
+        8.614889524662473,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2218674753853818,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        -0.034850370718699564,
+        -0.017095313367539382,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 2.5536169312063777,
+      "faceCenterX": -0.3689487303523151,
+      "rightEye": [
+        -11.401406244221718,
+        0.0,
+        1.5467558296876462,
+        1.1984816771053535,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.478515625,
+        -0.1824231525036929,
+        -0.018045309826905512,
+        0
+      ],
+      "triggerTime_ms": 1980
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9700462230162658,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9916061413808046,
+      "leftEye": [
+        8.614889524662473,
+        -0.29849898369294436,
+        1.520359406823776,
+        1.2218674753853818,
+        0.0,
+        0.5486030156878374,
+        0.6045075006886236,
+        0.4688805833496799,
+        0.5474557441311662,
+        0.5542631772466752,
+        0.6480309298360795,
+        0.48093407594991183,
+        0.5346813260162171,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        -0.034850370718699564,
+        -0.017095313367539382,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 2.5536169312063777,
+      "faceCenterX": -0.3689487303523151,
+      "rightEye": [
+        -11.401406244221718,
+        0.0,
+        1.5467558296876462,
+        1.1984816771053535,
+        0.0,
+        0.548565887883132,
+        0.604526754670253,
+        0.6381607385393736,
+        0.6992279061813633,
+        0.6381991063816014,
+        0.6992080091329043,
+        0.4808994737923627,
+        0.5346992702311005,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.014737916219751375,
+        1,
+        1.0,
+        0.478515625,
+        -0.1824231525036929,
+        -0.018045309826905512,
+        0
+      ],
+      "triggerTime_ms": 2145
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9718585616268484,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9794406140388593,
+      "leftEye": [
+        9.293282967061685,
+        0.0,
+        1.5989466956463083,
+        1.1453089027930028,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.07885649630224416,
+        -0.1084729372602647,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 1.538023544972738,
+      "faceCenterX": -0.3520082783154237,
+      "rightEye": [
+        -8.570536919093179,
+        1.0219525223344306,
+        1.5989466956463083,
+        1.1196454976440522,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        -0.035429217983470096,
+        -0.11092423119644557,
+        0
+      ],
+      "triggerTime_ms": 2211
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0175975016622687,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9457626054861885,
+      "leftEye": [
+        9.293282967061685,
+        0.0,
+        1.5989466956463083,
+        1.1453089027930028,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.07885649630224416,
+        -0.1084729372602647,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -0.18713547165616556,
+      "faceCenterX": -0.33457865464622216,
+      "rightEye": [
+        -8.570536919093179,
+        1.0219525223344306,
+        1.5989466956463083,
+        1.1196454976440522,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        -0.035429217983470096,
+        -0.11092423119644557,
+        0
+      ],
+      "triggerTime_ms": 2244
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0175975016622687,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9457626054861885,
+      "leftEye": [
+        9.293282967061685,
+        0.0,
+        1.5989466956463083,
+        1.1453089027930028,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.07885649630224416,
+        -0.1084729372602647,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -0.18713547165616556,
+      "faceCenterX": -0.33457865464622216,
+      "rightEye": [
+        -8.570536919093179,
+        1.0219525223344306,
+        1.5989466956463083,
+        1.1196454976440522,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        -0.035429217983470096,
+        -0.11092423119644557,
+        0
+      ],
+      "triggerTime_ms": 2442
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9836490976460273,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9562643238909366,
+      "leftEye": [
+        9.293282967061685,
+        0.0,
+        1.5989466956463083,
+        1.1453089027930028,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.12810775142165995,
+        -0.1085528432495296,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 0.16710530833726978,
+      "faceCenterX": 0.3439827151574662,
+      "rightEye": [
+        -8.570536919093179,
+        1.0219525223344306,
+        1.5989466956463083,
+        1.1196454976440522,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.01382203713594563,
+        -0.11100594291783035,
+        0
+      ],
+      "triggerTime_ms": 2508
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0175975016622687,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9457626054861885,
+      "leftEye": [
+        9.293282967061685,
+        0.0,
+        1.5989466956463083,
+        1.1453089027930028,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.12810775142165995,
+        -0.1085528432495296,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -0.18941677407414625,
+      "faceCenterX": 1.023234750510372,
+      "rightEye": [
+        -8.570536919093179,
+        1.0219525223344306,
+        1.5989466956463083,
+        1.1196454976440522,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.01382203713594563,
+        -0.11100594291783035,
+        0
+      ],
+      "triggerTime_ms": 2574
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0175975016622687,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9457626054861885,
+      "leftEye": [
+        9.293282967061685,
+        0.0,
+        1.5989466956463083,
+        1.1453089027930028,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.12810775142165995,
+        -0.1085528432495296,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -0.18941677407414625,
+      "faceCenterX": 1.023234750510372,
+      "rightEye": [
+        -8.570536919093179,
+        1.0219525223344306,
+        1.5989466956463083,
+        1.1196454976440522,
+        0.0,
+        0.4939051626438526,
+        0.5523085770003507,
+        0.5608125567086282,
+        0.5791440668907788,
+        0.6936300157286882,
+        0.780807132929412,
+        0.5374504378663092,
+        0.5961370824995641,
+        0.0,
+        -0.7970601913435532,
+        -0.14583334377849466,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.01382203713594563,
+        -0.11100594291783035,
+        0
+      ],
+      "triggerTime_ms": 2640
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.925224626211846,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9216982711594389,
+      "leftEye": [
+        11.897323576272548,
+        0.0,
+        1.5237679209165687,
+        1.129496959348872,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.10830614746484424,
+        -0.08703216295516213,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 11.715530543346219,
+      "faceCenterX": 0.9168184266363335,
+      "rightEye": [
+        -11.168919319610815,
+        0.5057859772298059,
+        1.5017607052799902,
+        1.1125216332896166,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.001287008863970637,
+        1,
+        1.0,
+        0.0,
+        -0.0381557203502878,
+        -0.08899893382624871,
+        0
+      ],
+      "triggerTime_ms": 2706
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.6386722693941331,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9873779850765966,
+      "leftEye": [
+        11.502004607505263,
+        0.0,
+        1.6054741432701023,
+        1.129496959348872,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.09039492167238798,
+        -0.06582796325335899,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 19.99944012341013,
+      "faceCenterX": 0.8022162083863515,
+      "rightEye": [
+        -10.750737501428993,
+        0.5057859772298059,
+        1.5834669276335243,
+        1.1125216332896166,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.005140620824714674,
+        1,
+        1.0,
+        0.0,
+        -0.056347935470469235,
+        -0.06731555722130814,
+        0
+      ],
+      "triggerTime_ms": 2739
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.8371380536594781,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.856445279227093,
+      "leftEye": [
+        9.586739064996578,
+        0.0,
+        1.6774450239489538,
+        1.1357203190134717,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.010692748883944671,
+        -0.006013131258720232,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 15.831372783593054,
+      "faceCenterX": 0.36017885359497925,
+      "rightEye": [
+        -8.792584382581559,
+        0.3067156946466483,
+        1.6640995404142362,
+        1.1252814679009189,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.008145791290297789,
+        1,
+        1.0,
+        0.16326530612245196,
+        -0.008804364917260776,
+        -0.0061490172461771304,
+        0
+      ],
+      "triggerTime_ms": 2838
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9428218366114838,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.8676032353408298,
+      "leftEye": [
+        9.312435993144689,
+        0.0,
+        1.6320572619148463,
+        1.1390855431284033,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 13.577528962803086,
+      "faceCenterX": 0.22101887061960887,
+      "rightEye": [
+        -8.526021446381215,
+        0.19907028258315762,
+        1.6233955298129867,
+        1.1321812303203638,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.005794611580495868,
+        1,
+        1.0,
+        0.12244897959183906,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 2871
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0284295082570727,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.8943437003635734,
+      "leftEye": [
+        9.169872085815513,
+        0.0,
+        1.579324629349963,
+        1.1421741734804638,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 11.508932579338321,
+      "faceCenterX": 0.10641650463351555,
+      "rightEye": [
+        -8.399594931696349,
+        0.10027243863448376,
+        1.5749616828097672,
+        1.1385138889793063,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0031143180267551593,
+        1,
+        1.0,
+        0.06802721088435518,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 2904
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0536289916969093,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.954171737225278,
+      "leftEye": [
+        8.897963998294394,
+        0.0,
+        1.5174507300664741,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 9.409461622986015,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -8.152355100911358,
+        0.0,
+        1.5174507300664741,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 2970
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0230017742592143,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9880229735784373,
+      "leftEye": [
+        8.22445760706124,
+        0.0,
+        1.5174507300664741,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 10.571092492001085,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.43989718845345,
+        0.0,
+        1.5174507300664741,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 3036
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.004059136633979,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9982070319728199,
+      "leftEye": [
+        8.12196750404749,
+        0.0,
+        1.5174507300664741,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 11.127461910224817,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.33147968003594,
+        0.0,
+        1.5174507300664741,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 3102
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0024150650020875,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9985750041286009,
+      "leftEye": [
+        8.121966010022664,
+        0.0,
+        1.5174840474615683,
+        1.1453089027930028,
+        0.0,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        2.9154518950435656e-05,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 251.01067432278705,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.331478099605788,
+        0.0,
+        1.5174840474615683,
+        1.144941064931666,
+        0.0,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.5999397959183673,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.5713896510854395e-06,
+        1,
+        1.0,
+        0.0,
+        -2.915451895043567e-05,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 3135
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.21735639123688286,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.1678883667973234,
+      "leftEye": [
+        8.10755972624249,
+        0.0,
+        1.8387503613963854,
+        1.1453089027930028,
+        0.0,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.28115451895043725,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 228.74660841048575,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.316238643823479,
+        0.0,
+        1.8387503613963854,
+        1.144941064931666,
+        0.0,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.019415918367347018,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015153853239208405,
+        1,
+        1.0,
+        0.0,
+        -0.2811545189504374,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 19206
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.21397591271501237,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.1696284761607565,
+      "leftEye": [
+        8.107326060759817,
+        0.0,
+        1.8439612019891098,
+        1.1453089027930028,
+        0.0,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.28571428571428564,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 24.229173275877045,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.315991464547729,
+        0.0,
+        1.8439612019891098,
+        1.144941064931666,
+        0.0,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015399618580638182,
+        1,
+        1.0,
+        0.0,
+        -0.2857142857142858,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 19272
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.1738835769142584,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.426999999903594,
+      "leftEye": [
+        8.107326060759817,
+        0.0,
+        1.8439612019891098,
+        1.1453089027930028,
+        0.0,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.28571428571428564,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 27.551133660360442,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.315991464547729,
+        0.0,
+        1.8439612019891098,
+        1.144941064931666,
+        0.0,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015399618580638182,
+        1,
+        1.0,
+        0.0,
+        -0.2857142857142858,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 19305
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.36005875262698545,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.0809279690399132,
+      "leftEye": [
+        12.455834717199998,
+        0.0,
+        1.5793332344433555,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.05414815160262558,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 20.258722610013983,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -11.915991464547723,
+        0.0,
+        1.5793332344433555,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0029186413489501344,
+        1,
+        1.0,
+        0.0,
+        -0.05414815160262565,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 19338
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.6485190379545985,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9162302505927492,
+      "leftEye": [
+        11.248525706103699,
+        0.0,
+        1.536657653484347,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.016801037384332945,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 11.290765648222205,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -10.638859029082063,
+        0.0,
+        1.536657653484347,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0009058799645875862,
+        1,
+        1.0,
+        0.0,
+        -0.016801037384332917,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 19371
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 0.9241452408850999,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.8931328061542894,
+      "leftEye": [
+        9.688601935828977,
+        0.0,
+        1.526628018363085,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.008026014747204534,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 2.664079441011765,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -8.988718737275,
+        0.0,
+        1.526628018363085,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.00043283983677509715,
+        1,
+        1.0,
+        0.0,
+        -0.008026014747204657,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 19404
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0536289916969093,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.954171737225278,
+      "leftEye": [
+        8.709411186562676,
+        0.0,
+        1.5174507300664741,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -1.645973859474356,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.887764752987685,
+        0.0,
+        1.5174507300664741,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 19470
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0230017742592143,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9880229735784373,
+      "leftEye": [
+        8.22445760706124,
+        0.0,
+        1.5174507300664741,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -0.6847623608907492,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.43989718845345,
+        0.0,
+        1.5174507300664741,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 19536
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.004059136633979,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 0.9982070319728199,
+      "leftEye": [
+        8.12196750404749,
+        0.0,
+        1.5174507300664741,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": -0.1283929426670154,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.33147968003594,
+        0.0,
+        1.5174507300664741,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 19602
+    },
+    {
+      "Name": "ProceduralFaceKeyFrame",
+      "faceScaleY": 1.0,
+      "scanlineOpacity": 1.0,
+      "faceScaleX": 1.0,
+      "leftEye": [
+        8.107326060759817,
+        0.0,
+        1.5174507300664741,
+        1.1453089027930028,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.5,
+        0.0,
+        0.0,
+        0
+      ],
+      "faceAngle": 0.0,
+      "durationTime_ms": 0,
+      "faceCenterY": 0.0,
+      "faceCenterX": 0.0,
+      "rightEye": [
+        -7.315991464547729,
+        0.0,
+        1.5174507300664741,
+        1.144941064931666,
+        0.0,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.6,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0
+      ],
+      "triggerTime_ms": 19668
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Head_Down_Short_Curious"
+          ],
+          "eventIds": [
+            3765223799
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 198,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Lift_High_Down_Micro_Curious"
+          ],
+          "eventIds": [
+            3007251021
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 660,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Scrn_Curious_Short"
+          ],
+          "eventIds": [
+            1350709836
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 1353,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Head_Down_Short_Curious"
+          ],
+          "eventIds": [
+            3765223799
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 1716,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Scrn_Curious_Long"
+          ],
+          "eventIds": [
+            1102367108
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 2145,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Lift_High_Down_Short_Surprised"
+          ],
+          "eventIds": [
+            1371648746
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 2772,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Loose_Pixel_Start"
+          ],
+          "eventIds": [
+            4294217316
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 3069,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Head_Down_Short_Surprised"
+          ],
+          "eventIds": [
+            3841377270
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 4620,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Scrn_Curious_Long"
+          ],
+          "eventIds": [
+            1102367108
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 4950,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Head_Down_Short_Neutral"
+          ],
+          "eventIds": [
+            4005853328
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 6336,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Emote_Happy_Short"
+          ],
+          "eventIds": [
+            2483759946
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 7392,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Head_Down_Micro_Curious"
+          ],
+          "eventIds": [
+            16087513
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 9372,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Scrn_Surprised"
+          ],
+          "eventIds": [
+            1528281890
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 10263,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Lift_High_Down_Micro_Curious"
+          ],
+          "eventIds": [
+            3007251021
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 10329,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Lift_High_Down_Long_Angry"
+          ],
+          "eventIds": [
+            1827504806
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 12969,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Emote_Feedback_Shut_Up"
+          ],
+          "eventIds": [
+            3056211831
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 13794,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Emote_Feedback_Shut_Up_Come_At_Me"
+          ],
+          "eventIds": [
+            1181334695
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 14718,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Lift_High_Down_Micro_Frustrated"
+          ],
+          "eventIds": [
+            4246099063
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 16541,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Scrn_Angry"
+          ],
+          "eventIds": [
+            2459769158
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 17622,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Head_Down_Short_Frustrated"
+          ],
+          "eventIds": [
+            739422973
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 17754,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "eventGroups": [
+        {
+          "probabilities": [
+            1.0
+          ],
+          "audioName": [
+            "Play__Robot_Vic_Sfx__Blink"
+          ],
+          "eventIds": [
+            3688286452
+          ],
+          "volumes": [
+            1.0
+          ]
+        }
+      ],
+      "triggerTime_ms": 19272,
+      "Name": "RobotAudioKeyFrame"
+    },
+    {
+      "animName": "face_uperformance_loosepixel",
+      "triggerTime_ms": 2970,
+      "Name": "FaceAnimationKeyFrame"
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 165,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 0,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 1650,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 165,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 825,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 1815,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 5874,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 2640,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 561,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 8514,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 1353,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 9075,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 363,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 10428,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 2640,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 10791,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 1584,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 13431,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 825,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 15015,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 792,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 15840,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 330,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 16632,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 396,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 16962,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 1782,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 17358,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "Right": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Name": "BackpackLightsKeyFrame",
+      "durationTime_ms": 528,
+      "Back": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Middle": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "Front": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triggerTime_ms": 19140,
+      "Left": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "durationTime_ms": 99,
+      "speed": 173,
+      "triggerTime_ms": 231,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "TURN_IN_PLACE"
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -6,
+      "triggerTime_ms": 693,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -6
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -12,
+      "triggerTime_ms": 726,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -6
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -13,
+      "triggerTime_ms": 759,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -6
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -13,
+      "triggerTime_ms": 792,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -6
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -12,
+      "triggerTime_ms": 825,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -6
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -6,
+      "triggerTime_ms": 858,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -6
+    },
+    {
+      "durationTime_ms": 132,
+      "speed": -1,
+      "triggerTime_ms": 2739,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 1
+    },
+    {
+      "durationTime_ms": 198,
+      "speed": -7,
+      "triggerTime_ms": 2871,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 111
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": -118,
+      "triggerTime_ms": 4587,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -65
+    },
+    {
+      "durationTime_ms": 99,
+      "speed": 26,
+      "triggerTime_ms": 4653,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 99,
+      "speed": -34,
+      "triggerTime_ms": 6369,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 439
+    },
+    {
+      "durationTime_ms": 396,
+      "speed": -3,
+      "triggerTime_ms": 6468,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 99,
+      "speed": -97,
+      "triggerTime_ms": 8085,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -47
+    },
+    {
+      "durationTime_ms": 264,
+      "speed": -14,
+      "triggerTime_ms": 8184,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -144
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": 77,
+      "triggerTime_ms": 8448,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 264,
+      "speed": 61,
+      "triggerTime_ms": 8514,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 303
+    },
+    {
+      "durationTime_ms": 330,
+      "speed": -22,
+      "triggerTime_ms": 8778,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -60
+    },
+    {
+      "durationTime_ms": 165,
+      "speed": 16,
+      "triggerTime_ms": 9372,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 5
+    },
+    {
+      "durationTime_ms": 99,
+      "speed": -300,
+      "triggerTime_ms": 10329,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "TURN_IN_PLACE"
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -1,
+      "triggerTime_ms": 11418,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 2
+    },
+    {
+      "durationTime_ms": 165,
+      "speed": 3,
+      "triggerTime_ms": 11451,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 3
+    },
+    {
+      "durationTime_ms": 198,
+      "speed": -3,
+      "triggerTime_ms": 11616,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 2
+    },
+    {
+      "durationTime_ms": 132,
+      "speed": 2,
+      "triggerTime_ms": 11814,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 1
+    },
+    {
+      "durationTime_ms": 198,
+      "speed": -1,
+      "triggerTime_ms": 11946,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 1
+    },
+    {
+      "durationTime_ms": 165,
+      "speed": 4,
+      "triggerTime_ms": 12144,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 3
+    },
+    {
+      "durationTime_ms": 264,
+      "speed": -3,
+      "triggerTime_ms": 12309,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 4
+    },
+    {
+      "durationTime_ms": 132,
+      "speed": 2,
+      "triggerTime_ms": 12573,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 1
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": -51,
+      "triggerTime_ms": 13002,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -36
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": -28,
+      "triggerTime_ms": 13068,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 4
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": 18,
+      "triggerTime_ms": 13134,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 2
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": 10,
+      "triggerTime_ms": 13200,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -1
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": -10,
+      "triggerTime_ms": 13266,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -1
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": 11,
+      "triggerTime_ms": 13332,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -1
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": 15,
+      "triggerTime_ms": 13398,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 1
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -13,
+      "triggerTime_ms": 13431,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -5
+    },
+    {
+      "durationTime_ms": 132,
+      "speed": -34,
+      "triggerTime_ms": 13464,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -118
+    },
+    {
+      "durationTime_ms": 99,
+      "speed": 43,
+      "triggerTime_ms": 14751,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 165,
+      "speed": 5,
+      "triggerTime_ms": 14850,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 429,
+      "speed": 1,
+      "triggerTime_ms": 15015,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": -116,
+      "triggerTime_ms": 15642,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -38
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": -123,
+      "triggerTime_ms": 15708,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 45
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": -32,
+      "triggerTime_ms": 15774,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 62
+    },
+    {
+      "durationTime_ms": 165,
+      "speed": -37,
+      "triggerTime_ms": 16302,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -2701
+    },
+    {
+      "durationTime_ms": 132,
+      "speed": -48,
+      "triggerTime_ms": 16797,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 99,
+      "speed": 117,
+      "triggerTime_ms": 16929,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -44
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": 133,
+      "triggerTime_ms": 17028,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -54
+    },
+    {
+      "durationTime_ms": 66,
+      "speed": -73,
+      "triggerTime_ms": 17094,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 62
+    },
+    {
+      "durationTime_ms": 198,
+      "speed": -6,
+      "triggerTime_ms": 17160,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": 252
+    },
+    {
+      "durationTime_ms": 132,
+      "speed": -1,
+      "triggerTime_ms": 17358,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": -116
+    },
+    {
+      "durationTime_ms": 99,
+      "speed": -64,
+      "triggerTime_ms": 18051,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "TURN_IN_PLACE"
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -20,
+      "triggerTime_ms": 19239,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -48,
+      "triggerTime_ms": 19272,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -57,
+      "triggerTime_ms": 19305,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -48,
+      "triggerTime_ms": 19338,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "durationTime_ms": 33,
+      "speed": -20,
+      "triggerTime_ms": 19371,
+      "Name": "BodyMotionKeyFrame",
+      "radius_mm": "STRAIGHT"
+    },
+    {
+      "offset_deg": 0,
+      "Name": "TurnToRecordedHeadingKeyFrame",
+      "numHalfRevs": 0,
+      "durationTime_ms": 500,
+      "speed_degPerSec": -20,
+      "useShortestDir": true,
+      "tolerance_deg": 2,
+      "decel_degPerSec2": 1000,
+      "triggerTime_ms": 19404,
+      "accel_degPerSec2": 1000
+    },
+    {
+      "triggerTime_ms": 1815,
+      "Name": "RecordHeadingKeyFrame"
+    }
+  ]
+}

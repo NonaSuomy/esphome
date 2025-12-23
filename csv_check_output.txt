@@ -1,0 +1,19 @@
+Checking for CSV files on SD card...
+
+CSV files in root: 69
+
+CSV files found:
+/run/media/nonasuomy/TTGOCAM/chargerdocking_comeoff_straight_03.csv
+/run/media/nonasuomy/TTGOCAM/chargerdocking_searchforchargerturns_default_loop_01.csv
+/run/media/nonasuomy/TTGOCAM/dancebeat_getin_01.csv
+/run/media/nonasuomy/TTGOCAM/dancebeat_getin_02.csv
+/run/media/nonasuomy/TTGOCAM/dancebeat_getready_01.csv
+/run/media/nonasuomy/TTGOCAM/dancebeat_listening_01.csv
+/run/media/nonasuomy/TTGOCAM/dancebeat_listening_02.csv
+/run/media/nonasuomy/TTGOCAM/dancebeat_listening_03.csv
+/run/media/nonasuomy/TTGOCAM/dancebeat_quit_01.csv
+/run/media/nonasuomy/TTGOCAM/dizzy_pickup_01.csv
+... and 59 more
+
+Note: CSV animation format is NOT supported with storage component yet.
+Only JSON animations work with the new storage system.

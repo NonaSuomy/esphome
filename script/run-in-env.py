@@ -52,6 +52,25 @@ def run_command():
         )
 
 
+def cleanup_serial_locks():
+    """Check for --device argument and kill processes using the port."""
+    args = sys.argv[1:]
+    for i, arg in enumerate(args):
+        if arg == "--device" and i + 1 < len(args):
+            device = args[i+1]
+            # Only act on /dev/tty* devices to be safe
+            if device.startswith("/dev/tty"):
+                print(f"Checking for processes locking {device}...")
+                # fuser -k sends SIGKILL to processes accessing the file
+                # stdout/stderr suppressed to avoid noise if no process found
+                subprocess.run(
+                    ["fuser", "-k", device], 
+                    stdout=subprocess.DEVNULL, 
+                    stderr=subprocess.DEVNULL
+                )
+
+
 if __name__ == "__main__":
     find_and_activate_virtualenv()
+    cleanup_serial_locks()
     run_command()

@@ -1,0 +1,2004 @@
+======================================================================
+Serial Boot Log - 2025-12-08 19:28:39
+Device: /dev/ttyUSB0
+Duration: 15 seconds
+======================================================================
+
+INFO ESPHome 2025.12.0-dev
+INFO Reading configuration config/vector-eyes-ttgo.yaml...
+WARNING GPIO2 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO12 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO15 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+WARNING GPIO0 is a strapping PIN and should only be used for I/O with care.
+Attaching external pullup/down resistors to strapping pins can cause unexpected failures.
+See https://esphome.io/guides/faq.html#why-am-i-getting-a-warning-about-strapping-pins
+INFO Starting log output from /dev/ttyUSB0 with baud rate 115200
+[19:28:25.702][D][vector_eyes.storage_adapter:409]: No storage device with animations directory found
+[19:28:25.703][W][vector_eyes.storage_adapter:054]: No storage device with animations found, will fall back to internal animations
+[19:28:25.724][W][vector_eyes:035]: Storage adapter initialization failed, will try SD card fallback
+[19:28:25.724][W][vector_eyes:088]: No storage available, using internal animations only
+[19:28:25.725][C][component:199]: Setup vector_eyes took 1164ms
+[19:28:25.732][C][component:199]: Setup i2s_audio.speaker took 0ms
+[19:28:25.732][C][wifi:357]: Starting
+[19:28:25.732][C][wifi:357]:   Local MAC: 10:52:1C:63:74:F4
+[19:28:25.873][I][wifi:304]: Starting scan
+[19:28:25.873][D][wifi:943]: Starting scan
+[19:28:25.873][C][component:199]: Setup wifi took 155ms
+[19:28:25.874][C][component:199]: Setup esphome.ota took 1ms
+[19:28:25.874][C][component:199]: Setup safe_mode took 0ms
+[19:28:25.891][W][component:324]: api set Warning flag: unspecified
+[19:28:25.892][C][component:199]: Setup api took 1ms
+[19:28:25.892][C][component:199]: Setup mdns took 1ms
+[19:28:25.893][I][app:120]: setup() finished successfully!
+[19:28:25.952][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:25.953]E (2721) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:25.953]E (2723) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:25.974]E (2728) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:25.974][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:25.975][W][spi-esp-idf:033]: SPI device not ready, cannot bE (2744) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:25.976]egin transaction
+[19:28:25.996][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:25.996][W][spi-esp-idf:033]: SPI devicE (2760) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:25.997]e not ready, cannot begin transaction
+[19:28:25.997][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.018][W][spi-esE (2776) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.018]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.019][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.040][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.041][E][spi-esp-idf:077]: TransE (2802) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.041]mit failed - err 102
+[19:28:26.042][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.063][E][spE (2818) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.063]i-esp-idf:077]: Transmit failed - err 102
+[19:28:26.063][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (2834) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.064]ion
+[19:28:26.085][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.085][W][spi-esp-idf:033]: SPI device not ready, E (2850) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.086]cannot begin transaction
+[19:28:26.086][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.107][W][spi-esp-idf:033]: SE (2866) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.107]PI device not ready, cannot begin transaction
+[19:28:26.108][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.129][WE (2882) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.129]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.130][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.130][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.152][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.152][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.153][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.153][W][component:481]: display took a long time for an operation (246 ms)
+[19:28:26.174][W][component:484]: Components should block for at most 30 ms
+[19:28:26.175][W][component:481]: storage took a long time for an operation (257 ms)
+[19:28:26.175][W][component:484]: Components should block for at most 30 ms
+[19:28:26.196][W][component:333]: wifi set Warning flag: scanning for networks
+[19:28:26.196][I][app:190]: ESPHome version 2025.12.0-dev compiled on Dec  8 2025, 19:26:32
+[19:28:26.196][C][logger:262]: Logger:
+[19:28:26.196][C][logger:262]:   Max Level: DEBUG
+[19:28:26.197][C][logger:262]:   Initial Level: DEBUG
+[19:28:26.197][C][logger:268]:   Log Baud Rate: 115200
+[19:28:26.202][C][logger:268]:   Hardware UART: UART0
+[19:28:26.202][C][logger:275]:   Task Log Buffer Size: 768
+[19:28:26.246][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.247]E (3013) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.247]E (3015) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.266]E (3021) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.269][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.270][W][spi-esp-idf:033]: SPI device not ready, cannot bE (3037) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.270]egin transaction
+[19:28:26.288][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.290][W][spi-esp-idf:033]: SPI devicE (3053) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.291]e not ready, cannot begin transaction
+[19:28:26.291][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.312][W][spi-esE (3069) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.313]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.313][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.336][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.336][E][spi-esp-idf:077]: TransE (3095) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.337]mit failed - err 102
+[19:28:26.337][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.355][E][spE (3111) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.355]i-esp-idf:077]: Transmit failed - err 102
+[19:28:26.356][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (3127) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.357]ion
+[19:28:26.377][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.377][W][spi-esp-idf:033]: SPI device not ready, E (3143) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.378]cannot begin transaction
+[19:28:26.378][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.400][W][spi-esp-idf:033]: SE (3159) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.400]PI device not ready, cannot begin transaction
+[19:28:26.401][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.422][WE (3175) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.422]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.423][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.423][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.440][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.441][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.442][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.442][D][number:034]: 'Volume': Sending state 100.000000
+[19:28:26.468][C][i2c.idf:081]: I2C Bus:
+[19:28:26.468][C][i2c.idf:082]:   SDA Pin: GPIO18
+[19:28:26.468][C][i2c.idf:082]:   SCL Pin: GPIO23
+[19:28:26.469][C][i2c.idf:082]:   Frequency: 50000 Hz
+[19:28:26.469][C][i2c.idf:092]:   Recovery: bus successfully recovered
+[19:28:26.469][C][i2c.idf:102]: Results from bus scan:
+[19:28:26.477][C][i2c.idf:108]: Found device at address 0x68
+[19:28:26.477][C][i2c.idf:108]: Found device at address 0x75
+[19:28:26.525][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.526]E (3294) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.526]E (3296) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.547]E (3301) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.547][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.548][W][spi-esp-idf:033]: SPI device not ready, cannot bE (3317) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.548]egin transaction
+[19:28:26.569][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.570][W][spi-esp-idf:033]: SPI devicE (3333) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.570]e not ready, cannot begin transaction
+[19:28:26.570][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.591][W][spi-esE (3349) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.592]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.592][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.614][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.614][E][spi-esp-idf:077]: TransE (3376) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.614]mit failed - err 102
+[19:28:26.615][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.636][E][spE (3392) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.636]i-esp-idf:077]: Transmit failed - err 102
+[19:28:26.637][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (3407) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.638]ion
+[19:28:26.658][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.659][W][spi-esp-idf:033]: SPI device not ready, E (3423) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.659]cannot begin transaction
+[19:28:26.659][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.680][W][spi-esp-idf:033]: SE (3439) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.681]PI device not ready, cannot begin transaction
+[19:28:26.681][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.702][WE (3455) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.702]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.703][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.703][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.723][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.724][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.724][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.725][D][esp32.preferences:149]: Writing 1 items: 1 cached, 0 written, 0 failed
+[19:28:26.746][C][spi:067]: SPI bus:
+[19:28:26.747][C][spi:068]:   CLK Pin: GPIO21
+[19:28:26.747][C][spi:069]:   SDI Pin: GPIO22
+[19:28:26.747][C][spi:070]:   SDO Pin: GPIO19
+[19:28:26.748][C][spi:075]:   Using HW SPI: SPI2_HOST
+[19:28:26.804][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.804]E (3573) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.804]E (3575) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.826]E (3581) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.826][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.827][W][spi-esp-idf:033]: SPI device not ready, cannot bE (3596) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.827]egin transaction
+[19:28:26.848][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.848][W][spi-esp-idf:033]: SPI devicE (3613) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.848]e not ready, cannot begin transaction
+[19:28:26.848][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.870][W][spi-esE (3628) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.870]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.871][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.893][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.893][E][spi-esp-idf:077]: TransE (3655) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.894]mit failed - err 102
+[19:28:26.894][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.915][E][spE (3671) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.915]i-esp-idf:077]: Transmit failed - err 102
+[19:28:26.916][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (3687) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.916]ion
+[19:28:26.937][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.938][W][spi-esp-idf:033]: SPI device not ready, E (3703) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.938]cannot begin transaction
+[19:28:26.938][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.959][W][spi-esp-idf:033]: SE (3719) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.960]PI device not ready, cannot begin transaction
+[19:28:26.960][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.983][WE (3735) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:26.983]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.983][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.984][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.996][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:26.997][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:26.997][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.021][C][storage:086]: Storage Host Component:
+[19:28:27.024][C][storage:087]:   Mounts: 1
+[19:28:27.024][C][storage:089]:     - /sd (platform: sd_mmc)
+[19:28:27.025][C][storage:091]:   Device Nodes (/dev): 0
+[19:28:27.025][C][storage:095]:   Network Storage: 0
+[19:28:27.077][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.078]E (3844) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.078]E (3846) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.097]E (3852) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.097][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.098][W][spi-esp-idf:033]: SPI device not ready, cannot bE (3867) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.098]egin transaction
+[19:28:27.119][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.120][W][spi-esp-idf:033]: SPI devicE (3883) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.120]e not ready, cannot begin transaction
+[19:28:27.121][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.141][W][spi-esE (3899) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.142]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.142][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.164][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.164][E][spi-esp-idf:077]: TransE (3926) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.164]mit failed - err 102
+[19:28:27.165][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.186][E][spE (3942) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.186]i-esp-idf:077]: Transmit failed - err 102
+[19:28:27.187][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (3958) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.187]ion
+[19:28:27.208][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.209][W][spi-esp-idf:033]: SPI device not ready, E (3974) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.209]cannot begin transaction
+[19:28:27.209][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.230][W][spi-esp-idf:033]: SE (3990) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.230]PI device not ready, cannot begin transaction
+[19:28:27.230][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.253][WE (4006) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.253]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.254][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.254][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.266][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.266][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.266][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.344][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.344]E (4113) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.344]E (4115) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.366]E (4121) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.366][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.367][W][spi-esp-idf:033]: SPI device not ready, cannot bE (4137) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.367]egin transaction
+[19:28:27.388][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.389][W][spi-esp-idf:033]: SPI devicE (4153) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.389]e not ready, cannot begin transaction
+[19:28:27.389][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.411][W][spi-esE (4169) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.411]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.412][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.433][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.433][E][spi-esp-idf:077]: TransE (4195) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.434]mit failed - err 102
+[19:28:27.434][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.455][E][spE (4211) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.455]i-esp-idf:077]: Transmit failed - err 102
+[19:28:27.456][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (4227) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.456]ion
+[19:28:27.477][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.477][W][spi-esp-idf:033]: SPI device not ready, E (4243) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.477]cannot begin transaction
+[19:28:27.478][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.499][W][spi-esp-idf:033]: SE (4259) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.499]PI device not ready, cannot begin transaction
+[19:28:27.500][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.522][WE (4275) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.522]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.523][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.523][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.535][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.535][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.535][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.552][C][ledc.output:150]: Output:
+[19:28:27.552][C][ledc.output:151]:   Pin GPIO2
+[19:28:27.552][C][ledc.output:152]:   Channel: 0
+[19:28:27.552][C][ledc.output:152]:   PWM Frequency: 1000.0 Hz
+[19:28:27.552][C][ledc.output:152]:   Phase angle: 0.0°
+[19:28:27.553][C][ledc.output:152]:   Bit depth: 16
+[19:28:27.614][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.614]E (4383) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.615]E (4385) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.636]E (4391) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.636][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.637][W][spi-esp-idf:033]: SPI device not ready, cannot bE (4406) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.637]egin transaction
+[19:28:27.658][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.659][W][spi-esp-idf:033]: SPI devicE (4423) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.659]e not ready, cannot begin transaction
+[19:28:27.659][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.682][W][spi-esE (4438) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.683]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.684][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.704][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.705][E][spi-esp-idf:077]: TransE (4465) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.705]mit failed - err 102
+[19:28:27.709][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.726][E][spE (4481) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.727]i-esp-idf:077]: Transmit failed - err 102
+[19:28:27.728][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (4497) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.731]ion
+[19:28:27.748][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.749][W][spi-esp-idf:033]: SPI device not ready, E (4513) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.753]cannot begin transaction
+[19:28:27.753][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.769][W][spi-esp-idf:033]: SE (4529) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.771]PI device not ready, cannot begin transaction
+[19:28:27.772][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.792][WE (4545) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.792]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.793][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.793][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.807][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.809][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.810][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.828][C][ili9xxx:089]: ili9xxx
+[19:28:27.829][C][ili9xxx:089]:   Rotations: 0 °
+[19:28:27.829][C][ili9xxx:089]:   Dimensions: 240px x 240px
+[19:28:27.830][C][ili9xxx:090]:   Width Offset: 0
+[19:28:27.830][C][ili9xxx:090]:   Height Offset: 0
+[19:28:27.830][C][ili9xxx:099]:   Color mode: 16bit
+[19:28:27.830][C][ili9xxx:108]:   Data rate: 40MHz
+[19:28:27.850][C][ili9xxx:111]:   CS Pin: GPIO12
+[19:28:27.850][C][ili9xxx:112]:   DC Pin: GPIO15
+[19:28:27.850][C][ili9xxx:114]:   Color order: BGR
+[19:28:27.850][C][ili9xxx:114]:   Swap_xy: NO
+[19:28:27.850][C][ili9xxx:114]:   Mirror_x: NO
+[19:28:27.850][C][ili9xxx:114]:   Mirror_y: NO
+[19:28:27.850][C][ili9xxx:114]:   Invert colors: YES
+[19:28:27.851][C][ili9xxx:388]:   Update Interval: 0.016s
+[19:28:27.888][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.888]E (4657) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.889]E (4659) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.910]E (4665) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.910][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.911][W][spi-esp-idf:033]: SPI device not ready, cannot bE (4681) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.911]egin transaction
+[19:28:27.932][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.932][W][spi-esp-idf:033]: SPI devicE (4697) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.932]e not ready, cannot begin transaction
+[19:28:27.933][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.955][W][spi-esE (4713) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.955]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.956][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:27.977][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.977][E][spi-esp-idf:077]: TransE (4739) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.978]mit failed - err 102
+[19:28:27.978][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:27.999][E][spE (4755) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.999]i-esp-idf:077]: Transmit failed - err 102
+[19:28:27.999][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (4771) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:27.999]ion
+[19:28:28.021][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.021][W][spi-esp-idf:033]: SPI device not ready, E (4787) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.022]cannot begin transaction
+[19:28:28.022][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.044][W][spi-esp-idf:033]: SE (4803) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.044]PI device not ready, cannot begin transaction
+[19:28:28.044][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.066][WE (4819) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.066]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.066][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.067][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.079][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.079][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.079][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.102][C][sd_storage.spi:077]: SD Storage (SPI):
+[19:28:28.102][C][sd_storage.spi:078]:   Mounted: YES
+[19:28:28.103][C][sd_storage.spi:079]:   Mount path: /sd
+[19:28:28.103][C][sd_storage.spi:080]:   Mode 1 bit: YES
+[19:28:28.117][C][sd_storage.spi:081]:   CS Pin: 0
+[19:28:28.117][C][sd_storage.spi:084]:   Card Type: 4
+[19:28:28.117][C][sd_storage.spi:085]:   Total bytes: 1977614336
+[19:28:28.118][C][sd_storage.spi:086]:   Used bytes: 154275840
+[19:28:28.159][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.160]E (4929) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.160]E (4930) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.181]E (4936) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.181][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.181][W][spi-esp-idf:033]: SPI device not ready, cannot bE (4952) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.182]egin transaction
+[19:28:28.204][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.205][W][spi-esp-idf:033]: SPI devicE (4968) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.206]e not ready, cannot begin transaction
+[19:28:28.206][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.226][W][spi-esE (4984) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.226]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.227][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.248][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.248][E][spi-esp-idf:077]: TransE (5010) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.248]mit failed - err 102
+[19:28:28.249][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.270][E][spE (5026) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.270]i-esp-idf:077]: Transmit failed - err 102
+[19:28:28.271][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (5042) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.271]ion
+[19:28:28.293][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.293][W][spi-esp-idf:033]: SPI device not ready, E (5058) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.294]cannot begin transaction
+[19:28:28.294][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.315][W][spi-esp-idf:033]: SE (5075) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.315]PI device not ready, cannot begin transaction
+[19:28:28.315][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.337][WE (5090) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.337]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.337][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.338][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.350][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.350][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.350][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.367][C][template.number:016]: Template Number 'Volume'
+[19:28:28.367][C][template.number:050]:   Optimistic: NO
+[19:28:28.367][C][template.number:390]:   Update Interval: 60.0s
+[19:28:28.428][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.429]E (5197) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.429]E (5199) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.450]E (5205) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.450][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.451][W][spi-esp-idf:033]: SPI device not ready, cannot bE (5221) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.452]egin transaction
+[19:28:28.474][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.475][W][spi-esp-idf:033]: SPI devicE (5237) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.475]e not ready, cannot begin transaction
+[19:28:28.477][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.497][W][spi-esE (5253) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.497]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.498][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.517][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.520][E][spi-esp-idf:077]: TransE (5279) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.524]mit failed - err 102
+[19:28:28.526][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.539][E][spE (5295) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.542]i-esp-idf:077]: Transmit failed - err 102
+[19:28:28.543][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (5311) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.544]ion
+[19:28:28.561][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.563][W][spi-esp-idf:033]: SPI device not ready, E (5327) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.565]cannot begin transaction
+[19:28:28.566][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.584][W][spi-esp-idf:033]: SE (5343) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.587]PI device not ready, cannot begin transaction
+[19:28:28.587][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.606][WE (5359) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.606]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.607][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.607][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.619][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.619][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.619][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.632][C][light:091]: Light 'Display Backlight'
+[19:28:28.633][C][light:094]:   Default Transition Length: 1.0s
+[19:28:28.633][C][light:094]:   Gamma Correct: 2.80
+[19:28:28.697][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.697]E (5466) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.698]E (5468) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.719]E (5473) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.719][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.720][W][spi-esp-idf:033]: SPI device not ready, cannot bE (5489) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.720]egin transaction
+[19:28:28.741][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.742][W][spi-esp-idf:033]: SPI devicE (5505) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.742]e not ready, cannot begin transaction
+[19:28:28.742][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.763][W][spi-esE (5521) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.763]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.763][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.786][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.786][E][spi-esp-idf:077]: TransE (5547) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.786]mit failed - err 102
+[19:28:28.786][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.808][E][spE (5563) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.808]i-esp-idf:077]: Transmit failed - err 102
+[19:28:28.808][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (5579) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.809]ion
+[19:28:28.830][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.830][W][spi-esp-idf:033]: SPI device not ready, E (5595) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.831]cannot begin transaction
+[19:28:28.831][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.852][W][spi-esp-idf:033]: SE (5611) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.852]PI device not ready, cannot begin transaction
+[19:28:28.853][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.874][WE (5627) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.874]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.875][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.876][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.887][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.888][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.888][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.902][C][template.switch:092]: Template Switch 'Autonomous Mode'
+[19:28:28.903][C][template.switch:092]:   Restore Mode: restore defaults to ON
+[19:28:28.903][C][template.switch:056]:   Optimistic: YES
+[19:28:28.964][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:28.964]E (5733) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.964]E (5735) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.986]E (5740) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.986][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:28.987][W][spi-esp-idf:033]: SPI device not ready, cannot bE (5756) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:28.987]egin transaction
+[19:28:29.008][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.009][W][spi-esp-idf:033]: SPI devicE (5772) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.009]e not ready, cannot begin transaction
+[19:28:29.010][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.030][W][spi-esE (5788) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.031]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.031][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.055][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.056][E][spi-esp-idf:077]: TransE (5814) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.056]mit failed - err 102
+[19:28:29.056][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.075][E][spE (5830) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.075]i-esp-idf:077]: Transmit failed - err 102
+[19:28:29.076][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (5846) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.076]ion
+[19:28:29.097][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.098][W][spi-esp-idf:033]: SPI device not ready, E (5862) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.098]cannot begin transaction
+[19:28:29.099][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.119][W][spi-esp-idf:033]: SE (5878) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.119]PI device not ready, cannot begin transaction
+[19:28:29.119][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.141][WE (5894) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.141]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.142][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.142][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.154][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.155][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.155][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.165][C][psram:016]: PSRAM:
+[19:28:29.166][C][psram:019]:   Available: YES
+[19:28:29.166][C][psram:021]:   Size: 8192 KB
+[19:28:29.231][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.231]E (6000) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.232]E (6002) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.253]E (6007) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.253][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.254][W][spi-esp-idf:033]: SPI device not ready, cannot bE (6023) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.254]egin transaction
+[19:28:29.275][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.276][W][spi-esp-idf:033]: SPI devicE (6039) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.276]e not ready, cannot begin transaction
+[19:28:29.276][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.297][W][spi-esE (6055) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.297]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.298][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.319][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.319][E][spi-esp-idf:077]: TransE (6081) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.320]mit failed - err 102
+[19:28:29.320][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.342][E][spE (6097) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.342]i-esp-idf:077]: Transmit failed - err 102
+[19:28:29.343][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (6113) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.343]ion
+[19:28:29.364][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.365][W][spi-esp-idf:033]: SPI device not ready, E (6129) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.365]cannot begin transaction
+[19:28:29.365][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.386][W][spi-esp-idf:033]: SE (6145) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.387]PI device not ready, cannot begin transaction
+[19:28:29.387][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.408][WE (6161) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.408]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.409][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.409][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.421][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.422][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.422][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.497][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.498]E (6266) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.498]E (6268) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.519]E (6274) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.519][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.520][W][spi-esp-idf:033]: SPI device not ready, cannot bE (6290) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.520]egin transaction
+[19:28:29.541][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.542][W][spi-esp-idf:033]: SPI devicE (6306) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.542]e not ready, cannot begin transaction
+[19:28:29.542][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.564][W][spi-esE (6322) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.565]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.565][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.586][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.586][E][spi-esp-idf:077]: TransE (6348) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.587]mit failed - err 102
+[19:28:29.587][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.608][E][spE (6364) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.608]i-esp-idf:077]: Transmit failed - err 102
+[19:28:29.609][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (6380) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.609]ion
+[19:28:29.633][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.634][W][spi-esp-idf:033]: SPI device not ready, E (6396) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.634]cannot begin transaction
+[19:28:29.635][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.653][W][spi-esp-idf:033]: SE (6412) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.654]PI device not ready, cannot begin transaction
+[19:28:29.657][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.676][WE (6428) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:29.677]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.677][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.678][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.688][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.690][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:29.690][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:29.715][D][wifi:1053]: Found networks:
+[19:28:29.716][I][wifi:1026]: - 'Are Belong To Us' (FC:5B:39:26:C2:50) ▂▄▆█
+[19:28:29.717][D][wifi:1029]:   Channel: 10, RSSI: -51 dB, Priority:    0
+[19:28:29.738][D][wifi:1031]: - 'All Your Base' (FC:5B:39:26:C1:B0) ▂▄▆█
+[19:28:29.739][D][wifi:1031]: - 'LF_925_f478' (A6:97:5C:99:F4:78) ▂▄▆█
+[19:28:29.760][D][wifi:1031]: - '' (F8:23:B2:36:60:66) ▂▄▆█
+[19:28:29.760][D][wifi:1031]: - '' (0A:A7:C0:A9:E3:69) ▂▄▆█
+[19:28:29.761][D][wifi:1031]: - '' (0A:A7:C0:A9:E3:6C) ▂▄▆█
+[19:28:29.782][D][wifi:1031]: - 'Rogers65' (0A:A7:C0:A9:E3:6B) ▂▄▆█
+[19:28:29.783][D][wifi:1031]: - '' (0A:A7:C0:A9:E3:68) ▂▄▆█
+[19:28:29.804][D][wifi:1031]: - 'ARLO_VMB_7204533165' (FC:9C:98:15:DB:9A) ▂▄▆█
+[19:28:29.804][D][wifi:1031]: - '' (DE:07:1D:10:B8:DB) ▂▄▆█
+[19:28:29.805][D][wifi:1031]: - 'LoneyGuest24' (BE:07:1D:10:B8:DB) ▂▄▆█
+[19:28:29.826][D][wifi:1031]: - '' (4A:BD:CE:5E:80:68) ▂▄▆█
+[19:28:29.827][D][wifi:1031]: - '' (4A:BD:CE:5E:80:6C) ▂▄▆█
+[19:28:29.849][D][wifi:1031]: - 'dlink-2348' (90:8D:78:66:23:48) ▂▄▆█
+[19:28:29.849][D][wifi:1031]: - 'moody and jenna' (4A:BD:CE:5E:80:6B) ▂▄▆█
+[19:28:29.871][D][wifi:1031]: - 'Linksys3000' (E8:9F:80:5D:91:13) ▂▄▆█
+[19:28:29.871][D][wifi:1031]: - '' (1E:9D:72:D2:4D:36) ▂▄▆█
+[19:28:29.871][D][wifi:1031]: - '' (EE:9F:80:5D:91:13) ▂▄▆█
+[19:28:29.893][D][wifi:1031]: - 'Skybell_2545092607' (D0:C1:93:1F:32:16) ▂▄▆█
+[19:28:29.894][D][wifi:1031]: - 'Nurgles Blessing' (1E:9D:72:D2:4D:31) ▂▄▆█
+[19:28:29.915][D][wifi:1031]: - 'Linksys3000' (E8:9F:80:5D:90:D2) ▂▄▆█
+[19:28:29.915][D][wifi:1031]: - 'NETGEAR24' (34:98:B5:52:A0:D8) ▂▄▆█
+[19:28:29.916][D][wifi:1031]: - '' (12:77:7B:C5:E1:F8) ▂▄▆█
+[19:28:29.937][D][wifi:1031]: - '' (EE:9F:80:5D:90:D2) ▂▄▆█
+[19:28:29.938][D][wifi:1031]: - 'Strannik' (D8:C7:C8:C7:6E:52) ▂▄▆█
+[19:28:29.960][D][wifi:1031]: - 'BELL935' (18:90:D8:DE:64:4E) ▂▄▆█
+[19:28:29.961][D][wifi:1345]: Retry phase: INITIAL_CONNECT → SCAN_CONNECTING
+[19:28:29.982][I][wifi:759]: Connecting to 'Are Belong To Us' (FC:5B:39:26:C2:50) (priority 0, attempt 1/2 in phase SCAN_CONNECTING)...
+[19:28:29.982][W][component:481]: wifi took a long time for an operation (246 ms)
+[19:28:29.983][W][component:484]: Components should block for at most 30 ms
+[19:28:29.983][C][vector_eyes:111]: Vector Eyes:
+[19:28:29.989][C][vector_eyes:125]:   Storage: Not available (using internal animations)
+[19:28:29.990][C][vector_eyes:128]:   Volume: 1.00
+[19:28:30.029][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.030]E (6799) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.030]E (6800) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.052]E (6806) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.052][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.052][W][spi-esp-idf:033]: SPI device not ready, cannot bE (6822) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.053]egin transaction
+[19:28:30.074][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.074][W][spi-esp-idf:033]: SPI devicE (6838) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.075]e not ready, cannot begin transaction
+[19:28:30.075][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.096][W][spi-esE (6854) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.096]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.097][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.118][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.118][E][spi-esp-idf:077]: TransE (6880) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.118]mit failed - err 102
+[19:28:30.119][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.140][E][spE (6896) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.140]i-esp-idf:077]: Transmit failed - err 102
+[19:28:30.141][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (6912) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.141]ion
+[19:28:30.163][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.164][W][spi-esp-idf:033]: SPI device not ready, E (6928) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.164]cannot begin transaction
+[19:28:30.164][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.185][W][spi-esp-idf:033]: SE (6944) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.185]PI device not ready, cannot begin transaction
+[19:28:30.185][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.207][WE (6960) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.207]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.208][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.208][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.220][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.220][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.221][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.239][C][i2s_audio.speaker:074]: Speaker:
+[19:28:30.240][C][i2s_audio.speaker:074]:   Pin: 16
+[19:28:30.240][C][i2s_audio.speaker:074]:   Buffer duration: 500
+[19:28:30.240][C][i2s_audio.speaker:080]:   Timeout: 500 ms
+[19:28:30.241][C][i2s_audio.speaker:088]:   Communication format: std
+[19:28:30.307][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.308]E (7077) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.308]E (7078) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.329]E (7084) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.329][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.330][W][spi-esp-idf:033]: SPI device not ready, cannot bE (7100) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.330]egin transaction
+[19:28:30.352][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.352][W][spi-esp-idf:033]: SPI devicE (7116) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.352]e not ready, cannot begin transaction
+[19:28:30.353][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.374][W][spi-esE (7132) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.374]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.375][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.397][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.398][E][spi-esp-idf:077]: TransE (7158) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.399]mit failed - err 102
+[19:28:30.399][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.423][E][spE (7174) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.423]i-esp-idf:077]: Transmit failed - err 102
+[19:28:30.424][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (7190) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.425]ion
+[19:28:30.441][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.442][W][spi-esp-idf:033]: SPI device not ready, E (7206) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.442]cannot begin transaction
+[19:28:30.442][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.468][W][spi-esp-idf:033]: SE (7222) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.469]PI device not ready, cannot begin transaction
+[19:28:30.469][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.488][WE (7238) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.489]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.489][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.490][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.499][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.504][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.505][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.526][C][wifi:1117]: WiFi:
+[19:28:30.526][C][wifi:1117]:   Connected: NO
+[19:28:30.527][C][wifi:882]:   Local MAC: 10:52:1C:63:74:F4
+[19:28:30.527][C][wifi:893]:   SSID: 'Are Belong To Us'
+[19:28:30.528][C][wifi:893]:   BSSID: FC:5B:39:26:C2:50
+[19:28:30.528][C][wifi:893]:   Hostname: 'vector-eyes-ttgo'
+[19:28:30.535][C][wifi:893]:   Signal strength: -52 dB ▂▄▆█
+[19:28:30.535][C][wifi:893]:   Channel: 10
+[19:28:30.535][C][wifi:893]:   Subnet: 0.0.0.0
+[19:28:30.536][C][wifi:893]:   Gateway: 0.0.0.0
+[19:28:30.536][C][wifi:893]:   DNS1: 10.42.42.42
+[19:28:30.536][C][wifi:893]:   DNS2: 0.0.0.0
+[19:28:30.582][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.583]E (7351) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.584]E (7353) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.604]E (7359) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.606][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.608][W][spi-esp-idf:033]: SPI device not ready, cannot bE (7375) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.611]egin transaction
+[19:28:30.627][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.628][W][spi-esp-idf:033]: SPI devicE (7391) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.629]e not ready, cannot begin transaction
+[19:28:30.630][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.652][W][spi-esE (7407) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.653]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.653][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.671][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.672][E][spi-esp-idf:077]: TransE (7433) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.674]mit failed - err 102
+[19:28:30.675][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.694][E][spE (7449) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.694]i-esp-idf:077]: Transmit failed - err 102
+[19:28:30.695][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (7465) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.696]ion
+[19:28:30.715][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.715][W][spi-esp-idf:033]: SPI device not ready, E (7481) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.715]cannot begin transaction
+[19:28:30.716][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.738][W][spi-esp-idf:033]: SE (7497) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.739]PI device not ready, cannot begin transaction
+[19:28:30.739][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.760][WE (7513) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.760]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.760][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.761][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.773][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.773][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.773][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.789][C][esphome.ota:093]: Over-The-Air updates:
+[19:28:30.790][C][esphome.ota:093]:   Address: vector-eyes-ttgo.local:3232
+[19:28:30.790][C][esphome.ota:093]:   Version: 2
+[19:28:30.790][C][esphome.ota:100]:   Password configured
+[19:28:30.854][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.854]E (7624) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.855]E (7626) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.877]E (7631) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.877][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.878][W][spi-esp-idf:033]: SPI device not ready, cannot bE (7647) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.878]egin transaction
+[19:28:30.899][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.900][W][spi-esp-idf:033]: SPI devicE (7663) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.900]e not ready, cannot begin transaction
+[19:28:30.901][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.921][W][spi-esE (7679) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.921]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.921][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.943][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.944][E][spi-esp-idf:077]: TransE (7705) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.944]mit failed - err 102
+[19:28:30.945][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:30.966][E][spE (7721) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.966]i-esp-idf:077]: Transmit failed - err 102
+[19:28:30.967][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (7737) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.967]ion
+[19:28:30.988][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:30.988][W][spi-esp-idf:033]: SPI device not ready, E (7753) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:30.989]cannot begin transaction
+[19:28:30.989][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.010][W][spi-esp-idf:033]: SE (7769) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.010]PI device not ready, cannot begin transaction
+[19:28:31.011][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.032][WE (7785) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.032]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.032][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.033][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.045][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.046][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.046][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.056][C][safe_mode:018]: Safe Mode:
+[19:28:31.056][C][safe_mode:018]:   Successful after: 60s
+[19:28:31.057][C][safe_mode:018]:   Invoke after: 10 attempts
+[19:28:31.057][C][safe_mode:018]:   Duration: 300s
+[19:28:31.121][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.121]E (7891) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.122]E (7892) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.143]E (7898) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.143][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.144][W][spi-esp-idf:033]: SPI device not ready, cannot bE (7914) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.144]egin transaction
+[19:28:31.166][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.167][W][spi-esp-idf:033]: SPI devicE (7930) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.167]e not ready, cannot begin transaction
+[19:28:31.168][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.188][W][spi-esE (7946) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.188]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.188][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.210][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.210][E][spi-esp-idf:077]: TransE (7972) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.211]mit failed - err 102
+[19:28:31.211][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.232][E][spE (7988) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.232]i-esp-idf:077]: Transmit failed - err 102
+[19:28:31.233][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (8004) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.233]ion
+[19:28:31.254][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.255][W][spi-esp-idf:033]: SPI device not ready, E (8020) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.255]cannot begin transaction
+[19:28:31.255][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.277][W][spi-esp-idf:033]: SE (8036) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.278]PI device not ready, cannot begin transaction
+[19:28:31.278][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.299][WE (8052) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.299]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.300][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.300][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.312][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.312][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.313][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.339][I][wifi:1134]: Connected
+[19:28:31.339][C][wifi:882]:   Local MAC: 10:52:1C:63:74:F4
+[19:28:31.340][C][wifi:889]:   IP Address: 10.42.42.204
+[19:28:31.340][C][wifi:893]:   SSID: 'Are Belong To Us'
+[19:28:31.340][C][wifi:893]:   BSSID: FC:5B:39:26:C2:50
+[19:28:31.363][C][wifi:893]:   Hostname: 'vector-eyes-ttgo'
+[19:28:31.363][C][wifi:893]:   Signal strength: -52 dB ▂▄▆█
+[19:28:31.364][C][wifi:893]:   Channel: 10
+[19:28:31.364][C][wifi:893]:   Subnet: 255.255.255.0
+[19:28:31.364][C][wifi:893]:   Gateway: 10.42.42.42
+[19:28:31.364][C][wifi:893]:   DNS1: 10.42.42.42
+[19:28:31.364][C][wifi:893]:   DNS2: 0.0.0.0
+[19:28:31.365][C][api:223]: Server:
+[19:28:31.365][C][api:223]:   Address: vector-eyes-ttgo.local:6053
+[19:28:31.368][C][api:223]:   Listen backlog: 4
+[19:28:31.368][C][api:223]:   Max connections: 8
+[19:28:31.368][C][api:230]:   Noise encryption: YES
+[19:28:31.407][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.407]E (8177) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.408]E (8178) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.429]E (8184) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.429][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.429][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.430][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.453][W][spi-esp-idf:033]: SPI devicE (8210) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.454]e not ready, cannot begin transaction
+[19:28:31.454][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.455][W][spi-esE (8226) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.474]E (8232) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.475]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.476][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.496][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.501][E][spi-esp-idf:077]: TransE (8258) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.501]mit failed - err 102
+[19:28:31.502][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.519][E][spE (8274) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.520]i-esp-idf:077]: Transmit failed - err 102
+[19:28:31.525][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (8290) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.530]ion
+[19:28:31.540][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.541][W][spi-esp-idf:033]: SPI device not ready, E (8306) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.544]cannot begin transaction
+[19:28:31.545][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.563][W][spi-esp-idf:033]: SE (8322) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.565]PI device not ready, cannot begin transaction
+[19:28:31.566][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.585][WE (8338) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.588]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.589][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.589][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.598][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.600][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.601][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.611][W][component:364]: wifi cleared Warning flag
+[19:28:31.611][C][mdns:175]: mDNS:
+[19:28:31.612][C][mdns:175]:   Hostname: vector-eyes-ttgo
+[19:28:31.679][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.681]E (8448) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.683]E (8450) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.702]E (8456) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.702][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.703][W][spi-esp-idf:033]: SPI device not ready, cannot bE (8471) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.706]egin transaction
+[19:28:31.723][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.724][W][spi-esp-idf:033]: SPI devicE (8487) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.724]e not ready, cannot begin transaction
+[19:28:31.724][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.746][W][spi-esE (8503) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.746]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.747][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.768][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.768][E][spi-esp-idf:077]: TransE (8530) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.768]mit failed - err 102
+[19:28:31.769][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.790][E][spE (8546) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.790]i-esp-idf:077]: Transmit failed - err 102
+[19:28:31.791][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (8562) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.791]ion
+[19:28:31.812][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.812][W][spi-esp-idf:033]: SPI device not ready, E (8578) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.812]cannot begin transaction
+[19:28:31.813][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.834][W][spi-esp-idf:033]: SE (8594) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.834]PI device not ready, cannot begin transaction
+[19:28:31.834][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.857][WE (8610) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.857]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.858][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.858][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.869][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.870][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.870][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.946][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:31.946]E (8715) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.947]E (8717) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.968]E (8722) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.968][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.968][W][spi-esp-idf:033]: SPI device not ready, cannot bE (8738) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.969]egin transaction
+[19:28:31.990][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:31.990][W][spi-esp-idf:033]: SPI devicE (8754) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:31.991]e not ready, cannot begin transaction
+[19:28:31.991][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.012][W][spi-esE (8770) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.012]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.013][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.035][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.035][E][spi-esp-idf:077]: TransE (8797) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.035]mit failed - err 102
+[19:28:32.035][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.057][E][spE (8812) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.057]i-esp-idf:077]: Transmit failed - err 102
+[19:28:32.058][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (8828) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.059]ion
+[19:28:32.079][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.080][W][spi-esp-idf:033]: SPI device not ready, E (8844) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.080]cannot begin transaction
+[19:28:32.080][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.101][W][spi-esp-idf:033]: SE (8860) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.101]PI device not ready, cannot begin transaction
+[19:28:32.101][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.124][WE (8876) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.124]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.125][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.125][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.136][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.137][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.137][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.215][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.216]E (8984) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.216]E (8985) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.238]E (8991) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.238][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.239][W][spi-esp-idf:033]: SPI device not ready, cannot bE (9007) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.240]egin transaction
+[19:28:32.259][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.260][W][spi-esp-idf:033]: SPI devicE (9023) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.264]e not ready, cannot begin transaction
+[19:28:32.264][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.281][W][spi-esE (9039) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.282]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.283][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.306][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.306][E][spi-esp-idf:077]: TransE (9065) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.307]mit failed - err 102
+[19:28:32.307][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.325][E][spE (9081) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.327]i-esp-idf:077]: Transmit failed - err 102
+[19:28:32.328][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (9097) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.328]ion
+[19:28:32.347][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.348][W][spi-esp-idf:033]: SPI device not ready, E (9113) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.348]cannot begin transaction
+[19:28:32.349][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.370][W][spi-esp-idf:033]: SE (9129) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.371]PI device not ready, cannot begin transaction
+[19:28:32.371][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.392][WE (9145) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.392]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.392][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.393][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.405][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.405][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.405][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.484][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.484]E (9254) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.484]E (9255) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.506]E (9261) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.506][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.507][W][spi-esp-idf:033]: SPI device not ready, cannot bE (9277) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.507]egin transaction
+[19:28:32.529][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.529][W][spi-esp-idf:033]: SPI devicE (9293) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.529]e not ready, cannot begin transaction
+[19:28:32.529][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.551][W][spi-esE (9309) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.551]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.551][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.573][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.573][E][spi-esp-idf:077]: TransE (9335) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.573]mit failed - err 102
+[19:28:32.574][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.595][E][spE (9351) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.595]i-esp-idf:077]: Transmit failed - err 102
+[19:28:32.596][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (9367) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.596]ion
+[19:28:32.618][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.618][W][spi-esp-idf:033]: SPI device not ready, E (9383) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.619]cannot begin transaction
+[19:28:32.619][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.640][W][spi-esp-idf:033]: SE (9399) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.640]PI device not ready, cannot begin transaction
+[19:28:32.641][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.662][WE (9415) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.662]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.662][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.662][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.675][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.675][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.676][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.755][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.755]E (9524) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.755]E (9526) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.777]E (9531) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.777][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.778][W][spi-esp-idf:033]: SPI device not ready, cannot bE (9547) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.778]egin transaction
+[19:28:32.799][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.800][W][spi-esp-idf:033]: SPI devicE (9563) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.800]e not ready, cannot begin transaction
+[19:28:32.800][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.821][W][spi-esE (9579) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.821]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.821][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.844][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.844][E][spi-esp-idf:077]: TransE (9605) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.844]mit failed - err 102
+[19:28:32.845][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.866][E][spE (9621) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.866]i-esp-idf:077]: Transmit failed - err 102
+[19:28:32.867][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (9637) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.867]ion
+[19:28:32.889][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.890][W][spi-esp-idf:033]: SPI device not ready, E (9653) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.890]cannot begin transaction
+[19:28:32.891][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.913][W][spi-esp-idf:033]: SE (9669) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.913]PI device not ready, cannot begin transaction
+[19:28:32.914][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.933][WE (9685) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:32.936]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.937][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.938][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.947][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:32.948][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:32.948][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.021][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.022]E (9790) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.023]E (9792) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.044]E (9798) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.045][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.046][W][spi-esp-idf:033]: SPI device not ready, cannot bE (9813) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.046]egin transaction
+[19:28:33.065][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.065][W][spi-esp-idf:033]: SPI devicE (9830) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.066]e not ready, cannot begin transaction
+[19:28:33.066][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.088][W][spi-esE (9845) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.088]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.089][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.110][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.111][E][spi-esp-idf:077]: TransE (9872) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.111]mit failed - err 102
+[19:28:33.112][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.132][E][spE (9888) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.132]i-esp-idf:077]: Transmit failed - err 102
+[19:28:33.133][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (9904) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.133]ion
+[19:28:33.154][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.154][W][spi-esp-idf:033]: SPI device not ready, E (9920) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.154]cannot begin transaction
+[19:28:33.155][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.176][W][spi-esp-idf:033]: SE (9936) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.176]PI device not ready, cannot begin transaction
+[19:28:33.177][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.199][WE (9952) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.199]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.199][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.200][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.212][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.212][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.213][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.299][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.300]E (10068) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.300]E (10070) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.321]E (10075) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.321][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.323][W][spi-esp-idf:033]: SPI device not ready, cannot bE (10091) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.323]egin transaction
+[19:28:33.343][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.344][W][spi-esp-idf:033]: SPI devicE (10107) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.344]e not ready, cannot begin transaction
+[19:28:33.345][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.365][W][spi-esE (10124) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.366]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.366][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.387][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.388][E][spi-esp-idf:077]: TransE (10150) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.388]mit failed - err 102
+[19:28:33.389][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.410][E][spE (10166) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.410]i-esp-idf:077]: Transmit failed - err 102
+[19:28:33.411][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (10182) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.411]ion
+[19:28:33.432][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.433][W][spi-esp-idf:033]: SPI device not ready, E (10198) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.433]cannot begin transaction
+[19:28:33.433][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.454][W][spi-esp-idf:033]: SE (10214) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.455]PI device not ready, cannot begin transaction
+[19:28:33.455][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.476][WE (10230) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.476]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.477][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.478][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.490][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.491][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.492][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.573][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.574]E (10342) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.574]E (10344) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.595]E (10349) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.595][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.596][W][spi-esp-idf:033]: SPI device not ready, cannot bE (10365) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.597]egin transaction
+[19:28:33.617][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.617][W][spi-esp-idf:033]: SPI devicE (10381) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.618]e not ready, cannot begin transaction
+[19:28:33.618][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.639][W][spi-esE (10398) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.639]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.640][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.661][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.661][E][spi-esp-idf:077]: TransE (10424) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.661]mit failed - err 102
+[19:28:33.662][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.684][E][spE (10440) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.684]i-esp-idf:077]: Transmit failed - err 102
+[19:28:33.685][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (10456) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.685]ion
+[19:28:33.706][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.707][W][spi-esp-idf:033]: SPI device not ready, E (10472) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.707]cannot begin transaction
+[19:28:33.707][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.728][W][spi-esp-idf:033]: SE (10488) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.728]PI device not ready, cannot begin transaction
+[19:28:33.729][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.750][WE (10504) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.750]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.751][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.752][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.773][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.774][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.774][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.775][D][api:161]: Accept 10.42.42.52
+[19:28:33.775][W][component:364]: api cleared Warning flag
+[19:28:33.853][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.854]E (10622) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.855]E (10623) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.875]E (10629) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.878][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.879][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.879][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.897][W][spi-esp-idf:033]: SPI devicE (10655) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.900]e not ready, cannot begin transaction
+[19:28:33.901][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.920][W][spi-esE (10671) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.920]E (10677) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.921]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.923][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.941][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.942][E][spi-esp-idf:077]: TransE (10704) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.942]mit failed - err 102
+[19:28:33.943][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:33.964][E][spE (10720) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.965]i-esp-idf:077]: Transmit failed - err 102
+[19:28:33.966][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (10736) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.966]ion
+[19:28:33.986][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:33.987][W][spi-esp-idf:033]: SPI device not ready, E (10752) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:33.987]cannot begin transaction
+[19:28:33.988][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.008][W][spi-esp-idf:033]: SE (10768) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.008]PI device not ready, cannot begin transaction
+[19:28:34.009][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.031][WE (10784) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.032]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.032][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.033][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.045][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.046][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.047][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.086][W][component:481]: api took a long time for an operation (62 ms)
+[19:28:34.087][W][component:484]: Components should block for at most 30 ms
+[19:28:34.188][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.189]E (10957) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.190]E (10959) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.210]E (10965) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.211][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.212][W][spi-esp-idf:033]: SPI device not ready, cannot bE (10981) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.212]egin transaction
+[19:28:34.232][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.233][W][spi-esp-idf:033]: SPI devicE (10997) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.233]e not ready, cannot begin transaction
+[19:28:34.234][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.255][W][spi-esE (11013) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.256]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.256][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.277][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.277][E][spi-esp-idf:077]: TransE (11039) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.278]mit failed - err 102
+[19:28:34.278][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.299][E][spE (11055) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.299]i-esp-idf:077]: Transmit failed - err 102
+[19:28:34.300][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (11071) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.301]ion
+[19:28:34.321][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.322][W][spi-esp-idf:033]: SPI device not ready, E (11087) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.322]cannot begin transaction
+[19:28:34.323][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.344][W][spi-esp-idf:033]: SE (11103) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.345]PI device not ready, cannot begin transaction
+[19:28:34.345][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.366][WE (11120) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.366]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.367][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.367][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.388][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.388][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.389][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.389][D][api.connection:1390]: Home Assistant 2026.1.0.dev202512020241 (10.42.42.52) connected
+[19:28:34.475][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.476]E (11243) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.476]E (11245) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.496]E (11250) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.496][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.497][W][spi-esp-idf:033]: SPI device not ready, cannot bE (11266) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.497]egin transaction
+[19:28:34.518][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.519][W][spi-esp-idf:033]: SPI devicE (11283) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.520]e not ready, cannot begin transaction
+[19:28:34.520][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.540][W][spi-esE (11299) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.541]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.541][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.562][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.562][E][spi-esp-idf:077]: TransE (11325) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.562]mit failed - err 102
+[19:28:34.563][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.585][E][spE (11341) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.585]i-esp-idf:077]: Transmit failed - err 102
+[19:28:34.586][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (11357) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.586]ion
+[19:28:34.607][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.608][W][spi-esp-idf:033]: SPI device not ready, E (11373) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.609]cannot begin transaction
+[19:28:34.609][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.629][W][spi-esp-idf:033]: SE (11389) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.629]PI device not ready, cannot begin transaction
+[19:28:34.630][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.651][WE (11405) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.651]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.652][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.652][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.665][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.666][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.666][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.758][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.758]E (11528) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.759]E (11529) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.781]E (11535) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.781][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.781][W][spi-esp-idf:033]: SPI device not ready, cannot bE (11551) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.782]egin transaction
+[19:28:34.803][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.804][W][spi-esp-idf:033]: SPI devicE (11567) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.804]e not ready, cannot begin transaction
+[19:28:34.804][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.825][W][spi-esE (11583) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.826]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.826][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.847][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.847][E][spi-esp-idf:077]: TransE (11610) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.847]mit failed - err 102
+[19:28:34.848][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.869][E][spE (11626) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.869]i-esp-idf:077]: Transmit failed - err 102
+[19:28:34.870][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (11642) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.870]ion
+[19:28:34.892][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.892][W][spi-esp-idf:033]: SPI device not ready, E (11658) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.893]cannot begin transaction
+[19:28:34.893][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.914][W][spi-esp-idf:033]: SE (11674) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.914]PI device not ready, cannot begin transaction
+[19:28:34.915][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.937][WE (11690) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:34.937]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.938][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.939][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.952][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:34.953][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:34.953][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.037][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.038]E (11805) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.039]E (11806) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.057]E (11812) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.059][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.060][W][spi-esp-idf:033]: SPI device not ready, cannot bE (11828) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.061]egin transaction
+[19:28:35.080][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.080][W][spi-esp-idf:033]: SPI devicE (11844) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.081]e not ready, cannot begin transaction
+[19:28:35.081][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.102][W][spi-esE (11860) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.103]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.104][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.125][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.126][E][spi-esp-idf:077]: TransE (11886) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.127]mit failed - err 102
+[19:28:35.127][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.146][E][spE (11902) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.146]i-esp-idf:077]: Transmit failed - err 102
+[19:28:35.147][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (11919) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.147]ion
+[19:28:35.168][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.169][W][spi-esp-idf:033]: SPI device not ready, E (11935) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.169]cannot begin transaction
+[19:28:35.169][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.191][W][spi-esp-idf:033]: SE (11951) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.191]PI device not ready, cannot begin transaction
+[19:28:35.192][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.213][WE (11967) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.213]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.214][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.215][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.227][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.227][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.228][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.311][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.312]E (12081) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.312]E (12083) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.334]E (12088) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.334][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.336][W][spi-esp-idf:033]: SPI device not ready, cannot bE (12104) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.336]egin transaction
+[19:28:35.356][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.357][W][spi-esp-idf:033]: SPI devicE (12121) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.357]e not ready, cannot begin transaction
+[19:28:35.358][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.378][W][spi-esE (12136) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.378]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.379][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.400][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.401][E][spi-esp-idf:077]: TransE (12162) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.401]mit failed - err 102
+[19:28:35.402][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.422][E][spE (12179) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.422]i-esp-idf:077]: Transmit failed - err 102
+[19:28:35.423][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (12195) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.423]ion
+[19:28:35.445][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.445][W][spi-esp-idf:033]: SPI device not ready, E (12211) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.446]cannot begin transaction
+[19:28:35.446][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.467][W][spi-esp-idf:033]: SE (12227) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.467]PI device not ready, cannot begin transaction
+[19:28:35.468][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.489][WE (12243) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.489]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.490][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.491][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.503][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.503][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.504][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.584][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.585]E (12354) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.586]E (12355) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.607]E (12361) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.607][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.608][W][spi-esp-idf:033]: SPI device not ready, cannot bE (12377) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.609]egin transaction
+[19:28:35.629][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.629][W][spi-esp-idf:033]: SPI devicE (12393) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.630]e not ready, cannot begin transaction
+[19:28:35.630][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.651][W][spi-esE (12409) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.651]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.652][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.673][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.673][E][spi-esp-idf:077]: TransE (12436) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.674]mit failed - err 102
+[19:28:35.674][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.696][E][spE (12452) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.696]i-esp-idf:077]: Transmit failed - err 102
+[19:28:35.697][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (12468) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.697]ion
+[19:28:35.718][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.718][W][spi-esp-idf:033]: SPI device not ready, E (12484) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.718]cannot begin transaction
+[19:28:35.719][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.740][W][spi-esp-idf:033]: SE (12500) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.740]PI device not ready, cannot begin transaction
+[19:28:35.741][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.762][WE (12516) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.762]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.762][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.763][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.776][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.777][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.777][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.855][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.856]E (12624) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.857]E (12626) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.877]E (12632) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.878][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.879][W][spi-esp-idf:033]: SPI device not ready, cannot bE (12648) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.879]egin transaction
+[19:28:35.899][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.900][W][spi-esp-idf:033]: SPI devicE (12664) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.902]e not ready, cannot begin transaction
+[19:28:35.902][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.921][W][spi-esE (12680) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.923]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.925][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.947][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.948][E][spi-esp-idf:077]: TransE (12706) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.948]mit failed - err 102
+[19:28:35.949][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:35.966][E][spE (12722) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.967]i-esp-idf:077]: Transmit failed - err 102
+[19:28:35.970][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (12738) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.971]ion
+[19:28:35.988][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:35.988][W][spi-esp-idf:033]: SPI device not ready, E (12755) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:35.989]cannot begin transaction
+[19:28:35.989][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.010][W][spi-esp-idf:033]: SE (12770) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.011]PI device not ready, cannot begin transaction
+[19:28:36.011][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.033][WE (12786) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.033]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.034][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.034][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.047][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.047][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.048][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.123][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.124]E (12892) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.124]E (12894) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.145]E (12900) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.145][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.146][W][spi-esp-idf:033]: SPI device not ready, cannot bE (12916) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.146]egin transaction
+[19:28:36.167][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.167][W][spi-esp-idf:033]: SPI devicE (12932) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.167]e not ready, cannot begin transaction
+[19:28:36.168][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.189][W][spi-esE (12948) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.189]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.190][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.212][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.212][E][spi-esp-idf:077]: TransE (12974) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.212]mit failed - err 102
+[19:28:36.213][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.234][E][spE (12990) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.234]i-esp-idf:077]: Transmit failed - err 102
+[19:28:36.235][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (13006) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.235]ion
+[19:28:36.256][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.256][W][spi-esp-idf:033]: SPI device not ready, E (13022) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.257]cannot begin transaction
+[19:28:36.257][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.278][W][spi-esp-idf:033]: SE (13038) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.278]PI device not ready, cannot begin transaction
+[19:28:36.279][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.301][WE (13054) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.301]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.302][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.302][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.314][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.315][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.315][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.390][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.390]E (13160) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.391]E (13161) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.412]E (13167) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.412][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.413][W][spi-esp-idf:033]: SPI device not ready, cannot bE (13183) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.413]egin transaction
+[19:28:36.435][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.435][W][spi-esp-idf:033]: SPI devicE (13199) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.435]e not ready, cannot begin transaction
+[19:28:36.436][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.457][W][spi-esE (13215) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.458]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.458][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.478][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.479][E][spi-esp-idf:077]: TransE (13241) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.480]mit failed - err 102
+[19:28:36.480][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.501][E][spE (13257) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.501]i-esp-idf:077]: Transmit failed - err 102
+[19:28:36.501][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (13274) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.502]ion
+[19:28:36.524][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.525][W][spi-esp-idf:033]: SPI device not ready, E (13290) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.525]cannot begin transaction
+[19:28:36.525][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.546][W][spi-esp-idf:033]: SE (13306) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.546]PI device not ready, cannot begin transaction
+[19:28:36.547][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.568][WE (13322) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.568]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.569][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.569][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.582][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.582][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.582][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.660][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.660]E (13429) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.660]E (13431) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.682]E (13437) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.682][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.682][W][spi-esp-idf:033]: SPI device not ready, cannot bE (13453) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.683]egin transaction
+[19:28:36.705][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.706][W][spi-esp-idf:033]: SPI devicE (13469) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.707]e not ready, cannot begin transaction
+[19:28:36.707][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.729][W][spi-esE (13485) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.732]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.733][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.749][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.750][E][spi-esp-idf:077]: TransE (13511) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.750]mit failed - err 102
+[19:28:36.751][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.772][E][spE (13527) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.773]i-esp-idf:077]: Transmit failed - err 102
+[19:28:36.774][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (13543) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.774]ion
+[19:28:36.793][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.798][W][spi-esp-idf:033]: SPI device not ready, E (13559) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.798]cannot begin transaction
+[19:28:36.799][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.816][W][spi-esp-idf:033]: SE (13576) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.818]PI device not ready, cannot begin transaction
+[19:28:36.821][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.838][WE (13592) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.838]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.838][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.839][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.852][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.853][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.854][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.928][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.929]E (13697) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.929]E (13699) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.950]E (13704) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.950][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.951][W][spi-esp-idf:033]: SPI device not ready, cannot bE (13720) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.951]egin transaction
+[19:28:36.972][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.972][W][spi-esp-idf:033]: SPI devicE (13737) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.973]e not ready, cannot begin transaction
+[19:28:36.973][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:36.994][W][spi-esE (13753) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:36.994]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:36.994][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.016][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.017][E][spi-esp-idf:077]: TransE (13779) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.017]mit failed - err 102
+[19:28:37.018][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.039][E][spE (13795) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.039]i-esp-idf:077]: Transmit failed - err 102
+[19:28:37.040][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (13811) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.040]ion
+[19:28:37.061][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.061][W][spi-esp-idf:033]: SPI device not ready, E (13827) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.062]cannot begin transaction
+[19:28:37.062][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.083][W][spi-esp-idf:033]: SE (13843) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.083]PI device not ready, cannot begin transaction
+[19:28:37.084][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.105][WE (13859) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.105]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.105][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.106][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.119][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.120][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.120][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.195][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.195]E (13964) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.196]E (13966) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.217]E (13972) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.217][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.218][W][spi-esp-idf:033]: SPI device not ready, cannot bE (13988) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.218]egin transaction
+[19:28:37.240][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.240][W][spi-esp-idf:033]: SPI devicE (14004) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.241]e not ready, cannot begin transaction
+[19:28:37.241][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.262][W][spi-esE (14020) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.262]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.262][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.283][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.284][E][spi-esp-idf:077]: TransE (14046) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.284]mit failed - err 102
+[19:28:37.285][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.306][E][spE (14062) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.306]i-esp-idf:077]: Transmit failed - err 102
+[19:28:37.307][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (14078) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.307]ion
+[19:28:37.328][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.328][W][spi-esp-idf:033]: SPI device not ready, E (14095) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.329]cannot begin transaction
+[19:28:37.329][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.351][W][spi-esp-idf:033]: SE (14111) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.352]PI device not ready, cannot begin transaction
+[19:28:37.352][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.373][WE (14127) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.373]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.373][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.374][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.387][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.387][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.388][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.466][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.466]E (14236) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.467]E (14237) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.489]E (14243) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.489][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.490][W][spi-esp-idf:033]: SPI device not ready, cannot bE (14259) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.490]egin transaction
+[19:28:37.511][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.512][W][spi-esp-idf:033]: SPI devicE (14275) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.512]e not ready, cannot begin transaction
+[19:28:37.512][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.533][W][spi-esE (14291) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.533]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.533][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.556][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.557][E][spi-esp-idf:077]: TransE (14318) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.557]mit failed - err 102
+[19:28:37.558][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.580][E][spE (14334) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.581]i-esp-idf:077]: Transmit failed - err 102
+[19:28:37.582][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (14350) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.582]ion
+[19:28:37.600][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.604][W][spi-esp-idf:033]: SPI device not ready, E (14366) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.604]cannot begin transaction
+[19:28:37.605][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.624][W][spi-esp-idf:033]: SE (14382) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.624]PI device not ready, cannot begin transaction
+[19:28:37.626][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.645][WE (14398) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.646]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.646][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.647][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.659][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.660][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.660][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.739][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.740]E (14508) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.740]E (14509) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.762]E (14515) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.763][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.764][W][spi-esp-idf:033]: SPI device not ready, cannot bE (14531) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.764]egin transaction
+[19:28:37.784][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.785][W][spi-esp-idf:033]: SPI devicE (14547) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.786]e not ready, cannot begin transaction
+[19:28:37.786][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.805][W][spi-esE (14563) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.805]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.806][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.827][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.827][E][spi-esp-idf:077]: TransE (14590) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.828]mit failed - err 102
+[19:28:37.828][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.850][E][spE (14606) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.850]i-esp-idf:077]: Transmit failed - err 102
+[19:28:37.851][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (14622) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.851]ion
+[19:28:37.872][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.872][W][spi-esp-idf:033]: SPI device not ready, E (14638) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.873]cannot begin transaction
+[19:28:37.873][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.894][W][spi-esp-idf:033]: SE (14654) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.894]PI device not ready, cannot begin transaction
+[19:28:37.895][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.916][WE (14670) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:37.916]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.916][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.917][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.930][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:37.931][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:37.931][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.006][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.006]E (14775) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.007]E (14777) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.028]E (14783) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.028][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.029][W][spi-esp-idf:033]: SPI device not ready, cannot bE (14799) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.029]egin transaction
+[19:28:38.051][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.052][W][spi-esp-idf:033]: SPI devicE (14815) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.052]e not ready, cannot begin transaction
+[19:28:38.052][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.073][W][spi-esE (14831) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.073]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.074][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.094][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.095][E][spi-esp-idf:077]: TransE (14857) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.095]mit failed - err 102
+[19:28:38.095][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.117][E][spE (14873) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.117]i-esp-idf:077]: Transmit failed - err 102
+[19:28:38.118][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (14889) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.118]ion
+[19:28:38.140][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.140][W][spi-esp-idf:033]: SPI device not ready, E (14906) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.141]cannot begin transaction
+[19:28:38.141][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.162][W][spi-esp-idf:033]: SE (14922) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.162]PI device not ready, cannot begin transaction
+[19:28:38.162][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.184][WE (14938) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.184]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.185][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.185][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.198][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.198][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.199][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.274][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.275]E (15043) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.275]E (15044) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.296]E (15051) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.296][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.296][W][spi-esp-idf:033]: SPI device not ready, cannot bE (15066) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.297]egin transaction
+[19:28:38.318][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.318][W][spi-esp-idf:033]: SPI devicE (15082) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.319]e not ready, cannot begin transaction
+[19:28:38.319][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.340][W][spi-esE (15098) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.340]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.341][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.361][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.362][E][spi-esp-idf:077]: TransE (15125) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.362]mit failed - err 102
+[19:28:38.363][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.385][E][spE (15141) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.385]i-esp-idf:077]: Transmit failed - err 102
+[19:28:38.386][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (15157) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.386]ion
+[19:28:38.407][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.408][W][spi-esp-idf:033]: SPI device not ready, E (15173) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.408]cannot begin transaction
+[19:28:38.408][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.429][W][spi-esp-idf:033]: SE (15189) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.429]PI device not ready, cannot begin transaction
+[19:28:38.429][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.451][WE (15205) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.451]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.452][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.453][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.465][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.466][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.466][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.545][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.546]E (15313) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.547]E (15315) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.568]E (15321) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.569][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.570][W][spi-esp-idf:033]: SPI device not ready, cannot bE (15337) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.570]egin transaction
+[19:28:38.588][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.588][W][spi-esp-idf:033]: SPI devicE (15353) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.588]e not ready, cannot begin transaction
+[19:28:38.589][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.611][W][spi-esE (15369) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.612]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.613][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.632][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.633][E][spi-esp-idf:077]: TransE (15395) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.633]mit failed - err 102
+[19:28:38.634][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.655][E][spE (15411) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.655]i-esp-idf:077]: Transmit failed - err 102
+[19:28:38.656][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (15427) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.656]ion
+[19:28:38.677][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.677][W][spi-esp-idf:033]: SPI device not ready, E (15443) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.678]cannot begin transaction
+[19:28:38.678][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.699][W][spi-esp-idf:033]: SE (15459) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.699]PI device not ready, cannot begin transaction
+[19:28:38.699][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.722][WE (15475) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.722]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.723][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.724][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.735][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.736][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.737][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.812][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.812]E (15581) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.812]E (15583) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.834]E (15588) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.834][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.835][W][spi-esp-idf:033]: SPI device not ready, cannot bE (15605) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.835]egin transaction
+[19:28:38.856][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.856][W][spi-esp-idf:033]: SPI devicE (15621) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.857]e not ready, cannot begin transaction
+[19:28:38.857][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.878][W][spi-esE (15637) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.878]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.879][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.901][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.901][E][spi-esp-idf:077]: TransE (15663) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.901]mit failed - err 102
+[19:28:38.902][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.923][E][spE (15679) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.923]i-esp-idf:077]: Transmit failed - err 102
+[19:28:38.925][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (15695) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.925]ion
+[19:28:38.945][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.945][W][spi-esp-idf:033]: SPI device not ready, E (15711) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.946]cannot begin transaction
+[19:28:38.946][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.967][W][spi-esp-idf:033]: SE (15727) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.967]PI device not ready, cannot begin transaction
+[19:28:38.968][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.989][WE (15743) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:38.990]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:38.991][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:38.991][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.003][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.004][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.004][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.080][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.080]E (15849) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.081]E (15851) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.102]E (15856) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.102][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.102][W][spi-esp-idf:033]: SPI device not ready, cannot bE (15872) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.103]egin transaction
+[19:28:39.124][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.124][W][spi-esp-idf:033]: SPI devicE (15888) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.125]e not ready, cannot begin transaction
+[19:28:39.125][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.146][W][spi-esE (15905) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.146]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.147][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.169][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.169][E][spi-esp-idf:077]: TransE (15931) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.169]mit failed - err 102
+[19:28:39.170][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.191][E][spE (15947) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.191]i-esp-idf:077]: Transmit failed - err 102
+[19:28:39.192][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (15963) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.192]ion
+[19:28:39.213][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.214][W][spi-esp-idf:033]: SPI device not ready, E (15979) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.214]cannot begin transaction
+[19:28:39.215][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.236][W][spi-esp-idf:033]: SE (15995) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.237]PI device not ready, cannot begin transaction
+[19:28:39.238][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.257][WE (16011) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.261]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.262][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.262][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.272][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.273][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.274][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.352][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.354]E (16121) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.355]E (16123) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.376]E (16128) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.376][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.378][W][spi-esp-idf:033]: SPI device not ready, cannot bE (16144) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.379]egin transaction
+[19:28:39.396][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.397][W][spi-esp-idf:033]: SPI devicE (16160) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.397]e not ready, cannot begin transaction
+[19:28:39.399][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.418][W][spi-esE (16177) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.418]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.419][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.441][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.442][E][spi-esp-idf:077]: TransE (16203) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.442]mit failed - err 102
+[19:28:39.442][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.463][E][spE (16219) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.463]i-esp-idf:077]: Transmit failed - err 102
+[19:28:39.464][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (16235) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.464]ion
+[19:28:39.485][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.486][W][spi-esp-idf:033]: SPI device not ready, E (16251) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.486]cannot begin transaction
+[19:28:39.487][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.507][W][spi-esp-idf:033]: SE (16267) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.508]PI device not ready, cannot begin transaction
+[19:28:39.508][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.529][WE (16283) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.529]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.530][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.531][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.543][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.544][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.544][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.620][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.620]E (16390) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.621]E (16391) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.643]E (16397) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.643][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.644][W][spi-esp-idf:033]: SPI device not ready, cannot bE (16413) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.644]egin transaction
+[19:28:39.665][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.665][W][spi-esp-idf:033]: SPI devicE (16429) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.665]e not ready, cannot begin transaction
+[19:28:39.666][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.687][W][spi-esE (16445) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.687]p-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.687][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.709][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.709][E][spi-esp-idf:077]: TransE (16472) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.710]mit failed - err 102
+[19:28:39.710][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.732][E][spE (16488) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.732]i-esp-idf:077]: Transmit failed - err 102
+[19:28:39.733][W][spi-esp-idf:033]: SPI device not ready, cannot begin transactE (16504) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.733]ion
+[19:28:39.754][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.754][W][spi-esp-idf:033]: SPI device not ready, E (16520) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.754]cannot begin transaction
+[19:28:39.755][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.777][W][spi-esp-idf:033]: SE (16536) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.777]PI device not ready, cannot begin transaction
+[19:28:39.778][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.798][WE (16552) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.798]][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.799][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.799][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.812][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.812][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.813][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.888][W][spi-esp-idf:033]: SPI device not ready, cannot begin transaction
+[19:28:39.888]E (16657) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.889]E (16659) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.910]E (16665) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.910][E][spi-esp-idf:077]: Transmit failed - err 102
+[19:28:39.911][W][spi-esp-idf:033]: SPI device not ready, cannot bE (16681) spi_master: check_trans_valid(1083): invalid dev handle
+[19:28:39.911]egin transaction
+[19:28:39.932][E][spi-esp-idf:077]: Transmit failed - err 102

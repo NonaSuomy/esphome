@@ -1,0 +1,23 @@
+Organizing CSV files on SD card...
+
+Moving 69 CSV files to /animations_csv...
+✅ Done!
+
+Final SD card structure:
+========================
+drwxr-xr-x 2 nonasuomy nonasuomy 160K Dec  8 18:59 animations
+drwxr-xr-x 2 nonasuomy nonasuomy 8.0K Dec  8 19:04 animations_csv
+drwxr-xr-x 2 nonasuomy nonasuomy 132K Dec  8 18:59 audio
+-rw-r--r-- 1 nonasuomy nonasuomy 5.1K Dec  8 18:58 audio_mappings.json
+
+CSV animations folder:
+  69 CSV files
+/run/media/nonasuomy/TTGOCAM/animations_csv/chargerdocking_comeoff_straight_03.csv
+/run/media/nonasuomy/TTGOCAM/animations_csv/chargerdocking_searchforchargerturns_default_loop_01.csv
+/run/media/nonasuomy/TTGOCAM/animations_csv/dancebeat_getin_01.csv
+/run/media/nonasuomy/TTGOCAM/animations_csv/dancebeat_getin_02.csv
+/run/media/nonasuomy/TTGOCAM/animations_csv/dancebeat_getready_01.csv
+  ... and 64 more
+
+Note: CSV animations are not currently supported with the storage component.
+They are kept in /animations_csv for future use or legacy SD mode.
