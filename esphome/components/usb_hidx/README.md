@@ -12,13 +12,14 @@ A robust ESPHome component for USB HID device support on ESP32-S3 with hot-plug 
 
 ## Hardware Requirements
 
-- ESP32-S3 with USB host support
+- ESP32-S3/S2/P4 with USB host support
 - USB hub (optional, for multiple devices)
 
 ## Limitations
 
-- ESP32-S3 supports maximum 8 USB channels
-- Practical limit: 1 hub + 2-3 HID devices
+- ESP32-S3 supports maximum 3 USB channels
+  - Practical limit: 1 hub + 2 HID devices
+- ESP32-P4 supports maximum 8 USB channels
 
 ## Configuration
 
