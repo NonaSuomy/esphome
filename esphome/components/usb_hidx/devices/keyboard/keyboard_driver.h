@@ -12,12 +12,15 @@ class KeyboardDriver : public HIDDeviceDriver {
   KeyboardDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
+    // Don't match Xbox 360 controller
+    if (vid == 0x045E && pid == 0x028E)
+      return false;
     return protocol == 0x01;  // HID keyboard protocol
   }
 
   void process_report(const uint8_t *data, size_t len, HIDDevice *device) override {
     // Check if this is marked as a media report (0xFF prefix from transfer callback)
-    if (len == 9 && data[0] == 0xFF) {
+    if (len >= 2 && data[0] == 0xFF) {
       // Media report - skip the marker byte
       process_media_report(&data[1], len - 1);
       return;
@@ -65,6 +68,9 @@ class KeyboardDriver : public HIDDeviceDriver {
 
     // Publish text sensor for new key presses
     bool shift = (data[0] & 0x22) != 0;
+    bool win_key = (data[0] & 0x08) != 0;   // Left GUI/Windows key
+    bool ctrl_key = (data[0] & 0x01) != 0;  // Left Ctrl key
+
     for (int i = 2; i < 8; i++) {
       if (data[i] != 0) {
         bool was_pressed = false;
@@ -75,6 +81,41 @@ class KeyboardDriver : public HIDDeviceDriver {
           }
         }
         if (!was_pressed) {
+          // Check for Windows key combinations (Logitech K400r media keys F1-F6)
+          if (win_key && !ctrl_key) {
+            const char *combo_name = nullptr;
+            switch (data[i]) {
+              case 0x07:
+                combo_name = "Show Desktop (Win+D)";
+                break;  // F1/PC button
+              case 0x0B:
+                combo_name = "Dictation (Win+H)";
+                break;  // F4
+              case 0x0E:
+                combo_name = "Connect (Win+K)";
+                break;  // F5
+              case 0x0C:
+                combo_name = "Settings (Win+I)";
+                break;  // F6
+            }
+            if (combo_name) {
+              ESP_LOGI("KeyboardDriver", "Media key: %s", combo_name);
+              if (parent_->get_keyboard_sensor()) {
+                parent_->get_keyboard_sensor()->publish_state(combo_name);
+              }
+              memcpy(prev_keys_, &data[2], 6);
+              return;
+            }
+          } else if (win_key && ctrl_key && data[i] == 0x2A) {
+            // Ctrl+Win+Backspace = F2
+            ESP_LOGI("KeyboardDriver", "Media key: Task View (Ctrl+Win+Backspace)");
+            if (parent_->get_keyboard_sensor()) {
+              parent_->get_keyboard_sensor()->publish_state("Task View (Ctrl+Win+Backspace)");
+            }
+            memcpy(prev_keys_, &data[2], 6);
+            return;
+          }
+
           // Handle lock keys
           if (data[i] == 0x39) {  // Caps Lock
             caps_lock_state_ = !caps_lock_state_;
@@ -283,11 +324,93 @@ class KeyboardDriver : public HIDDeviceDriver {
   }
 
   void process_media_report(const uint8_t *data, size_t len) {
+    // Report ID 0x02: Touchpad (Logitech K400r)
+    if (data[0] == 0x02 && len >= 8) {
+      uint8_t buttons = data[1];
+      uint16_t x_raw = (uint16_t) data[2] | ((uint16_t) data[3] << 8);
+      uint16_t y_raw = (uint16_t) data[4] | ((uint16_t) data[5] << 8);
+
+      uint16_t x_coord = x_raw & 0x0FFF;
+      uint16_t y_coord = y_raw & 0x0FFF;
+
+      static uint8_t last_buttons = 0;
+      static uint16_t last_x = 0;
+      static uint16_t last_y = 0;
+
+      if (buttons != last_buttons) {
+        if ((buttons & 0x01) && !(last_buttons & 0x01)) {
+          ESP_LOGI("KeyboardDriver", "Touchpad: Left Click at X=%d Y=%d", x_coord, y_coord);
+        }
+        if (!(buttons & 0x01) && (last_buttons & 0x01)) {
+          ESP_LOGI("KeyboardDriver", "Touchpad: Left Release");
+        }
+        if ((buttons & 0x02) && !(last_buttons & 0x02)) {
+          ESP_LOGI("KeyboardDriver", "Touchpad: Right Click at X=%d Y=%d", x_coord, y_coord);
+        }
+        if (!(buttons & 0x02) && (last_buttons & 0x02)) {
+          ESP_LOGI("KeyboardDriver", "Touchpad: Right Release");
+        }
+        last_buttons = buttons;
+      }
+
+      if ((x_coord != 0 || y_coord != 0) &&
+          (abs((int) x_coord - (int) last_x) > 200 || abs((int) y_coord - (int) last_y) > 200)) {
+        ESP_LOGI("KeyboardDriver", "Touchpad: Position X=%d Y=%d", x_coord, y_coord);
+        last_x = x_coord;
+        last_y = y_coord;
+      }
+      return;
+    }
+
+    // Report ID 0x03: Consumer control (5 bytes) - single byte format
+    if (data[0] == 0x03 && len >= 5) {
+      uint8_t byte1 = data[1];
+      uint8_t byte2 = data[2];
+
+      static uint8_t prev_byte1 = 0;
+      static uint8_t prev_byte2 = 0;
+
+      // Check for key press in byte1 (changed from 0 to non-zero)
+      if (byte1 != 0 && prev_byte1 == 0) {
+        const char *key_name = consumer_code_to_name(byte1);
+        if (key_name) {
+          publish_media_key(key_name);
+        } else {
+          ESP_LOGW("KeyboardDriver", "Unknown consumer code in Report 0x03 byte1: 0x%02X", byte1);
+        }
+      }
+
+      // Check for key press in byte2 (changed from 0 to non-zero)
+      // Skip 0x02 as it appears to be a modifier/flag byte
+      if (byte2 != 0 && byte2 != 0x02 && prev_byte2 == 0) {
+        const char *key_name = consumer_code_to_name(byte2);
+        if (key_name) {
+          publish_media_key(key_name);
+        } else {
+          ESP_LOGW("KeyboardDriver", "Unknown consumer code in Report 0x03 byte2: 0x%02X", byte2);
+        }
+      }
+
+      prev_byte1 = byte1;
+      prev_byte2 = byte2;
+      return;
+    }
+
     if (data[0] == 0x01 && len >= 8) {
       uint8_t byte1 = data[1];
       uint8_t byte2 = data[2];
       uint8_t byte3 = data[3];
       uint8_t byte5 = data[5];
+
+      // Check for touchpad movement (byte5 == 0x01 indicates movement mode)
+      if (byte5 == 0x01 && byte2 == 0x00) {
+        int8_t x_delta = (int8_t) byte1;
+        int8_t y_delta = (int8_t) byte2;
+        if (x_delta != 0 || y_delta != 0) {
+          ESP_LOGI("KeyboardDriver", "Touchpad: Movement delta X=%d Y=%d", x_delta, y_delta);
+        }
+        return;
+      }
 
       // Log all non-zero reports for debugging
       if (byte1 != 0 || byte2 != 0 || byte3 != 0 || byte5 != 0) {
@@ -443,43 +566,6 @@ class KeyboardDriver : public HIDDeviceDriver {
         publish_media_key("Sleep");
       }
       prev_byte1_r2 = data[1];
-    } else if (data[0] == 0x03 && len >= 3) {
-      uint8_t byte1 = data[1];
-      uint8_t byte2 = data[2];
-
-      static uint8_t prev_byte1 = 0;
-      static uint8_t prev_byte2 = 0;
-
-      // Byte 1 bits
-      if ((byte1 & 0x01) && !(prev_byte1 & 0x01))
-        publish_media_key("Next Track");
-      if ((byte1 & 0x02) && !(prev_byte1 & 0x02))
-        publish_media_key("Previous Track");
-      if ((byte1 & 0x04) && !(prev_byte1 & 0x04))
-        publish_media_key("WWW Home");
-      if ((byte1 & 0x08) && !(prev_byte1 & 0x08))
-        publish_media_key("Play/Pause");
-      if ((byte1 & 0x10) && !(prev_byte1 & 0x10))
-        publish_media_key("Mute");
-      if ((byte1 & 0x20) && !(prev_byte1 & 0x20))
-        publish_media_key("WWW Search");
-      if ((byte1 & 0x40) && !(prev_byte1 & 0x40))
-        publish_media_key("Volume Up");
-      if ((byte1 & 0x80) && !(prev_byte1 & 0x80))
-        publish_media_key("Volume Down");
-
-      // Byte 2 bits
-      if ((byte2 & 0x01) && !(prev_byte2 & 0x01))
-        publish_media_key("Media Player");
-      if ((byte2 & 0x10) && !(prev_byte2 & 0x10))
-        publish_media_key("Mail");
-      if ((byte2 & 0x20) && !(prev_byte2 & 0x20))
-        publish_media_key("Calculator");
-      if ((byte2 & 0x40) && !(prev_byte2 & 0x40))
-        publish_media_key("My Computer");
-
-      prev_byte1 = byte1;
-      prev_byte2 = byte2;
     } else if (data[0] == 0x01 && len >= 3) {
       // Report ID 0x01: Zoom keys
       uint8_t byte2 = data[2];

@@ -121,7 +121,10 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
 
   ESP_LOGI(TAG, "Device VID:PID = %04X:%04X", dev->vid, dev->pid);
 
-  if (dev_desc->bDeviceClass != 0x03 && dev_desc->bDeviceClass != 0x00) {
+  // Check for Xbox 360 devices (vendor-specific class 0xFF)
+  bool is_xbox360 = (dev->vid == 0x045E && (dev->pid == 0x028E || dev->pid == 0x0719));
+
+  if (dev_desc->bDeviceClass != 0x03 && dev_desc->bDeviceClass != 0x00 && !is_xbox360) {
     ESP_LOGD(TAG, "Not a HID device, ignoring");
     usb_host_device_close(this->client_hdl_, dev->dev_hdl);
     return;
@@ -145,7 +148,9 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
 
     if (desc->bDescriptorType == USB_B_DESCRIPTOR_TYPE_INTERFACE) {
       const usb_intf_desc_t *temp_intf = (const usb_intf_desc_t *) desc;
-      if (temp_intf->bInterfaceClass == 0x03 && temp_intf->bInterfaceNumber == 0) {
+      // Accept HID class (0x03) or Xbox 360 vendor-specific (0xFF)
+      if ((temp_intf->bInterfaceClass == 0x03 || (is_xbox360 && temp_intf->bInterfaceClass == 0xFF)) &&
+          temp_intf->bInterfaceNumber == 0) {
         intf_desc = temp_intf;
         dev->protocol = intf_desc->bInterfaceProtocol;
         ESP_LOGI(TAG, "Found HID interface, protocol %d", dev->protocol);
@@ -162,14 +167,18 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
 
   // Find interrupt IN endpoint
   offset = (uint8_t *) intf_desc - (uint8_t *) config_desc + intf_desc->bLength;
+  uint8_t out_ep = 0;
   while (offset < config_desc->wTotalLength) {
     const usb_standard_desc_t *desc = (const usb_standard_desc_t *) ((uint8_t *) config_desc + offset);
 
     if (desc->bDescriptorType == USB_B_DESCRIPTOR_TYPE_ENDPOINT) {
-      ep_desc = (const usb_ep_desc_t *) desc;
-      if ((ep_desc->bEndpointAddress & 0x80) && ((ep_desc->bmAttributes & 0x03) == 0x03)) {
+      const usb_ep_desc_t *temp_ep = (const usb_ep_desc_t *) desc;
+      if ((temp_ep->bEndpointAddress & 0x80) && ((temp_ep->bmAttributes & 0x03) == 0x03)) {
+        ep_desc = temp_ep;
         ESP_LOGI(TAG, "Found interrupt IN endpoint: 0x%02X", ep_desc->bEndpointAddress);
-        break;
+      } else if (!(temp_ep->bEndpointAddress & 0x80) && ((temp_ep->bmAttributes & 0x03) == 0x03)) {
+        out_ep = temp_ep->bEndpointAddress;
+        ESP_LOGI(TAG, "Found interrupt OUT endpoint: 0x%02X", out_ep);
       }
     } else if (desc->bDescriptorType == USB_B_DESCRIPTOR_TYPE_INTERFACE) {
       break;
@@ -191,6 +200,7 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
   }
 
   dev->interface_num = intf_desc->bInterfaceNumber;
+  dev->out_endpoint = out_ep;
   this->active_channels_++;
 
   // Allocate transfer
@@ -217,6 +227,10 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
     if (driver->match_device(dev->protocol, dev->vid, dev->pid)) {
       dev->driver = driver;
       ESP_LOGI(TAG, "Matched device to %s driver", driver->get_name());
+      // Store Xbox 360 device reference
+      if (strcmp(driver->get_name(), "Xbox360") == 0) {
+        this->xbox360_device_ = dev;
+      }
       break;
     }
   }
@@ -280,14 +294,45 @@ void USBHIDXComponent::transfer_callback(usb_transfer_t *transfer) {
   }
 
   if (transfer->status == USB_TRANSFER_STATUS_COMPLETED && transfer->actual_num_bytes > 0) {
-    // Log which endpoint this came from
-    ESP_LOGD(TAG, "Transfer from EP 0x%02X: %d bytes", transfer->bEndpointAddress, transfer->actual_num_bytes);
+    // Check if this is an idle keyboard report (all zeros from EP 0x81)
+    bool is_idle_keyboard =
+        (transfer->bEndpointAddress == 0x81 && transfer->actual_num_bytes == 8 && transfer->data_buffer[0] == 0 &&
+         transfer->data_buffer[1] == 0 && transfer->data_buffer[2] == 0 && transfer->data_buffer[3] == 0 &&
+         transfer->data_buffer[4] == 0 && transfer->data_buffer[5] == 0 && transfer->data_buffer[6] == 0 &&
+         transfer->data_buffer[7] == 0);
 
-    // Log ALL 8-byte reports for debugging
-    if (transfer->actual_num_bytes == 8) {
-      ESP_LOGD(TAG, "RAW: [%02X %02X %02X %02X %02X %02X %02X %02X]", transfer->data_buffer[0],
-               transfer->data_buffer[1], transfer->data_buffer[2], transfer->data_buffer[3], transfer->data_buffer[4],
-               transfer->data_buffer[5], transfer->data_buffer[6], transfer->data_buffer[7]);
+    // Check if this is an idle PowerA Switch controller report
+    bool is_idle_gamepad =
+        (transfer->bEndpointAddress == 0x81 && transfer->actual_num_bytes == 8 && transfer->data_buffer[0] == 0 &&
+         transfer->data_buffer[1] == 0 && transfer->data_buffer[2] == 0x0F && transfer->data_buffer[3] == 0x80 &&
+         transfer->data_buffer[4] == 0x80 && transfer->data_buffer[5] == 0x80 && transfer->data_buffer[6] == 0x80 &&
+         transfer->data_buffer[7] == 0);
+
+    bool is_idle = is_idle_keyboard || is_idle_gamepad;
+
+    if (!is_idle) {
+      // Log which endpoint this came from
+      ESP_LOGD(TAG, "Transfer from EP 0x%02X: %d bytes", transfer->bEndpointAddress, transfer->actual_num_bytes);
+
+      // Log raw data for all report sizes
+      if (transfer->actual_num_bytes == 8) {
+        ESP_LOGD(TAG, "RAW: [%02X %02X %02X %02X %02X %02X %02X %02X]", transfer->data_buffer[0],
+                 transfer->data_buffer[1], transfer->data_buffer[2], transfer->data_buffer[3], transfer->data_buffer[4],
+                 transfer->data_buffer[5], transfer->data_buffer[6], transfer->data_buffer[7]);
+      } else if (transfer->actual_num_bytes == 5) {
+        ESP_LOGD(TAG, "RAW: [%02X %02X %02X %02X %02X]", transfer->data_buffer[0], transfer->data_buffer[1],
+                 transfer->data_buffer[2], transfer->data_buffer[3], transfer->data_buffer[4]);
+      } else if (transfer->actual_num_bytes > 0) {
+        // Log any other size
+        std::string hex_str = "RAW: [";
+        for (int i = 0; i < transfer->actual_num_bytes; i++) {
+          char buf[8];
+          snprintf(buf, sizeof(buf), "%02X%s", transfer->data_buffer[i], i < transfer->actual_num_bytes - 1 ? " " : "");
+          hex_str += buf;
+        }
+        hex_str += "]";
+        ESP_LOGD(TAG, "%s", hex_str.c_str());
+      }
     }
 
     if (dev->driver) {
@@ -296,9 +341,9 @@ void USBHIDXComponent::transfer_callback(usb_transfer_t *transfer) {
       if (is_media) {
         // Force media report processing by setting a flag in the data
         // We'll use a temporary buffer with a marker
-        uint8_t temp_data[9];
-        temp_data[0] = 0xFF;  // Marker for media report
-        memcpy(&temp_data[1], transfer->data_buffer, 8);
+        uint8_t temp_data[65];  // Max HID report size + 1 for marker
+        temp_data[0] = 0xFF;    // Marker for media report
+        memcpy(&temp_data[1], transfer->data_buffer, transfer->actual_num_bytes);
         dev->driver->process_report(temp_data, transfer->actual_num_bytes + 1, dev);
       } else {
         dev->driver->process_report(transfer->data_buffer, transfer->actual_num_bytes, dev);
@@ -411,6 +456,74 @@ void USBHIDXComponent::update_keyboard_leds(HIDDevice *device, uint8_t led_state
   if (err != ESP_OK) {
     ESP_LOGW(TAG, "Failed to submit LED command: %s", esp_err_to_name(err));
     usb_host_transfer_free(ctrl_transfer);
+  }
+}
+
+void USBHIDXComponent::send_xbox360_output(HIDDevice *device, const uint8_t *data, size_t len) {
+  if (!device || !device->dev_hdl || !this->client_hdl_) {
+    ESP_LOGW(TAG, "Cannot send Xbox 360 command - device not available");
+    return;
+  }
+
+  usb_transfer_t *ctrl_transfer;
+  esp_err_t err = usb_host_transfer_alloc(64, 0, &ctrl_transfer);
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to allocate Xbox 360 transfer");
+    return;
+  }
+
+  usb_setup_packet_t setup_pkt = {.bmRequestType = 0x21,  // Host-to-device, Class, Interface
+                                  .bRequest = 0x09,       // SET_REPORT
+                                  .wValue = 0x0200,       // Output report
+                                  .wIndex = 0,            // Interface 0
+                                  .wLength = (uint16_t) len};
+
+  ctrl_transfer->device_handle = device->dev_hdl;
+  ctrl_transfer->callback = USBHIDXComponent::led_control_callback;
+  ctrl_transfer->context = nullptr;
+  memcpy(ctrl_transfer->data_buffer, &setup_pkt, sizeof(usb_setup_packet_t));
+  memcpy(ctrl_transfer->data_buffer + sizeof(usb_setup_packet_t), data, len);
+  ctrl_transfer->num_bytes = sizeof(usb_setup_packet_t) + len;
+
+  err = usb_host_transfer_submit_control(this->client_hdl_, ctrl_transfer);
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "Failed to submit Xbox 360 command: %s", esp_err_to_name(err));
+    usb_host_transfer_free(ctrl_transfer);
+  }
+}
+
+void USBHIDXComponent::send_xbox360_rumble(uint8_t left_motor, uint8_t right_motor) {
+  if (!xbox360_driver_) {
+    ESP_LOGW(TAG, "Xbox 360 driver not initialized");
+    return;
+  }
+  xbox360_driver_->send_rumble(xbox360_device_, left_motor, right_motor);
+}
+
+void USBHIDXComponent::send_xbox360_interrupt_out(HIDDevice *device, const uint8_t *data, size_t len) {
+  if (!device || !device->dev_hdl || !device->out_endpoint) {
+    ESP_LOGW(TAG, "Cannot send interrupt OUT - device or endpoint not available");
+    return;
+  }
+
+  usb_transfer_t *out_transfer;
+  esp_err_t err = usb_host_transfer_alloc(len, 0, &out_transfer);
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to allocate OUT transfer");
+    return;
+  }
+
+  out_transfer->device_handle = device->dev_hdl;
+  out_transfer->bEndpointAddress = device->out_endpoint;
+  out_transfer->callback = USBHIDXComponent::led_control_callback;
+  out_transfer->context = nullptr;
+  out_transfer->num_bytes = len;
+  memcpy(out_transfer->data_buffer, data, len);
+
+  err = usb_host_transfer_submit(out_transfer);
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "Failed to submit OUT transfer: %s", esp_err_to_name(err));
+    usb_host_transfer_free(out_transfer);
   }
 }
 

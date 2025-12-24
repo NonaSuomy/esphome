@@ -13,6 +13,7 @@ namespace esphome {
 namespace usb_hidx {
 
 class HIDDeviceDriver;
+class Xbox360Driver;
 
 struct HIDDevice {
   usb_device_handle_t dev_hdl{nullptr};
@@ -23,6 +24,7 @@ struct HIDDevice {
   uint16_t vid{0};
   uint16_t pid{0};
   uint8_t protocol{0};
+  uint8_t out_endpoint{0};
   bool active{false};
   HIDDeviceDriver *driver{nullptr};
 };
@@ -42,7 +44,13 @@ class USBHIDXComponent : public Component {
   float get_setup_priority() const override { return setup_priority::HARDWARE; }
 
   void register_device_driver(HIDDeviceDriver *driver) { drivers_.push_back(driver); }
+  void set_xbox360_driver(Xbox360Driver *driver) { xbox360_driver_ = driver; }
+  void register_gamepad_button_a_sensor(binary_sensor::BinarySensor *sensor) { gamepad_button_a_sensor_ = sensor; }
+  void register_gamepad_button_b_sensor(binary_sensor::BinarySensor *sensor) { gamepad_button_b_sensor_ = sensor; }
   void register_keyboard_sensor(text_sensor::TextSensor *sensor) { keyboard_sensor_ = sensor; }
+
+  binary_sensor::BinarySensor *gamepad_button_a_sensor_{nullptr};
+  binary_sensor::BinarySensor *gamepad_button_b_sensor_{nullptr};
   void register_keyboard_key_sensor(binary_sensor::BinarySensor *sensor, uint8_t keycode);
   void register_mouse_left_sensor(binary_sensor::BinarySensor *sensor) { mouse_left_sensor_ = sensor; }
   void register_mouse_right_sensor(binary_sensor::BinarySensor *sensor) { mouse_right_sensor_ = sensor; }
@@ -61,6 +69,10 @@ class USBHIDXComponent : public Component {
   sensor::Sensor *get_mouse_wheel_sensor() { return mouse_wheel_sensor_; }
 
   void update_keyboard_leds(HIDDevice *device, uint8_t led_state);
+  void send_xbox360_output(HIDDevice *device, const uint8_t *data, size_t len);
+  void send_xbox360_interrupt_out(HIDDevice *device, const uint8_t *data, size_t len);
+  void send_xbox360_rumble(uint8_t left_motor, uint8_t right_motor);
+  Xbox360Driver *get_xbox360_driver() { return xbox360_driver_; }
 
  protected:
   usb_host_client_handle_t client_hdl_{nullptr};
@@ -78,6 +90,8 @@ class USBHIDXComponent : public Component {
   sensor::Sensor *mouse_x_sensor_{nullptr};
   sensor::Sensor *mouse_y_sensor_{nullptr};
   sensor::Sensor *mouse_wheel_sensor_{nullptr};
+  HIDDevice *xbox360_device_{nullptr};
+  Xbox360Driver *xbox360_driver_{nullptr};
 
   static void client_event_callback(const usb_host_client_event_msg_t *event_msg, void *arg);
   static void transfer_callback(usb_transfer_t *transfer);

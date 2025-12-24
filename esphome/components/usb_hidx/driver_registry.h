@@ -50,7 +50,14 @@ inline void register_all_drivers(USBHIDXComponent *component) {
 #endif
 
 #ifdef HAS_XBOX360_DRIVER
-  component->register_device_driver(new Xbox360Driver(component));
+  auto *xbox360 = new Xbox360Driver(component);
+  component->register_device_driver(xbox360);
+  component->set_xbox360_driver(xbox360);
+  // Pass stored sensors to driver if they were registered
+  if (component->gamepad_button_a_sensor_)
+    xbox360->set_button_a_sensor(component->gamepad_button_a_sensor_);
+  if (component->gamepad_button_b_sensor_)
+    xbox360->set_button_b_sensor(component->gamepad_button_b_sensor_);
 #endif
 
 #ifdef HAS_SWITCH_DRIVER

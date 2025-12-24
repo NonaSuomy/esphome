@@ -1,9 +1,8 @@
 import esphome.codegen as cg
 from esphome.components import sensor
 import esphome.config_validation as cv
-from esphome.const import CONF_ID, CONF_NAME
 
-from .. import USBHIDXComponent, usb_hidx_ns
+from .. import USBHIDXComponent
 
 CONF_USB_HIDX_ID = "usb_hidx_id"
 CONF_TYPE = "type"

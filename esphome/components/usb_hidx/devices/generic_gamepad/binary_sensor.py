@@ -21,6 +21,6 @@ CONFIG_SCHEMA = binary_sensor.binary_sensor_schema().extend(
 
 
 async def to_code(config):
-    parent = await cg.get_variable(config[CONF_USB_HIDX_ID])
-    var = await binary_sensor.new_binary_sensor(config)
+    _ = await cg.get_variable(config[CONF_USB_HIDX_ID])
+    _ = await binary_sensor.new_binary_sensor(config)
     # Gamepad button registration would go here
