@@ -1,0 +1,164 @@
+esphome:
+  name: esp32-usb-hub
+  friendly_name: ESP32 USB Hub
+
+esp32:
+  variant: esp32s3
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_USB_HOST_ENABLE: y
+      CONFIG_USB_HOST_HCD_DWC_NUM_CHANNELS: "8"
+      CONFIG_ESP32S3_BROWNOUT_DET: "n"
+
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [usb_hidx, usb_i2c]
+  #- source: github://NonaSuomy/esphome@usb-hidx-improvements
+  #  components: [usb_hidx, usb_i2c]
+  #  refresh: 0s
+# Enable logging
+logger:
+  level: DEBUG
+  hardware_uart: UART0
+  logs:
+    usb_hidx: DEBUG
+    usb_host: DEBUG
+
+# Enable Home Assistant API
+api:
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+web_server:
+  version: 3
+  port: 80
+
+#psram:
+#  mode: hex
+#  speed: 200MHz
+
+# USB Host configuration
+usb_host:
+  enable_hubs: true
+
+# USB HIDX Component
+usb_hidx:
+  id: usb_hidx_component
+  hub: true
+  keyboard:
+    device_id: keyboard_main
+    layout: us  # Options: us, uk, de, fr, es
+  mouse:
+    device_id: mouse_main
+  gamepad:
+    device_id: gamepad_main
+    type: ps3  # Changed to ps3 for Sixaxis support
+
+# USB I2C Bridge (MCP2221A) - Currently stub, will auto-detect when implemented
+usb_i2c:
+  id: usb_i2c_bus
+  scan: true
+  frequency: 100kHz
+
+# Keyboard support
+text_sensor:
+  - platform: usb_hidx
+    name: "Keyboard Input"
+    type: keyboard
+
+binary_sensor:
+# Keyboard keys
+  - platform: usb_hidx
+    name: "Keyboard ESC"
+    type: keyboard
+    key: 0x29  # ESC key
+  - platform: usb_hidx
+    name: "Keyboard Enter"
+    type: keyboard
+    key: 0x28  # Enter key
+# Mouse support
+  - platform: usb_hidx
+    name: "Mouse Left Button"
+    type: mouse
+    left_button: true
+  - platform: usb_hidx
+    name: "Mouse Right Button"
+    type: mouse
+    right_button: true
+  - platform: usb_hidx
+    name: "Mouse Middle Button"
+    type: mouse
+    middle_button: true
+# Gamepad support (Xbox 360 buttons work with any controller)
+  - platform: usb_hidx
+    id: gamepad_a_button
+    name: "Gamepad A"
+    usb_hidx_id: usb_hidx_component
+    type: gamepad
+    button_a: true
+    on_press:
+      - lambda: 'id(usb_hidx_component).send_xbox360_rumble(255, 0);'
+    on_release:
+      - lambda: 'id(usb_hidx_component).send_xbox360_rumble(0, 0);'
+  - platform: usb_hidx
+    id: gamepad_b_button
+    name: "Gamepad B"
+    usb_hidx_id: usb_hidx_component
+    type: gamepad
+    button_b: true
+    on_press:
+      - lambda: 'id(usb_hidx_component).send_xbox360_rumble(0, 255);'
+    on_release:
+      - lambda: 'id(usb_hidx_component).send_xbox360_rumble(0, 0);'
+# PS3-specific buttons (uncomment after testing basic functionality)
+#  - platform: usb_hidx
+#    id: gamepad_cross_button
+#    name: "PS3 Cross"
+#    usb_hidx_id: usb_hidx_component
+#    type: gamepad
+#    button_cross: true
+#  - platform: usb_hidx
+#    id: gamepad_circle_button
+#    name: "PS3 Circle"
+#    usb_hidx_id: usb_hidx_component
+#    type: gamepad
+#    button_circle: true
+sensor:
+  - platform: usb_hidx
+    name: "Mouse X Movement"
+    type: mouse
+    x_delta: true
+  - platform: usb_hidx
+    name: "Mouse Y Movement"
+    type: mouse
+    y_delta: true
+  - platform: usb_hidx
+    name: "Mouse Wheel"
+    type: mouse
+    wheel: true
+
+# Example I2C sensors via USB bridge (uncomment when MCP2221A is connected)
+#  - platform: bme280
+#    i2c_id: usb_i2c_bus
+#    temperature:
+#      name: "USB BME280 Temperature"
+#    pressure:
+#      name: "USB BME280 Pressure"
+#    humidity:
+#      name: "USB BME280 Humidity"
+#    address: 0x76
+#    update_interval: 60s
+#
+#  - platform: bh1750
+#    i2c_id: usb_i2c_bus
+#    name: "USB BH1750 Illuminance"
+#    address: 0x23
+#    update_interval: 60s
