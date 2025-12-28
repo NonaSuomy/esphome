@@ -71,6 +71,7 @@ from esphome.const import (
     PLATFORM_ESP32,
     PLATFORM_ESP8266,
     PLATFORM_RP2040,
+    SCHEDULER_DONT_RUN,
     TYPE_GIT,
     TYPE_LOCAL,
     VALID_SUBSTITUTIONS_CHARACTERS,
@@ -696,7 +697,16 @@ only_on_esp32 = only_on(PLATFORM_ESP32)
 only_on_esp8266 = only_on(PLATFORM_ESP8266)
 only_on_rp2040 = only_on(PLATFORM_RP2040)
 only_with_arduino = only_with_framework(Framework.ARDUINO)
-only_with_esp_idf = only_with_framework(Framework.ESP_IDF)
+
+
+def only_with_esp_idf(obj):
+    """Deprecated: use only_on_esp32 instead."""
+    _LOGGER.warning(
+        "cv.only_with_esp_idf was deprecated in 2026.1, will change behavior in 2026.6. "
+        "ESP32 Arduino builds on top of ESP-IDF, so ESP-IDF features are available in both frameworks. "
+        "Use cv.only_on_esp32 and/or cv.only_with_arduino instead."
+    )
+    return only_with_framework(Framework.ESP_IDF)(obj)
 
 
 # Adapted from:
@@ -740,9 +750,10 @@ def has_at_most_one_key(*keys):
         if not isinstance(obj, dict):
             raise Invalid("expected dictionary")
 
-        number = sum(k in keys for k in obj)
-        if number > 1:
-            raise Invalid(f"Cannot specify more than one of {', '.join(keys)}.")
+        used = set(obj) & set(keys)
+        if len(used) > 1:
+            msg = "Cannot specify more than one of '" + "', '".join(used) + "'."
+            raise MultipleInvalid([Invalid(msg, path=[k]) for k in used])
         return obj
 
     return validate
@@ -893,7 +904,7 @@ def time_period_in_minutes_(value):
 
 def update_interval(value):
     if value == "never":
-        return 4294967295  # uint32_t max
+        return TimePeriodMilliseconds(milliseconds=SCHEDULER_DONT_RUN)
     return positive_time_period_milliseconds(value)
 
 
@@ -1743,8 +1754,7 @@ class SplitDefault(Optional):
     def default(self):
         keys = []
         if CORE.is_esp32:
-            from esphome.components.esp32 import get_esp32_variant
-            from esphome.components.esp32.const import VARIANT_ESP32
+            from esphome.components.esp32 import VARIANT_ESP32, get_esp32_variant
 
             variant = get_esp32_variant().replace(VARIANT_ESP32, "").lower()
             framework = CORE.target_framework.replace("esp-", "")
@@ -2009,7 +2019,7 @@ def polling_component_schema(default_update_interval):
     if default_update_interval is None:
         return COMPONENT_SCHEMA.extend(
             {
-                Required(CONF_UPDATE_INTERVAL): default_update_interval,
+                Required(CONF_UPDATE_INTERVAL): update_interval,
             }
         )
     assert isinstance(default_update_interval, str)
