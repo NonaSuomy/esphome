@@ -1,0 +1,56 @@
+esphome:
+  name: esp32-usb-hid
+  friendly_name: ESP32 USB HID Monitor
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_USB_HOST_ENABLE: y
+      CONFIG_USB_HOST_HCD_DWC_NUM_CHANNELS: "8"
+      CONFIG_ESP32S3_BROWNOUT_DET: "n"
+
+external_components:
+  - source:
+      type: local
+      path: components
+
+logger:
+  level: DEBUG
+
+api:
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+usb_host:
+  enable_hubs: true
+
+# USB HIDX with inline device configuration
+usb_hidx:
+  hub: true
+  keyboard:
+    device_id: keyboard_main
+    layout: US
+    name: "Keyboard Input"
+  mouse:
+    device_id: mouse_main
+    left_button:
+      name: "Mouse Left"
+    right_button:
+      name: "Mouse Right"
+    x_delta:
+      name: "Mouse X"
+    y_delta:
+      name: "Mouse Y"
+  gamepad:
+    device_id: gamepad_main
+    type: generic
+    button_a:
+      name: "Gamepad A"
+    button_b:
+      name: "Gamepad B"
