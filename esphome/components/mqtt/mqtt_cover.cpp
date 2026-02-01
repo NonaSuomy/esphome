@@ -51,7 +51,7 @@ void MQTTCoverComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "MQTT cover '%s':", this->cover_->get_name().c_str());
   auto traits = this->cover_->get_traits();
   bool has_command_topic = traits.get_supports_position() || !traits.get_supports_tilt();
-  LOG_MQTT_COMPONENT(true, has_command_topic)
+  LOG_MQTT_COMPONENT(true, has_command_topic);
   if (traits.get_supports_position()) {
     ESP_LOGCONFIG(TAG,
                   "  Position State Topic: '%s'\n"
@@ -99,14 +99,14 @@ bool MQTTCoverComponent::publish_state() {
   bool success = true;
   if (traits.get_supports_position()) {
     char pos[VALUE_ACCURACY_MAX_LEN];
-    value_accuracy_to_buf(pos, roundf(this->cover_->position * 100), 0);
-    if (!this->publish(this->get_position_state_topic(), pos))
+    size_t len = value_accuracy_to_buf(pos, roundf(this->cover_->position * 100), 0);
+    if (!this->publish(this->get_position_state_topic(), pos, len))
       success = false;
   }
   if (traits.get_supports_tilt()) {
     char pos[VALUE_ACCURACY_MAX_LEN];
-    value_accuracy_to_buf(pos, roundf(this->cover_->tilt * 100), 0);
-    if (!this->publish(this->get_tilt_state_topic(), pos))
+    size_t len = value_accuracy_to_buf(pos, roundf(this->cover_->tilt * 100), 0);
+    if (!this->publish(this->get_tilt_state_topic(), pos, len))
       success = false;
   }
   const char *state_s = this->cover_->current_operation == COVER_OPERATION_OPENING   ? "opening"
@@ -115,7 +115,8 @@ bool MQTTCoverComponent::publish_state() {
                         : this->cover_->position == COVER_OPEN                       ? "open"
                         : traits.get_supports_position()                             ? "open"
                                                                                      : "unknown";
-  if (!this->publish(this->get_state_topic_(), state_s))
+  char topic_buf[MQTT_DEFAULT_TOPIC_MAX_LEN];
+  if (!this->publish(this->get_state_topic_to_(topic_buf), state_s))
     success = false;
   return success;
 }
