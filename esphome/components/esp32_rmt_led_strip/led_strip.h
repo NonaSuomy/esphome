@@ -23,6 +23,18 @@ enum RGBOrder : uint8_t {
   ORDER_GBR,
   ORDER_BGR,
   ORDER_BRG,
+  ORDER_RGBW,
+  ORDER_RBGW,
+  ORDER_GRBW,
+  ORDER_GBRW,
+  ORDER_BGRW,
+  ORDER_BRGW,
+  ORDER_WRGB,
+  ORDER_WRBG,
+  ORDER_WGRB,
+  ORDER_WGBR,
+  ORDER_WBRG,
+  ORDER_WBGR,
 };
 
 struct LedParams {
@@ -35,13 +47,14 @@ class ESP32RMTLEDStripLightOutput : public light::AddressableLight {
  public:
   void setup() override;
   void write_state(light::LightState *state) override;
+  void update_state(light::LightState *state) override;
   float get_setup_priority() const override;
 
   int32_t size() const override { return this->num_leds_; }
   light::LightTraits get_traits() override {
     auto traits = light::LightTraits();
     if (this->is_rgbw_ || this->is_wrgb_) {
-      traits.set_supported_color_modes({light::ColorMode::RGB_WHITE, light::ColorMode::WHITE});
+      traits.set_supported_color_modes({light::ColorMode::RGB_WHITE, light::ColorMode::RGB, light::ColorMode::WHITE});
     } else {
       traits.set_supported_color_modes({light::ColorMode::RGB});
     }
@@ -53,6 +66,7 @@ class ESP32RMTLEDStripLightOutput : public light::AddressableLight {
   void set_num_leds(uint16_t num_leds) { this->num_leds_ = num_leds; }
   void set_is_rgbw(bool is_rgbw) { this->is_rgbw_ = is_rgbw; }
   void set_is_wrgb(bool is_wrgb) { this->is_wrgb_ = is_wrgb; }
+  void set_color_interlock(bool color_interlock) { this->color_interlock_ = color_interlock; }
   void set_use_dma(bool use_dma) { this->use_dma_ = use_dma; }
   void set_use_psram(bool use_psram) { this->use_psram_ = use_psram; }
 
@@ -92,6 +106,7 @@ class ESP32RMTLEDStripLightOutput : public light::AddressableLight {
   uint16_t num_leds_;
   bool is_rgbw_{false};
   bool is_wrgb_{false};
+  bool color_interlock_{false};
   bool use_dma_{false};
   bool use_psram_{false};
   bool invert_out_{false};

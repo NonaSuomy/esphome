@@ -1,14 +1,15 @@
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 
-from esphome import pins
 import esphome.codegen as cg
+import esphome.config_validation as cv
+from esphome import pins
 from esphome.components import esp32, esp32_rmt, light
 from esphome.components.const import CONF_USE_PSRAM
 from esphome.components.esp32 import include_builtin_idf_component
-import esphome.config_validation as cv
 from esphome.const import (
     CONF_CHIPSET,
+    CONF_COLOR_INTERLOCK,
     CONF_INVERTED,
     CONF_IS_RGBW,
     CONF_MAX_REFRESH_RATE,
@@ -40,6 +41,18 @@ RGB_ORDERS = {
     "GBR": RGBOrder.ORDER_GBR,
     "BGR": RGBOrder.ORDER_BGR,
     "BRG": RGBOrder.ORDER_BRG,
+    "RGBW": RGBOrder.ORDER_RGBW,
+    "RBGW": RGBOrder.ORDER_RBGW,
+    "GRBW": RGBOrder.ORDER_GRBW,
+    "GBRW": RGBOrder.ORDER_GBRW,
+    "BGRW": RGBOrder.ORDER_BGRW,
+    "BRGW": RGBOrder.ORDER_BRGW,
+    "WRGB": RGBOrder.ORDER_WRGB,
+    "WRBG": RGBOrder.ORDER_WRBG,
+    "WGRB": RGBOrder.ORDER_WGRB,
+    "WGBR": RGBOrder.ORDER_WGBR,
+    "WBRG": RGBOrder.ORDER_WBRG,
+    "WBGR": RGBOrder.ORDER_WBGR,
 }
 
 
@@ -59,6 +72,7 @@ CHIPSETS = {
     "SK6812": LEDStripTimings(300, 900, 600, 600, 0, 0),
     "APA106": LEDStripTimings(350, 1360, 1360, 350, 0, 0),
     "SM16703": LEDStripTimings(300, 900, 900, 300, 0, 0),
+    "WS2814": LEDStripTimings(400, 900, 600, 700, 0, 300000),
 }
 
 CONF_IS_WRGB = "is_wrgb"
@@ -103,6 +117,7 @@ CONFIG_SCHEMA = cv.All(
                 cv.boolean,
             ),
             cv.Optional(CONF_USE_PSRAM, default=True): cv.boolean,
+            cv.Optional(CONF_COLOR_INTERLOCK, default=False): cv.boolean,
             cv.Inclusive(
                 CONF_BIT0_HIGH,
                 "custom",
@@ -161,6 +176,10 @@ async def to_code(config):
                 chipset.reset_low,
             )
         )
+        if config[CONF_CHIPSET] == "WS2814":
+            cg.add(var.set_is_wrgb(True))
+            if CONF_RGB_ORDER not in config:
+                cg.add(var.set_rgb_order(RGBOrder.ORDER_WRGB))
     else:
         cg.add(
             var.set_led_params(
@@ -173,9 +192,11 @@ async def to_code(config):
             )
         )
 
-    cg.add(var.set_rgb_order(config[CONF_RGB_ORDER]))
-    cg.add(var.set_is_rgbw(config[CONF_IS_RGBW]))
+    if CONF_RGB_ORDER in config:
+        cg.add(var.set_rgb_order(config[CONF_RGB_ORDER]))
+    cg.add(var.set_is_rgbw(config[CONF_IS_RGBW] or config[CONF_IS_WRGB]))
     cg.add(var.set_is_wrgb(config[CONF_IS_WRGB]))
+    cg.add(var.set_color_interlock(config[CONF_COLOR_INTERLOCK]))
     cg.add(var.set_use_psram(config[CONF_USE_PSRAM]))
     cg.add(var.set_rmt_symbols(config[CONF_RMT_SYMBOLS]))
     if CONF_USE_DMA in config:

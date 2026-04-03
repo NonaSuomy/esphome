@@ -156,20 +156,16 @@ void ESP32RMTLEDStripLightOutput::set_led_params(uint32_t bit0_high, uint32_t bi
   this->params_.reset.duration1 = (uint32_t) (ratio * reset_time_low);
   this->params_.reset.level1 = 0;
 }
-
 void ESP32RMTLEDStripLightOutput::write_state(light::LightState *state) {
-  // protect from refreshing too often
   uint32_t now = micros();
-  auto rate = this->max_refresh_rate_.value_or(0);
-  if (rate != 0 && (now - this->last_refresh_) < rate) {
-    // try again next loop iteration, so that this change won't get lost
+  if (this->max_refresh_rate_.has_value() && (now - this->last_refresh_) < *this->max_refresh_rate_) {
     this->schedule_show();
     return;
   }
   this->last_refresh_ = now;
-  this->mark_shown_();
 
-  ESP_LOGVV(TAG, "Writing RGB values to bus");
+  size_t buffer_size = this->get_buffer_size_();
+
 
   esp_err_t error = rmt_tx_wait_all_done(this->channel_, 1000);
   if (error != ESP_OK) {
@@ -180,10 +176,8 @@ void ESP32RMTLEDStripLightOutput::write_state(light::LightState *state) {
   delayMicroseconds(50);
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 3, 0)
-  memcpy(this->rmt_buf_, this->buf_, this->get_buffer_size_());
+  memcpy(this->rmt_buf_, this->buf_, buffer_size);
 #else
-  size_t buffer_size = this->get_buffer_size_();
-
   size_t size = 0;
   size_t len = 0;
   uint8_t *psrc = this->buf_;
@@ -209,59 +203,83 @@ void ESP32RMTLEDStripLightOutput::write_state(light::LightState *state) {
   rmt_transmit_config_t config;
   memset(&config, 0, sizeof(config));
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 3, 0)
-  error = rmt_transmit(this->channel_, this->encoder_, this->rmt_buf_, this->get_buffer_size_(), &config);
+  error = rmt_transmit(this->channel_, this->encoder_, this->rmt_buf_, buffer_size, &config);
 #else
   error = rmt_transmit(this->channel_, this->encoder_, this->rmt_buf_, len * sizeof(rmt_symbol_word_t), &config);
 #endif
+
   if (error != ESP_OK) {
-    ESP_LOGE(TAG, "RMT TX error");
+    ESP_LOGE(TAG, "RMT TX error: %d", (int)error);
     this->status_set_warning();
     return;
   }
   this->status_clear_warning();
 }
 
-light::ESPColorView ESP32RMTLEDStripLightOutput::get_view_internal(int32_t index) const {
-  int32_t r = 0, g = 0, b = 0;
-  switch (this->rgb_order_) {
-    case ORDER_RGB:
-      r = 0;
-      g = 1;
-      b = 2;
-      break;
-    case ORDER_RBG:
-      r = 0;
-      g = 2;
-      b = 1;
-      break;
-    case ORDER_GRB:
-      r = 1;
-      g = 0;
-      b = 2;
-      break;
-    case ORDER_GBR:
-      r = 2;
-      g = 0;
-      b = 1;
-      break;
-    case ORDER_BGR:
-      r = 2;
-      g = 1;
-      b = 0;
-      break;
-    case ORDER_BRG:
-      r = 1;
-      g = 2;
-      b = 0;
-      break;
-  }
-  uint8_t multiplier = this->is_rgbw_ || this->is_wrgb_ ? 4 : 3;
-  uint8_t white = this->is_wrgb_ ? 0 : 3;
+void ESP32RMTLEDStripLightOutput::update_state(light::LightState *state) {
+  auto val = state->current_values;
+  auto max_brightness = light::to_uint8_scale(val.get_brightness() * val.get_state());
+  this->correction_.set_local_brightness(max_brightness);
 
-  return {this->buf_ + (index * multiplier) + r + this->is_wrgb_,
-          this->buf_ + (index * multiplier) + g + this->is_wrgb_,
-          this->buf_ + (index * multiplier) + b + this->is_wrgb_,
-          this->is_rgbw_ || this->is_wrgb_ ? this->buf_ + (index * multiplier) + white : nullptr,
+  if (this->is_effect_active())
+    return;
+
+  float r = 0, g = 0, b = 0, w = 0;
+  auto mode = val.get_color_mode();
+  if (static_cast<uint8_t>(mode) & static_cast<uint8_t>(light::ColorCapability::RGB)) {
+    r = val.get_color_brightness() * val.get_red();
+    g = val.get_color_brightness() * val.get_green();
+    b = val.get_color_brightness() * val.get_blue();
+  }
+  if (static_cast<uint8_t>(mode) & static_cast<uint8_t>(light::ColorCapability::WHITE)) {
+    w = val.get_white();
+  }
+
+  if (this->color_interlock_ && (static_cast<uint8_t>(mode) & static_cast<uint8_t>(light::ColorCapability::RGB)) &&
+      (static_cast<uint8_t>(mode) & static_cast<uint8_t>(light::ColorCapability::WHITE))) {
+    if (w > 0.0f) {
+      r = g = b = 0.0f;
+    } else {
+      w = 0.0f;
+    }
+  }
+
+  this->all() = Color(light::to_uint8_scale(r), light::to_uint8_scale(g), light::to_uint8_scale(b), light::to_uint8_scale(w));
+  this->schedule_show();
+}
+
+light::ESPColorView ESP32RMTLEDStripLightOutput::get_view_internal(int32_t index) const {
+  int32_t r = 0, g = 1, b = 2, w = 3;
+
+  switch (this->rgb_order_) {
+    case ORDER_RGB:  r = 0; g = 1; b = 2; w = 3; break;
+    case ORDER_RBG:  r = 0; g = 2; b = 1; w = 3; break;
+    case ORDER_GRB:  r = 1; g = 0; b = 2; w = 3; break;
+    case ORDER_GBR:  r = 2; g = 0; b = 1; w = 3; break;
+    case ORDER_BGR:  r = 2; g = 1; b = 0; w = 3; break;
+    case ORDER_BRG:  r = 1; g = 2; b = 0; w = 3; break;
+    case ORDER_RGBW: r = 0; g = 1; b = 2; w = 3; break;
+    case ORDER_RBGW: r = 0; g = 2; b = 1; w = 3; break;
+    case ORDER_GRBW: r = 1; g = 0; b = 2; w = 3; break;
+    case ORDER_GBRW: r = 2; g = 0; b = 1; w = 3; break;
+    case ORDER_BGRW: r = 2; g = 1; b = 0; w = 3; break;
+    case ORDER_BRGW: r = 1; g = 2; b = 0; w = 3; break;
+    case ORDER_WRGB: r = 1; g = 2; b = 3; w = 0; break;
+    case ORDER_WRBG: r = 1; g = 3; b = 2; w = 0; break;
+    case ORDER_WGRB: r = 2; g = 1; b = 3; w = 0; break;
+    case ORDER_WGBR: r = 3; g = 1; b = 2; w = 0; break;
+    case ORDER_WBRG: r = 2; g = 3; b = 1; w = 0; break;
+    case ORDER_WBGR: r = 3; g = 2; b = 1; w = 0; break;
+    default:         r = 0; g = 1; b = 2; w = 3; break;
+  }
+
+  uint8_t multiplier = (this->is_rgbw_ || this->is_wrgb_) ? 4 : 3;
+  uint8_t *base = this->buf_ + (index * multiplier);
+
+  return {base + r,
+          base + g,
+          base + b,
+          (this->is_rgbw_ || this->is_wrgb_) ? base + w : nullptr,
           &this->effect_data_[index],
           &this->correction_};
 }
@@ -291,6 +309,42 @@ void ESP32RMTLEDStripLightOutput::dump_config() {
       break;
     case ORDER_BRG:
       rgb_order = "BRG";
+      break;
+    case ORDER_RGBW:
+      rgb_order = "RGBW";
+      break;
+    case ORDER_RBGW:
+      rgb_order = "RBGW";
+      break;
+    case ORDER_GRBW:
+      rgb_order = "GRBW";
+      break;
+    case ORDER_GBRW:
+      rgb_order = "GBRW";
+      break;
+    case ORDER_BGRW:
+      rgb_order = "BGRW";
+      break;
+    case ORDER_BRGW:
+      rgb_order = "BRGW";
+      break;
+    case ORDER_WRGB:
+      rgb_order = "WRGB";
+      break;
+    case ORDER_WRBG:
+      rgb_order = "WRBG";
+      break;
+    case ORDER_WGRB:
+      rgb_order = "WGRB";
+      break;
+    case ORDER_WGBR:
+      rgb_order = "WGBR";
+      break;
+    case ORDER_WBRG:
+      rgb_order = "WBRG";
+      break;
+    case ORDER_WBGR:
+      rgb_order = "WBGR";
       break;
     default:
       rgb_order = "UNKNOWN";
