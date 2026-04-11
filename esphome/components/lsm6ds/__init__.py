@@ -43,6 +43,7 @@ from .const import (
     LSM6DS_GYRO_ODR_6_66KHZ,
 )
 
+CODEOWNERS = ["@NonaSuomy"]
 DEPENDENCIES = ["i2c"]
 AUTO_LOAD = ["sensor"]
 
