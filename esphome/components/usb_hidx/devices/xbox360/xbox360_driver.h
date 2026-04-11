@@ -24,8 +24,11 @@ class Xbox360Driver : public HIDDeviceDriver {
   }
 
   void process_report(const uint8_t *data, size_t len, HIDDevice *device) override {
-    if (len < 20)
+    if (len < 20) {
+      ESP_LOGD("usb_hidx.xbox360", "Short report: %d bytes [%02X %02X %02X %02X]",
+               len, data[0], data[1], len > 2 ? data[2] : 0, len > 3 ? data[3] : 0);
       return;
+    }
 
     // Wireless receiver format: 29 bytes, starts with 0x00 0x01 or 0x00 0x00
     if (len == 29 && data[0] == 0x00 && (data[1] == 0x01 || data[1] == 0x00)) {
@@ -43,8 +46,11 @@ class Xbox360Driver : public HIDDeviceDriver {
     }
 
     // Wired format: 20 bytes, starts with 0x00 0x14
-    if (data[0] != 0x00 || data[1] != 0x14)
+    if (data[0] != 0x00 || data[1] != 0x14) {
+      ESP_LOGD("usb_hidx.xbox360", "Unknown report format: len=%d [%02X %02X %02X %02X]",
+               len, data[0], data[1], len > 2 ? data[2] : 0, len > 3 ? data[3] : 0);
       return;
+    }
 
     // Store device pointer and initialize on first report
     if (!initialized_) {
