@@ -4,6 +4,10 @@
 #include "esphome/components/usb_hidx/hid_keycodes.h"
 #include "esphome/components/usb_hidx/consumer_codes.h"
 
+#ifdef USE_POCKETSSH
+#include "esphome/components/pocketssh/pocketssh.h"
+#endif
+
 namespace esphome {
 namespace usb_hidx {
 
@@ -12,8 +16,11 @@ class KeyboardDriver : public HIDDeviceDriver {
   KeyboardDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
-    // Don't match Xbox 360 controller
-    if (vid == 0x045E && pid == 0x028E)
+    // Don't match Xbox 360 controllers
+    if (vid == 0x045E && (pid == 0x028E || pid == 0x0719))
+      return false;
+    // Don't match 8BitDo in Xbox mode
+    if (vid == 0x2DC8 && pid == 0x310B)
       return false;
     return protocol == 0x01;  // HID keyboard protocol
   }
@@ -28,6 +35,17 @@ class KeyboardDriver : public HIDDeviceDriver {
 
     // Standard keyboard report (8 bytes)
     if (len < 8)
+      return;
+
+    // Skip error codes (0x01 = ErrorRollOver, 0x02 = POSTFail, 0x03 = ErrorUndefined)
+    bool has_error = false;
+    for (int i = 2; i < 8; i++) {
+      if (data[i] >= 0x01 && data[i] <= 0x03) {
+        has_error = true;
+        break;
+      }
+    }
+    if (has_error)
       return;
 
     // Log modifier keys when they change
@@ -54,6 +72,7 @@ class KeyboardDriver : public HIDDeviceDriver {
     }
 
     // Update key binary sensors
+#ifdef USE_BINARY_SENSOR
     for (auto &kv : parent_->get_keyboard_key_sensors()) {
       uint8_t target_key = kv.first;
       bool is_pressed = false;
@@ -65,21 +84,41 @@ class KeyboardDriver : public HIDDeviceDriver {
       }
       kv.second->publish_state(is_pressed);
     }
+#endif
 
-    // Publish text sensor for new key presses
+    // Publish text sensor for new key presses AND handle key repeat
     bool shift = (data[0] & 0x22) != 0;
     bool win_key = (data[0] & 0x08) != 0;   // Left GUI/Windows key
-    bool ctrl_key = (data[0] & 0x01) != 0;  // Left Ctrl key
+    bool ctrl_key = (data[0] & 0x11) != 0;  // Left or Right Ctrl key
+
+    uint32_t now = esphome::millis();
 
     for (int i = 2; i < 8; i++) {
       if (data[i] != 0) {
         bool was_pressed = false;
+        bool should_repeat = false;
+
         for (int j = 0; j < 6; j++) {
           if (prev_keys_[j] == data[i]) {
             was_pressed = true;
+            // Check if key should repeat
+            if (now - last_key_time_ > 500 && repeat_count_ == 0) {
+              should_repeat = true;
+              repeat_count_ = 1;
+            } else if (repeat_count_ > 0 && now - last_key_time_ > 50) {
+              should_repeat = true;
+            }
             break;
           }
         }
+
+        if (!was_pressed) {
+          repeat_count_ = 0;
+          last_key_time_ = now;
+        } else {
+          continue;  // Skip - key already held, no repeat
+        }
+
         if (!was_pressed) {
           // Check for Windows key combinations (Logitech K400r media keys F1-F6)
           if (win_key && !ctrl_key) {
@@ -100,18 +139,22 @@ class KeyboardDriver : public HIDDeviceDriver {
             }
             if (combo_name) {
               ESP_LOGI("KeyboardDriver", "Media key: %s", combo_name);
+#ifdef USE_TEXT_SENSOR
               if (parent_->get_keyboard_sensor()) {
                 parent_->get_keyboard_sensor()->publish_state(combo_name);
               }
+#endif
               memcpy(prev_keys_, &data[2], 6);
               return;
             }
           } else if (win_key && ctrl_key && data[i] == 0x2A) {
             // Ctrl+Win+Backspace = F2
             ESP_LOGI("KeyboardDriver", "Media key: Task View (Ctrl+Win+Backspace)");
+#ifdef USE_TEXT_SENSOR
             if (parent_->get_keyboard_sensor()) {
               parent_->get_keyboard_sensor()->publish_state("Task View (Ctrl+Win+Backspace)");
             }
+#endif
             memcpy(prev_keys_, &data[2], 6);
             return;
           }
@@ -132,24 +175,40 @@ class KeyboardDriver : public HIDDeviceDriver {
           } else {
             // Convert to ASCII and build string
             char ascii = hid_to_ascii(data[i], shift);
+
+            // Handle Ctrl key combinations
+            if (ctrl_key && ascii >= 'a' && ascii <= 'z') {
+              // Ctrl+letter = control code (Ctrl+A=0x01, Ctrl+K=0x0B, etc.)
+              ascii = ascii - 'a' + 1;
+            } else if (ctrl_key && ascii >= 'A' && ascii <= 'Z') {
+              // Ctrl+Shift+letter = control code
+              ascii = ascii - 'A' + 1;
+            }
+
             if (ascii != 0) {
-              if (ascii == '\b') {
-                if (!keyboard_buffer_.empty()) {
-                  keyboard_buffer_.pop_back();
-                }
-              } else if (ascii == '\n') {
-                ESP_LOGI("KeyboardDriver", "Enter pressed, clearing buffer");
-                keyboard_buffer_.clear();
-              } else {
-                keyboard_buffer_ += ascii;
-              }
+              ESP_LOGI("KeyboardDriver", "ASCII key: 0x%02X ('%c')", ascii,
+                       (ascii >= 32 && ascii <= 126) ? ascii : '?');
+              // Publish to text sensor
+#ifdef USE_TEXT_SENSOR
               if (parent_->get_keyboard_sensor()) {
-                parent_->get_keyboard_sensor()->publish_state(keyboard_buffer_);
+                char buf[2] = {ascii, 0};
+                parent_->get_keyboard_sensor()->publish_state(buf);
               }
+#endif
+              // Also send to PocketSSH if available
+#ifdef USE_POCKETSSH
+              if (esphome::pocketssh::global_pocketssh) {
+                esphome::pocketssh::global_pocketssh->handle_key(ascii);
+              }
+#endif
             } else {
-              // Non-ASCII key, publish key name
-              const char *key_name = hid_keycode_to_name(data[i]);
-              ESP_LOGI("KeyboardDriver", "Key: %s (0x%02X)", key_name, data[i]);
+              // Non-ASCII key (arrow keys, function keys, etc.)
+              ESP_LOGD("KeyboardDriver", "Non-ASCII key: 0x%02X", data[i]);
+#ifdef USE_POCKETSSH
+              if (esphome::pocketssh::global_pocketssh) {
+                esphome::pocketssh::global_pocketssh->handle_key(data[i]);
+              }
+#endif
             }
           }
         }
@@ -163,10 +222,11 @@ class KeyboardDriver : public HIDDeviceDriver {
  protected:
   USBHIDXComponent *parent_;
   uint8_t prev_keys_[6]{0};
-  std::string keyboard_buffer_;
   bool caps_lock_state_{false};
   bool num_lock_state_{false};
   bool scroll_lock_state_{false};
+  uint32_t last_key_time_{0};
+  int repeat_count_{0};
 
   char hid_to_ascii(uint8_t keycode, bool shift) {
     if (keycode >= 0x04 && keycode <= 0x1D) {
@@ -582,9 +642,11 @@ class KeyboardDriver : public HIDDeviceDriver {
 
   void publish_media_key(const char *key_name) {
     ESP_LOGI("KeyboardDriver", "Media key: %s", key_name);
+#ifdef USE_TEXT_SENSOR
     if (parent_->get_keyboard_sensor()) {
       parent_->get_keyboard_sensor()->publish_state(key_name);
     }
+#endif
   }
 };
 
