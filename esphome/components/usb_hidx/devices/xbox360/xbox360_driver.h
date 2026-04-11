@@ -18,7 +18,8 @@ class Xbox360Driver : public HIDDeviceDriver {
     // Xbox 360 controllers (gamepad, drum kit, guitar, wireless receiver)
     is_drum_kit_ = (vid == 0x1BAD && pid == 0x0003);
     is_guitar_ = (vid == 0x1430 && pid == 0x4748);
-    is_gamepad_ = (vid == 0x045E && (pid == 0x028E || pid == 0x0719));
+    is_gamepad_ =
+        (vid == 0x045E && (pid == 0x028E || pid == 0x0719)) || (vid == 0x2DC8 && pid == 0x310B);  // 8BitDo (Xbox mode)
     return is_drum_kit_ || is_guitar_ || is_gamepad_;
   }
 

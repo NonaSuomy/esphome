@@ -12,7 +12,7 @@ class XboxOneDriver : public HIDDeviceDriver {
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
     // Microsoft Xbox One controllers
     if (vid == 0x045E && (pid == 0x02D1 || pid == 0x02DD || pid == 0x02E3 || pid == 0x02EA || pid == 0x0B00 ||
-                          pid == 0x0B05 || pid == 0x0B12 || pid == 0x0B13)) {
+                          pid == 0x0B05 || pid == 0x0B12)) {
       return true;
     }
     // Xbox Series X|S controllers
