@@ -133,7 +133,7 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
   // Check for Xbox 360 devices (vendor-specific class 0xFF)
   bool is_xbox360 = (dev->vid == 0x045E && (dev->pid == 0x028E || dev->pid == 0x0719)) ||
                     (dev->vid == 0x2DC8 && dev->pid == 0x310B);  // 8BitDo (Xbox mode)
-
+  
   // Check for 8BitDo devices (may use vendor-specific class)
   bool is_8bitdo = (dev->vid == 0x2DC8 && dev->pid != 0x310B);  // Exclude Xbox mode
 
@@ -151,7 +151,8 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
     return;
   }
 
-  ESP_LOGI(TAG, "Config: wTotalLength=%d, bNumInterfaces=%d", config_desc->wTotalLength, config_desc->bNumInterfaces);
+  ESP_LOGI(TAG, "Config: wTotalLength=%d, bNumInterfaces=%d", 
+           config_desc->wTotalLength, config_desc->bNumInterfaces);
 
   // Find HID interface - log ALL interfaces for 8BitDo
   const usb_intf_desc_t *intf_desc = nullptr;
@@ -167,20 +168,22 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
 
     if (desc->bDescriptorType == USB_B_DESCRIPTOR_TYPE_INTERFACE) {
       const usb_intf_desc_t *temp_intf = (const usb_intf_desc_t *) desc;
-
+      
       if (is_8bitdo) {
-        ESP_LOGI(TAG, "  Intf %d: Class=0x%02X Sub=0x%02X Proto=0x%02X EPs=%d", temp_intf->bInterfaceNumber,
-                 temp_intf->bInterfaceClass, temp_intf->bInterfaceSubClass, temp_intf->bInterfaceProtocol,
+        ESP_LOGI(TAG, "  Intf %d: Class=0x%02X Sub=0x%02X Proto=0x%02X EPs=%d",
+                 temp_intf->bInterfaceNumber, temp_intf->bInterfaceClass, 
+                 temp_intf->bInterfaceSubClass, temp_intf->bInterfaceProtocol,
                  temp_intf->bNumEndpoints);
       }
       if (is_xbox360) {
-        ESP_LOGI(TAG, "  Intf %d: Class=0x%02X Sub=0x%02X Proto=0x%02X EPs=%d", temp_intf->bInterfaceNumber,
-                 temp_intf->bInterfaceClass, temp_intf->bInterfaceSubClass, temp_intf->bInterfaceProtocol,
+        ESP_LOGI(TAG, "  Intf %d: Class=0x%02X Sub=0x%02X Proto=0x%02X EPs=%d",
+                 temp_intf->bInterfaceNumber, temp_intf->bInterfaceClass,
+                 temp_intf->bInterfaceSubClass, temp_intf->bInterfaceProtocol,
                  temp_intf->bNumEndpoints);
       }
-
+      
       // Accept HID class (0x03), Xbox 360 vendor-specific (0xFF), or 8BitDo devices
-      if ((temp_intf->bInterfaceClass == 0x03 ||
+      if ((temp_intf->bInterfaceClass == 0x03 || 
            (is_xbox360 && (temp_intf->bInterfaceClass == 0xFF || temp_intf->bInterfaceClass == 0x03)) ||
            (is_8bitdo && temp_intf->bInterfaceClass == 0xFF)) &&
           temp_intf->bInterfaceNumber == 0) {
@@ -263,8 +266,8 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
   this->connected_devices_++;
 
   // Match device to driver
-  ESP_LOGI(TAG, "Attempting to match device (protocol=%d, VID=%04X, PID=%04X) to %d drivers", dev->protocol, dev->vid,
-           dev->pid, this->drivers_.size());
+  ESP_LOGI(TAG, "Attempting to match device (protocol=%d, VID=%04X, PID=%04X) to %d drivers", 
+           dev->protocol, dev->vid, dev->pid, this->drivers_.size());
   for (auto *driver : this->drivers_) {
     ESP_LOGD(TAG, "Checking driver: %s", driver->get_name());
     if (driver->match_device(dev->protocol, dev->vid, dev->pid)) {
@@ -365,9 +368,9 @@ void USBHIDXComponent::transfer_callback(usb_transfer_t *transfer) {
       is_idle = (buttons == 0 && (transfer->data_buffer[4] & 0x01) == 0 && sticks_centered);
     } else if (transfer->actual_num_bytes == 6 && transfer->data_buffer[0] == 0x01) {
       // Interact flight stick idle: [01 55 7F 7F 00 00] - buttons 0x55, centered sticks, neutral HAT
-      is_idle =
-          (transfer->data_buffer[1] == 0x55 && transfer->data_buffer[2] == 0x7F && transfer->data_buffer[3] == 0x7F &&
-           transfer->data_buffer[4] == 0x00 && transfer->data_buffer[5] == 0x00);
+      is_idle = (transfer->data_buffer[1] == 0x55 && transfer->data_buffer[2] == 0x7F && 
+                 transfer->data_buffer[3] == 0x7F && transfer->data_buffer[4] == 0x00 && 
+                 transfer->data_buffer[5] == 0x00);
     } else {
       // Generic idle check for other devices
       is_idle = (transfer->bEndpointAddress == 0x81 && transfer->actual_num_bytes == 8 &&
@@ -377,6 +380,7 @@ void USBHIDXComponent::transfer_callback(usb_transfer_t *transfer) {
     }
 
     if (!is_idle) {
+
       // XBOX 360 DEBUG START
       bool is_xbox = (dev->driver && strcmp(dev->driver->get_name(), "Xbox360") == 0);
       if (is_xbox) {
@@ -390,7 +394,7 @@ void USBHIDXComponent::transfer_callback(usb_transfer_t *transfer) {
         ESP_LOGI(TAG, "%s", xbox_hex.c_str());
       }
       // XBOX 360 DEBUG END
-
+      
       // Log PlayStation transfers
       if (is_ps_device) {
         ESP_LOGI(TAG, "PlayStation transfer: status=%d, bytes=%d, EP=0x%02X", transfer->status,
@@ -402,9 +406,8 @@ void USBHIDXComponent::transfer_callback(usb_transfer_t *transfer) {
       // Log raw data for all report sizes
       if (transfer->actual_num_bytes == 8) {
         // ESP_LOGD(TAG, "RAW: [%02X %02X %02X %02X %02X %02X %02X %02X]", transfer->data_buffer[0],
-        //          transfer->data_buffer[1], transfer->data_buffer[2], transfer->data_buffer[3],
-        //          transfer->data_buffer[4], transfer->data_buffer[5], transfer->data_buffer[6],
-        //          transfer->data_buffer[7]);
+        //          transfer->data_buffer[1], transfer->data_buffer[2], transfer->data_buffer[3], transfer->data_buffer[4],
+        //          transfer->data_buffer[5], transfer->data_buffer[6], transfer->data_buffer[7]);
       } else if (transfer->actual_num_bytes == 5) {
         // ESP_LOGD(TAG, "RAW: [%02X %02X %02X %02X %02X]", transfer->data_buffer[0], transfer->data_buffer[1],
         //          transfer->data_buffer[2], transfer->data_buffer[3], transfer->data_buffer[4]);

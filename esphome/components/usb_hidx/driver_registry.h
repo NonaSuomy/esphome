@@ -3,15 +3,14 @@
 // Only include drivers that are enabled in YAML config
 
 #ifdef USB_HIDX_ENABLE_KEYBOARD
-#if __has_include("keyboard_driver.h")
-#include "keyboard_driver.h"
+#include "devices/keyboard/keyboard_driver.h"
 #define HAS_KEYBOARD_DRIVER
-#endif
+#pragma message "Keyboard driver included"
 #endif
 
 #ifdef USB_HIDX_ENABLE_MOUSE
-#if __has_include("mouse_driver.h")
-#include "mouse_driver.h"
+#if __has_include("devices/mouse/mouse_driver.h")
+#include "devices/mouse/mouse_driver.h"
 #define HAS_MOUSE_DRIVER
 #endif
 #endif
@@ -73,14 +72,20 @@
 #include "devices/switch/switch_driver.h"
 #define HAS_SWITCH_DRIVER
 #endif
+#if __has_include("devices/interact/interact_driver.h")
+#include "devices/interact/interact_driver.h"
+#define HAS_INTERACT_DRIVER
+#endif
 #endif
 
-// Include USB I2C header if MCP2221 is enabled
+// USB I2C disabled - conflicts with standard i2c
+/*
 #ifdef HAS_MCP2221_DRIVER
 #if __has_include("../usb_i2c/usb_i2c.h")
 #include "../usb_i2c/usb_i2c.h"
 #endif
 #endif
+*/
 
 namespace esphome {
 namespace usb_hidx {
@@ -89,7 +94,10 @@ class USBHIDXComponent;  // Forward declaration
 
 inline void register_all_drivers(USBHIDXComponent *component) {
 #ifdef HAS_KEYBOARD_DRIVER
+  ESP_LOGI("driver_registry", "Registering keyboard driver");
   component->register_device_driver(new KeyboardDriver(component));
+#else
+  ESP_LOGW("driver_registry", "Keyboard driver NOT compiled in");
 #endif
 
 #ifdef HAS_MOUSE_DRIVER
@@ -130,6 +138,10 @@ inline void register_all_drivers(USBHIDXComponent *component) {
   component->register_device_driver(new SwitchDriver(component));
 #endif
 
+#ifdef HAS_INTERACT_DRIVER
+  component->register_device_driver(new InteractDriver(component));
+#endif
+
 #ifdef HAS_LOGITECH_DRIVER
   component->register_device_driver(new LogitechDriver(component));
 #endif
@@ -146,10 +158,11 @@ inline void register_all_drivers(USBHIDXComponent *component) {
   component->register_device_driver(new TouchscreenDriver(component));
 #endif
 
+// USB I2C drivers disabled
+/*
 #ifdef HAS_MCP2221_DRIVER
   auto *mcp2221 = new MCP2221Driver(component);
   component->register_device_driver(mcp2221);
-  // Register with USB I2C bus if available
   if (::esphome::usb_i2c::global_usb_i2c_bus) {
     ::esphome::usb_i2c::global_usb_i2c_bus->set_mcp2221_driver(mcp2221);
   }
@@ -162,6 +175,7 @@ inline void register_all_drivers(USBHIDXComponent *component) {
 #ifdef HAS_FT260_DRIVER
   component->register_device_driver(new FT260Driver(component));
 #endif
+*/
 
 // Register generic gamepad last (fallback for unknown gamepads)
 #ifdef HAS_GENERIC_GAMEPAD_DRIVER

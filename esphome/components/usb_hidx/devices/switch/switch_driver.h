@@ -97,23 +97,52 @@ class SwitchDriver : public HIDDeviceDriver {
       uint8_t ry = data[6];
 
       // D-Pad
-      if (dpad != last_dpad_ && dpad != 0x0F) {
-        const char *dir[] = {"Up", "Up-Right", "Right", "Down-Right", "Down", "Down-Left", "Left", "Up-Left"};
-        if (dpad < 8)
-          ESP_LOGI("usb_hidx.switch", "D-Pad: %s", dir[dpad]);
+      if (dpad != last_dpad_) {
+        if (dpad != 0x0F) {
+          const char *dir[] = {"Up", "Up-Right", "Right", "Down-Right", "Down", "Down-Left", "Left", "Up-Left"};
+          if (dpad < 8)
+            ESP_LOGI("usb_hidx.switch", "[FIXED_V2] D-Pad: %s", dir[dpad]);
+          // Publish D-pad states: 0=Up, 1=UpRight, 2=Right, 3=DownRight, 4=Down, 5=DownLeft, 6=Left, 7=UpLeft
+          bool up = (dpad == 7 || dpad == 0 || dpad == 1);
+          bool left = (dpad == 5 || dpad == 6 || dpad == 7);
+          bool right = (dpad == 1 || dpad == 2 || dpad == 3);
+          bool down = (dpad == 3 || dpad == 4 || dpad == 5);
+          if (parent_->gamepad_dpad_up_sensor_)
+            parent_->gamepad_dpad_up_sensor_->publish_state(up);
+          if (parent_->gamepad_dpad_left_sensor_)
+            parent_->gamepad_dpad_left_sensor_->publish_state(left);
+          if (parent_->gamepad_dpad_right_sensor_)
+            parent_->gamepad_dpad_right_sensor_->publish_state(right);
+          if (parent_->gamepad_dpad_down_sensor_)
+            parent_->gamepad_dpad_down_sensor_->publish_state(down);
+        } else {
+          // D-pad released
+          if (parent_->gamepad_dpad_up_sensor_)
+            parent_->gamepad_dpad_up_sensor_->publish_state(false);
+          if (parent_->gamepad_dpad_left_sensor_)
+            parent_->gamepad_dpad_left_sensor_->publish_state(false);
+          if (parent_->gamepad_dpad_right_sensor_)
+            parent_->gamepad_dpad_right_sensor_->publish_state(false);
+          if (parent_->gamepad_dpad_down_sensor_)
+            parent_->gamepad_dpad_down_sensor_->publish_state(false);
+        }
         last_dpad_ = dpad;
-      } else if (dpad == 0x0F && last_dpad_ != 0x0F) {
-        last_dpad_ = 0x0F;
       }
 
       // Buttons byte 0: Y(0x01), B(0x02), A(0x04), X(0x08), L(0x10), R(0x20), ZL(0x40), ZR(0x80)
       if (btn0 != last_btn0_) {
         if ((btn0 & 0x01) && !(last_btn0_ & 0x01))
           ESP_LOGI("usb_hidx.switch", "Y Button");
-        if ((btn0 & 0x02) && !(last_btn0_ & 0x02))
+        if ((btn0 & 0x02) && !(last_btn0_ & 0x02)) {
           ESP_LOGI("usb_hidx.switch", "B Button");
-        if ((btn0 & 0x04) && !(last_btn0_ & 0x04))
+          if (parent_->gamepad_button_b_sensor_)
+            parent_->gamepad_button_b_sensor_->publish_state(true);
+        }
+        if ((btn0 & 0x04) && !(last_btn0_ & 0x04)) {
           ESP_LOGI("usb_hidx.switch", "A Button");
+          if (parent_->gamepad_button_a_sensor_)
+            parent_->gamepad_button_a_sensor_->publish_state(true);
+        }
         if ((btn0 & 0x08) && !(last_btn0_ & 0x08))
           ESP_LOGI("usb_hidx.switch", "X Button");
         if ((btn0 & 0x10) && !(last_btn0_ & 0x10))
@@ -124,21 +153,50 @@ class SwitchDriver : public HIDDeviceDriver {
           ESP_LOGI("usb_hidx.switch", "ZL Button");
         if ((btn0 & 0x80) && !(last_btn0_ & 0x80))
           ESP_LOGI("usb_hidx.switch", "ZR Button");
+        if (!(btn0 & 0x02) && (last_btn0_ & 0x02)) {
+          if (parent_->gamepad_button_b_sensor_)
+            parent_->gamepad_button_b_sensor_->publish_state(false);
+        }
+        if (!(btn0 & 0x04) && (last_btn0_ & 0x04)) {
+          if (parent_->gamepad_button_a_sensor_)
+            parent_->gamepad_button_a_sensor_->publish_state(false);
+        }
         last_btn0_ = btn0;
       }
 
       // Buttons byte 1: Minus(0x01), Plus(0x02), L-Stick(0x04), R-Stick(0x08), Home(0x10), Capture(0x20)
       if (btn1 != last_btn1_) {
-        if ((btn1 & 0x01) && !(last_btn1_ & 0x01))
+        if ((btn1 & 0x01) && !(last_btn1_ & 0x01)) {
           ESP_LOGI("usb_hidx.switch", "Minus");
-        if ((btn1 & 0x02) && !(last_btn1_ & 0x02))
+          if (parent_->gamepad_button_minus_sensor_)
+            parent_->gamepad_button_minus_sensor_->publish_state(true);
+        }
+        if ((btn1 & 0x02) && !(last_btn1_ & 0x02)) {
           ESP_LOGI("usb_hidx.switch", "Plus");
+          if (parent_->gamepad_button_plus_sensor_)
+            parent_->gamepad_button_plus_sensor_->publish_state(true);
+        }
         if ((btn1 & 0x04) && !(last_btn1_ & 0x04))
           ESP_LOGI("usb_hidx.switch", "L-Stick");
         if ((btn1 & 0x08) && !(last_btn1_ & 0x08))
           ESP_LOGI("usb_hidx.switch", "R-Stick");
-        if ((btn1 & 0x10) && !(last_btn1_ & 0x10))
+        if ((btn1 & 0x10) && !(last_btn1_ & 0x10)) {
           ESP_LOGI("usb_hidx.switch", "Home");
+          if (parent_->gamepad_button_home_sensor_)
+            parent_->gamepad_button_home_sensor_->publish_state(true);
+        }
+        if (!(btn1 & 0x01) && (last_btn1_ & 0x01)) {
+          if (parent_->gamepad_button_minus_sensor_)
+            parent_->gamepad_button_minus_sensor_->publish_state(false);
+        }
+        if (!(btn1 & 0x02) && (last_btn1_ & 0x02)) {
+          if (parent_->gamepad_button_plus_sensor_)
+            parent_->gamepad_button_plus_sensor_->publish_state(false);
+        }
+        if (!(btn1 & 0x10) && (last_btn1_ & 0x10)) {
+          if (parent_->gamepad_button_home_sensor_)
+            parent_->gamepad_button_home_sensor_->publish_state(false);
+        }
         if ((btn1 & 0x20) && !(last_btn1_ & 0x20))
           ESP_LOGI("usb_hidx.switch", "Capture");
         last_btn1_ = btn1;

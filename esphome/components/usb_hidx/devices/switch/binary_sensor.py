@@ -18,6 +18,8 @@ CONF_BUTTON_MINUS = "button_minus"
 CONF_BUTTON_PLUS = "button_plus"
 CONF_BUTTON_HOME = "button_home"
 CONF_BUTTON_CAPTURE = "button_capture"
+CONF_BUTTON_L3 = "button_l3"
+CONF_BUTTON_R3 = "button_r3"
 CONF_BUTTON_CROSS = "button_cross"
 CONF_BUTTON_CIRCLE = "button_circle"
 CONF_DPAD_UP = "dpad_up"
@@ -45,6 +47,8 @@ CONFIG_SCHEMA = binary_sensor.binary_sensor_schema().extend(
         cv.Optional(CONF_BUTTON_PLUS): cv.boolean,
         cv.Optional(CONF_BUTTON_HOME): cv.boolean,
         cv.Optional(CONF_BUTTON_CAPTURE): cv.boolean,
+        cv.Optional(CONF_BUTTON_L3): cv.boolean,
+        cv.Optional(CONF_BUTTON_R3): cv.boolean,
         cv.Optional(CONF_BUTTON_CROSS): cv.boolean,
         cv.Optional(CONF_BUTTON_CIRCLE): cv.boolean,
         cv.Optional(CONF_DPAD_UP): cv.boolean,
@@ -71,10 +75,6 @@ async def to_code(config):
         cg.add(parent.register_gamepad_button_l_sensor(var))
     if config.get(CONF_BUTTON_R):
         cg.add(parent.register_gamepad_button_r_sensor(var))
-    if config.get(CONF_BUTTON_L):
-        cg.add(parent.register_gamepad_button_l_sensor(var))
-    if config.get(CONF_BUTTON_R):
-        cg.add(parent.register_gamepad_button_r_sensor(var))
     if config.get(CONF_BUTTON_ZL):
         cg.add(parent.register_gamepad_button_zl_sensor(var))
     if config.get(CONF_BUTTON_ZR):
@@ -87,6 +87,10 @@ async def to_code(config):
         cg.add(parent.register_gamepad_button_home_sensor(var))
     if config.get(CONF_BUTTON_CAPTURE):
         cg.add(parent.register_gamepad_button_capture_sensor(var))
+    if config.get(CONF_BUTTON_L3):
+        cg.add(parent.register_gamepad_button_l3_sensor(var))
+    if config.get(CONF_BUTTON_R3):
+        cg.add(parent.register_gamepad_button_r3_sensor(var))
     if config.get(CONF_DPAD_UP):
         cg.add(parent.register_gamepad_dpad_up_sensor(var))
     if config.get(CONF_DPAD_DOWN):

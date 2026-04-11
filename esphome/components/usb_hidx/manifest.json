@@ -1,0 +1,8 @@
+{
+  "name": "USB HIDX",
+  "description": "USB HID device support with hot-plug capability for ESP32-S3",
+  "version": "1.0.0",
+  "codeowners": ["@nonasuomy"],
+  "dependencies": ["esp32", "usb_host"],
+  "documentation": "https://github.com/nonasuomy/esphome-usb-hidx"
+}

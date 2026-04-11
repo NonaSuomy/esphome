@@ -75,7 +75,7 @@ async def to_code(config):
 
     # Only include drivers for devices configured in YAML
     if CONF_KEYBOARD in config:
-        cg.add_define("USB_HIDX_ENABLE_KEYBOARD")
+        cg.add_build_flag("-DUSB_HIDX_ENABLE_KEYBOARD")
         # Set keyboard layout
         layout = config[CONF_KEYBOARD].get(CONF_LAYOUT, "us")
         if layout == "us":
@@ -89,9 +89,9 @@ async def to_code(config):
         elif layout == "es":
             cg.add_define("KEYBOARD_LAYOUT_ES")
     if CONF_MOUSE in config:
-        cg.add_define("USB_HIDX_ENABLE_MOUSE")
+        cg.add_build_flag("-DUSB_HIDX_ENABLE_MOUSE")
     if CONF_GAMEPAD in config:
-        cg.add_define("USB_HIDX_ENABLE_GAMEPAD")
+        cg.add_build_flag("-DUSB_HIDX_ENABLE_GAMEPAD")
 
     # Auto-discover and add device driver include paths
     component_dir = Path(__file__).parent
