@@ -36,7 +36,7 @@ class KeyboardDriver : public HIDDeviceDriver {
     // Standard keyboard report (8 bytes)
     if (len < 8)
       return;
-
+    
     // Skip error codes (0x01 = ErrorRollOver, 0x02 = POSTFail, 0x03 = ErrorUndefined)
     bool has_error = false;
     for (int i = 2; i < 8; i++) {
@@ -90,14 +90,14 @@ class KeyboardDriver : public HIDDeviceDriver {
     bool shift = (data[0] & 0x22) != 0;
     bool win_key = (data[0] & 0x08) != 0;   // Left GUI/Windows key
     bool ctrl_key = (data[0] & 0x11) != 0;  // Left or Right Ctrl key
-
+    
     uint32_t now = esphome::millis();
 
     for (int i = 2; i < 8; i++) {
       if (data[i] != 0) {
         bool was_pressed = false;
         bool should_repeat = false;
-
+        
         for (int j = 0; j < 6; j++) {
           if (prev_keys_[j] == data[i]) {
             was_pressed = true;
@@ -111,14 +111,14 @@ class KeyboardDriver : public HIDDeviceDriver {
             break;
           }
         }
-
+        
         if (!was_pressed) {
           repeat_count_ = 0;
           last_key_time_ = now;
         } else {
           continue;  // Skip - key already held, no repeat
         }
-
+        
         if (!was_pressed) {
           // Check for Windows key combinations (Logitech K400r media keys F1-F6)
           if (win_key && !ctrl_key) {
@@ -175,7 +175,7 @@ class KeyboardDriver : public HIDDeviceDriver {
           } else {
             // Convert to ASCII and build string
             char ascii = hid_to_ascii(data[i], shift);
-
+            
             // Handle Ctrl key combinations
             if (ctrl_key && ascii >= 'a' && ascii <= 'z') {
               // Ctrl+letter = control code (Ctrl+A=0x01, Ctrl+K=0x0B, etc.)
@@ -184,10 +184,9 @@ class KeyboardDriver : public HIDDeviceDriver {
               // Ctrl+Shift+letter = control code
               ascii = ascii - 'A' + 1;
             }
-
+            
             if (ascii != 0) {
-              ESP_LOGI("KeyboardDriver", "ASCII key: 0x%02X ('%c')", ascii,
-                       (ascii >= 32 && ascii <= 126) ? ascii : '?');
+              ESP_LOGI("KeyboardDriver", "ASCII key: 0x%02X ('%c')", ascii, (ascii >= 32 && ascii <= 126) ? ascii : '?');
               // Publish to text sensor
 #ifdef USE_TEXT_SENSOR
               if (parent_->get_keyboard_sensor()) {

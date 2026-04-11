@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 from esphome.components import sensor
-from esphome.components.usb_hidx import USBHIDXComponent
+from esphome.components.Backup_usb_hidx import USBHIDXComponent
 import esphome.config_validation as cv
 
 CONF_USB_HIDX_ID = "usb_hidx_id"
