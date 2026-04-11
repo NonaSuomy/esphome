@@ -276,6 +276,10 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
       // Store Xbox 360 device reference
       if (strcmp(driver->get_name(), "Xbox360") == 0) {
         this->xbox360_device_ = dev;
+        // Initialize immediately after match so controller starts sending reports
+        auto *xbox_driver = static_cast<Xbox360Driver *>(driver);
+        xbox_driver->set_device(dev);
+        xbox_driver->init_controller(dev);
       }
 #ifdef USB_HIDX_ENABLE_GAMEPAD
       // Call on_device_ready for drivers that need initialization

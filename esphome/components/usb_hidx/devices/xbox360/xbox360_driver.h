@@ -95,7 +95,13 @@ class Xbox360Driver : public HIDDeviceDriver {
   void init_xbox360_controller(HIDDevice *device) {
     if (is_gamepad_) {
       ESP_LOGI("usb_hidx.xbox360", "Initializing Xbox 360 gamepad - setting LED to Player 1");
-      send_led_command(device, 0x06);
+      // Try interrupt OUT first (works for 8BitDo), fall back to control transfer
+      if (device->out_endpoint) {
+        uint8_t led_cmd[] = {0x01, 0x03, 0x06};
+        parent_->send_xbox360_interrupt_out(device, led_cmd, sizeof(led_cmd));
+      } else {
+        send_led_command(device, 0x06);
+      }
     }
   }
 
@@ -113,6 +119,8 @@ class Xbox360Driver : public HIDDeviceDriver {
   }
 
  public:
+  void init_controller(HIDDevice *device) { init_xbox360_controller(device); }
+
   void send_rumble(HIDDevice *device, uint8_t left_motor, uint8_t right_motor) {
     if (!device && device_)
       device = device_;
