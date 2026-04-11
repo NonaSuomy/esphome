@@ -119,11 +119,15 @@ class Xbox360Driver : public HIDDeviceDriver {
     if (is_wireless_) {
       uint8_t rumble_cmd[] = {0x00, 0x01, 0x0F, 0xC0, 0x00, left_motor, right_motor, 0x00, 0x00, 0x00, 0x00, 0x00};
       parent_->send_xbox360_interrupt_out(device, rumble_cmd, sizeof(rumble_cmd));
+    } else if (device->out_endpoint) {
+      // Use interrupt OUT if available (8BitDo and some wired controllers)
+      uint8_t rumble_cmd[] = {0x00, 0x08, 0x00, left_motor, right_motor, 0x00, 0x00, 0x00};
+      parent_->send_xbox360_interrupt_out(device, rumble_cmd, sizeof(rumble_cmd));
     } else {
       uint8_t rumble_cmd[] = {0x00, 0x08, 0x00, left_motor, right_motor, 0x00, 0x00, 0x00};
       parent_->send_xbox360_output(device, rumble_cmd, sizeof(rumble_cmd));
     }
-    ESP_LOGI("usb_hidx.xbox360", "Xbox 360 Rumble: Left=%d Right=%d", left_motor, right_motor);
+    ESP_LOGI("usb_hidx.xbox360", "Rumble: Left=%d Right=%d", left_motor, right_motor);
   }
 
  protected:
