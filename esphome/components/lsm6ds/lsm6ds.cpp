@@ -19,6 +19,8 @@ void LSM6DSComponent::setup() {
     ESP_LOGI(TAG, "Detected LSM6DSOX");
   } else if (who_am_i == 0x6A) {
     ESP_LOGI(TAG, "Detected LSM6DS3TR-C");
+  } else if (who_am_i == 0x69) {
+    ESP_LOGI(TAG, "Detected LSM6DSO32TR");
   } else {
     this->mark_failed();
     ESP_LOGE(TAG, "Unknown chip ID: 0x%02X", who_am_i);
@@ -110,7 +112,7 @@ void LSM6DSComponent::update() {
 }
 
 void LSM6DSComponent::dump_config() {
-  ESP_LOGCONFIG(TAG, "LSM6DS (LSM6DSOX/LSM6DS3TR-C):");
+  ESP_LOGCONFIG(TAG, "LSM6DS (LSM6DSOX/LSM6DS3TR-C/LSM6DSO32TR):");
   LOG_UPDATE_INTERVAL(this);
   if (this->is_failed()) {
     ESP_LOGCONFIG(TAG, "  Connection failed!");

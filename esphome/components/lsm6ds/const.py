@@ -13,6 +13,7 @@ LSM6DS_OUTX_L_A = 0x28
 # WHO_AM_I Values for different variants
 LSM6DSOX_WHO_AM_I_VALUE = 0x6C
 LSM6DS3TR_WHO_AM_I_VALUE = 0x6A
+LSM6DSO32TR_WHO_AM_I_VALUE = 0x69
 
 lsm6ds_ns = cg.esphome_ns.namespace("lsm6ds")
 LSM6DSComponent = lsm6ds_ns.class_("LSM6DSComponent", cg.PollingComponent)
