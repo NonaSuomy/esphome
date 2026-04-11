@@ -307,8 +307,8 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
   } else {
     ESP_LOGI(TAG, "Device monitoring started (protocol %d)", dev->protocol);
 
-    // If keyboard, try to set up media interface (interface 1)
-    if (dev->protocol == 0x01) {
+    // If keyboard (and not an Xbox360/8BitDo in Xbox mode), try to set up media interface
+    if (dev->protocol == 0x01 && !is_xbox360) {
       ESP_LOGI(TAG, "Keyboard detected, attempting to set up media interface");
       setup_media_interface(dev, config_desc);
     }
