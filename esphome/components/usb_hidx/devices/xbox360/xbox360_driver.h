@@ -33,13 +33,8 @@ class Xbox360Driver : public HIDDeviceDriver {
     // Wireless receiver format: 29 bytes, starts with 0x00 0x01 or 0x00 0x00
     if (len == 29 && data[0] == 0x00 && (data[1] == 0x01 || data[1] == 0x00)) {
       is_wireless_ = true;
-      if (!initialized_) {
+      if (!device_)
         device_ = device;
-        init_xbox360_controller(device);
-        initialized_ = true;
-      } else if (!device_) {
-        device_ = device;
-      }
       if (is_gamepad_)
         process_wireless_gamepad_report(data, len, device);
       return;
@@ -52,14 +47,8 @@ class Xbox360Driver : public HIDDeviceDriver {
       return;
     }
 
-    // Store device pointer and initialize on first report
-    if (!initialized_) {
+    if (!device_)
       device_ = device;
-      init_xbox360_controller(device);
-      initialized_ = true;
-    } else if (!device_) {
-      device_ = device;
-    }
 
     if (is_gamepad_) {
       process_gamepad_report(data, len, device);
@@ -79,7 +68,6 @@ class Xbox360Driver : public HIDDeviceDriver {
   bool is_guitar_{false};
   bool is_gamepad_{false};
   bool is_wireless_{false};
-  bool initialized_{false};
   bool last_was_idle_{false};
   uint8_t last_dpad_{0};
   uint8_t last_buttons1_{0};
