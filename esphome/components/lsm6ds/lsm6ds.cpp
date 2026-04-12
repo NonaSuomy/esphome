@@ -1,6 +1,7 @@
 #include "lsm6ds.h"
 #include "esphome/core/log.h"
 #include "esphome/core/helpers.h"
+#include "esphome/core/hal.h"
 
 namespace esphome {
 namespace lsm6ds {
@@ -27,14 +28,16 @@ void LSM6DSComponent::setup() {
     return;
   }
 
-  // SW Reset
+// SW Reset
   this->write_register(0x12, 0x01);
   uint8_t ctrl3;
-  uint32_t start = millis();
+  
+  // Use esphome:: namespace for framework compatibility
+  uint32_t start = esphome::millis(); 
   do {
-    delay(10);
+    esphome::delay(10); 
     this->read_register(0x12, &ctrl3, 1);
-  } while ((ctrl3 & 0x01) && (millis() - start < 100));
+  } while ((ctrl3 & 0x01) && (esphome::millis() - start < 100));
 
   if (ctrl3 & 0x01) {
     ESP_LOGW(TAG, "SW Reset timed out");
