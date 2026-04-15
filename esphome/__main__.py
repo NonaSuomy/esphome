@@ -750,8 +750,15 @@ def upload_using_esptool(
             platformio_api.FlashImage(
                 path=idedata.firmware_bin_path, offset=firmware_offset
             ),
-            *idedata.extra_flash_images,
         ]
+        for image in idedata.extra_flash_images:
+            if not image.path.is_file():
+                _LOGGER.warning(
+                    "Skipping missing flash image declared by platform: %s",
+                    image.path,
+                )
+                continue
+            flash_images.append(image)
 
     mcu = "esp8266"
     if CORE.is_esp32:
@@ -1083,7 +1090,7 @@ def command_config(args: ArgsProtocol, config: ConfigType) -> int | None:
     # add the console decoration so the front-end can hide the secrets
     if not args.show_secrets:
         output = re.sub(
-            r"(password|key|psk|ssid)\: (.+)", r"\1: \\033[5m\2\\033[6m", output
+            r"(password|key|psk|ssid)\: (.+)", r"\1: \\033[8m\2\\033[28m", output
         )
     if not CORE.quiet:
         safe_print(output)
