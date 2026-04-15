@@ -10,13 +10,15 @@ class LogitechDriver : public HIDDeviceDriver {
   LogitechDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
-    // Logitech Unifying Receiver
-    if (vid == 0x046D && (pid == 0xC52B || pid == 0xC532 || pid == 0xC52F)) {
+    // Logitech Unifying/Nano Receivers only - not gamepads
+    if (vid == 0x046D && (pid == 0xC52B || pid == 0xC532 || pid == 0xC52F ||
+                          pid == 0xC534 || pid == 0xC539 || pid == 0xC53F ||
+                          pid == 0xC548)) {
       return true;
     }
-    // Logitech wireless devices (direct connection)
-    if (vid == 0x046D) {
-      return true;  // Accept all Logitech devices
+    // Logitech K400r keyboard/touchpad (direct USB)
+    if (vid == 0x046D && (pid == 0x4024 || pid == 0x4025)) {
+      return true;
     }
     return false;
   }

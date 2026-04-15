@@ -78,6 +78,10 @@
 #endif
 #endif
 
+#if __has_include("devices/mce_remote/mce_remote_driver.h")
+#include "devices/mce_remote/mce_remote_driver.h"
+#define HAS_MCE_REMOTE_DRIVER
+#endif
 // USB I2C disabled - conflicts with standard i2c
 /*
 #ifdef HAS_MCP2221_DRIVER
@@ -110,10 +114,29 @@ inline void register_all_drivers(USBHIDXComponent *component) {
   component->register_device_driver(xbox360);
   component->set_xbox360_driver(xbox360);
   // Pass stored sensors to driver if they were registered
-  if (component->gamepad_button_a_sensor_)
-    xbox360->set_button_a_sensor(component->gamepad_button_a_sensor_);
-  if (component->gamepad_button_b_sensor_)
-    xbox360->set_button_b_sensor(component->gamepad_button_b_sensor_);
+  if (component->gamepad_button_a_sensor_)     xbox360->set_button_a_sensor(component->gamepad_button_a_sensor_);
+  if (component->gamepad_button_b_sensor_)     xbox360->set_button_b_sensor(component->gamepad_button_b_sensor_);
+  if (component->gamepad_button_x_sensor_)     xbox360->set_button_x_sensor(component->gamepad_button_x_sensor_);
+  if (component->gamepad_button_y_sensor_)     xbox360->set_button_y_sensor(component->gamepad_button_y_sensor_);
+  if (component->gamepad_button_l_sensor_)     xbox360->set_button_l_sensor(component->gamepad_button_l_sensor_);
+  if (component->gamepad_button_r_sensor_)     xbox360->set_button_r_sensor(component->gamepad_button_r_sensor_);
+  if (component->gamepad_button_zl_sensor_)    xbox360->set_button_zl_sensor(component->gamepad_button_zl_sensor_);
+  if (component->gamepad_button_zr_sensor_)    xbox360->set_button_zr_sensor(component->gamepad_button_zr_sensor_);
+  if (component->gamepad_button_minus_sensor_) xbox360->set_button_minus_sensor(component->gamepad_button_minus_sensor_);
+  if (component->gamepad_button_plus_sensor_)  xbox360->set_button_plus_sensor(component->gamepad_button_plus_sensor_);
+  if (component->gamepad_button_home_sensor_)  xbox360->set_button_home_sensor(component->gamepad_button_home_sensor_);
+  if (component->gamepad_button_l3_sensor_)    xbox360->set_button_l3_sensor(component->gamepad_button_l3_sensor_);
+  if (component->gamepad_button_r3_sensor_)    xbox360->set_button_r3_sensor(component->gamepad_button_r3_sensor_);
+  if (component->gamepad_dpad_up_sensor_)      xbox360->set_dpad_up_sensor(component->gamepad_dpad_up_sensor_);
+  if (component->gamepad_dpad_down_sensor_)    xbox360->set_dpad_down_sensor(component->gamepad_dpad_down_sensor_);
+  if (component->gamepad_dpad_left_sensor_)    xbox360->set_dpad_left_sensor(component->gamepad_dpad_left_sensor_);
+  if (component->gamepad_dpad_right_sensor_)   xbox360->set_dpad_right_sensor(component->gamepad_dpad_right_sensor_);
+#ifdef USE_SENSOR
+  if (component->get_gamepad_left_stick_x_sensor())  xbox360->set_axis_lx_sensor(component->get_gamepad_left_stick_x_sensor());
+  if (component->get_gamepad_left_stick_y_sensor())  xbox360->set_axis_ly_sensor(component->get_gamepad_left_stick_y_sensor());
+  if (component->get_gamepad_right_stick_x_sensor()) xbox360->set_axis_rx_sensor(component->get_gamepad_right_stick_x_sensor());
+  if (component->get_gamepad_right_stick_y_sensor()) xbox360->set_axis_ry_sensor(component->get_gamepad_right_stick_y_sensor());
+#endif
 #endif
 
 #ifdef HAS_XBOXONE_DRIVER
@@ -135,11 +158,17 @@ inline void register_all_drivers(USBHIDXComponent *component) {
 #endif
 
 #ifdef HAS_SWITCH_DRIVER
-  component->register_device_driver(new SwitchDriver(component));
+  auto *sw = new SwitchDriver(component);
+  component->register_device_driver(sw);
+  component->set_switch_driver(sw);
 #endif
 
 #ifdef HAS_INTERACT_DRIVER
   component->register_device_driver(new InteractDriver(component));
+#endif
+
+#ifdef HAS_MCE_REMOTE_DRIVER
+  component->register_device_driver(new MCERemoteDriver(component));
 #endif
 
 #ifdef HAS_LOGITECH_DRIVER

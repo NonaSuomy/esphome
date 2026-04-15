@@ -81,6 +81,8 @@ class USBHIDXComponent : public Component {
 #ifdef USE_TEXT_SENSOR
   void register_keyboard_sensor(text_sensor::TextSensor *sensor) { keyboard_sensor_ = sensor; }
   text_sensor::TextSensor *get_keyboard_sensor() { return keyboard_sensor_; }
+  void register_device_name_sensor(text_sensor::TextSensor *sensor) { device_name_sensor_ = sensor; }
+  text_sensor::TextSensor *get_device_name_sensor() { return device_name_sensor_; }
 #endif
 
 #ifdef USE_BINARY_SENSOR
@@ -144,6 +146,8 @@ class USBHIDXComponent : public Component {
   Xbox360Driver *get_xbox360_driver() { return xbox360_driver_; }
   void set_playstation_driver(PlayStationDriver *driver) { playstation_driver_ = driver; }
   PlayStationDriver *get_playstation_driver() { return playstation_driver_; }
+  void set_switch_driver(SwitchDriver *driver) { switch_driver_ = driver; }
+  SwitchDriver *get_switch_driver() { return switch_driver_; }
 
  protected:
   usb_host_client_handle_t client_hdl_{nullptr};
@@ -155,6 +159,7 @@ class USBHIDXComponent : public Component {
   std::vector<HIDDeviceDriver *> drivers_;
 #ifdef USE_TEXT_SENSOR
   text_sensor::TextSensor *keyboard_sensor_{nullptr};
+  text_sensor::TextSensor *device_name_sensor_{nullptr};
 #endif
 #ifdef USE_BINARY_SENSOR
   std::map<uint8_t, binary_sensor::BinarySensor *> keyboard_key_sensors_;
@@ -174,6 +179,8 @@ class USBHIDXComponent : public Component {
   HIDDevice *xbox360_device_{nullptr};
   Xbox360Driver *xbox360_driver_{nullptr};
   PlayStationDriver *playstation_driver_{nullptr};
+  SwitchDriver *switch_driver_{nullptr};
+  uint32_t last_root_port_reset_{0};
 
   static void client_event_callback(const usb_host_client_event_msg_t *event_msg, void *arg);
   static void transfer_callback(usb_transfer_t *transfer);

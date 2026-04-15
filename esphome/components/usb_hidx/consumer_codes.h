@@ -39,6 +39,14 @@ inline const char *consumer_code_to_name(uint8_t code) {
       return "WWW Forward";
     case 0x82:
       return "Favourites";
+    case 0x83:
+      return "Media";
+    case 0x86:
+      return "Internet Browser";
+    case 0xB3:
+      return "Fast Forward";
+    case 0xB4:
+      return "Rewind";
     // Zoom
     case 0x2D:
       return "Zoom In";
