@@ -16,12 +16,12 @@
 #endif
 
 #ifdef USB_HIDX_ENABLE_GAMEPAD
-#if __has_include("generic_gamepad_driver.h")
-#include "generic_gamepad_driver.h"
+#if __has_include("devices/generic_gamepad/generic_gamepad_driver.h")
+#include "devices/generic_gamepad/generic_gamepad_driver.h"
 #define HAS_GENERIC_GAMEPAD_DRIVER
 #endif
-#if __has_include("xbox360_driver.h")
-#include "xbox360_driver.h"
+#if __has_include("devices/xbox360/xbox360_driver.h")
+#include "devices/xbox360/xbox360_driver.h"
 #define HAS_XBOX360_DRIVER
 #endif
 #if __has_include("devices/playstation/playstation_driver.h")
