@@ -34,6 +34,16 @@ class GenericGamepadDriver : public HIDDeviceDriver {
   }
 
   void process_report(const uint8_t *data, size_t len, HIDDevice *device) override {
+    if (len < 3)
+      return;
+
+    // Logitech Dual Action / standard 6-byte HID gamepad
+    // [btn0, btn1, lx, ly, rx_ry_packed, hat] or similar
+    if (len == 6) {
+      process_6byte_report(data, len);
+      return;
+    }
+
     if (len < 8)
       return;
 
@@ -398,6 +408,54 @@ class GenericGamepadDriver : public HIDDeviceDriver {
   int16_t last_ly_16_{0};
   int16_t last_rx_16_{0};
   int16_t last_ry_16_{0};
+  uint8_t last_6b_btn0_{0};
+  uint8_t last_6b_btn1_{0};
+  uint8_t last_6b_hat_{0xFF};
+
+  // Logitech Dual Action and similar 6-byte HID gamepad format:
+  // [btn0, btn1, lx, ly, rxy_packed, hat]
+  // btn0 bits: 1=1, 2=2, 4=3, 8=4, 16=L1, 32=R1, 64=L2, 128=R2
+  // btn1 bits: 1=select, 2=start, 4=L3, 8=R3
+  // hat nibble in byte 5 low nibble: 0=up,2=right,4=down,6=left,8=neutral (x2)
+  void process_6byte_report(const uint8_t *data, size_t len) {
+    uint8_t btn0 = data[0];
+    uint8_t btn1 = data[1];
+    uint8_t hat  = (data[5] >> 4) & 0x0F;  // upper nibble
+    if (hat == 0x0F) hat = data[5] & 0x0F; // try lower nibble
+
+    auto pub = [](binary_sensor::BinarySensor *s, bool v) { if (s) s->publish_state(v); };
+
+    if (btn0 != last_6b_btn0_) {
+      pub(parent_->gamepad_button_a_sensor_,   (btn0 & 0x02) != 0);
+      pub(parent_->gamepad_button_b_sensor_,   (btn0 & 0x04) != 0);
+      pub(parent_->gamepad_button_x_sensor_,   (btn0 & 0x08) != 0);
+      pub(parent_->gamepad_button_y_sensor_,   (btn0 & 0x01) != 0);
+      pub(parent_->gamepad_button_l_sensor_,   (btn0 & 0x10) != 0);
+      pub(parent_->gamepad_button_r_sensor_,   (btn0 & 0x20) != 0);
+      pub(parent_->gamepad_button_zl_sensor_,  (btn0 & 0x40) != 0);
+      pub(parent_->gamepad_button_zr_sensor_,  (btn0 & 0x80) != 0);
+      last_6b_btn0_ = btn0;
+    }
+    if (btn1 != last_6b_btn1_) {
+      pub(parent_->gamepad_button_minus_sensor_, (btn1 & 0x01) != 0);
+      pub(parent_->gamepad_button_plus_sensor_,  (btn1 & 0x02) != 0);
+      pub(parent_->gamepad_button_l3_sensor_,    (btn1 & 0x04) != 0);
+      pub(parent_->gamepad_button_r3_sensor_,    (btn1 & 0x08) != 0);
+      last_6b_btn1_ = btn1;
+    }
+    if (hat != last_6b_hat_) {
+      pub(parent_->gamepad_dpad_up_sensor_,    hat == 0 || hat == 1 || hat == 7);
+      pub(parent_->gamepad_dpad_right_sensor_, hat == 2 || hat == 1 || hat == 3);
+      pub(parent_->gamepad_dpad_down_sensor_,  hat == 4 || hat == 3 || hat == 5);
+      pub(parent_->gamepad_dpad_left_sensor_,  hat == 6 || hat == 5 || hat == 7);
+      last_6b_hat_ = hat;
+    }
+    // axes: bytes 2=lx, 3=ly, 4 upper=rx lower=ry (packed nibbles) or byte4=rx byte5=ry
+    // publish scaled -100..100
+    auto scale = [](uint8_t v) -> float { return ((int)v - 128) / 1.28f; };
+    if (parent_->get_gamepad_left_stick_x_sensor())  parent_->get_gamepad_left_stick_x_sensor()->publish_state(scale(data[2]));
+    if (parent_->get_gamepad_left_stick_y_sensor())  parent_->get_gamepad_left_stick_y_sensor()->publish_state(scale(data[3]));
+  }
 };
 
 }  // namespace usb_hidx

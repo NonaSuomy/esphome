@@ -8,6 +8,10 @@
 #include "devices/switch/switch_driver.h"
 #endif
 
+#ifdef HAS_MCE_REMOTE_DRIVER
+#include "devices/mce_remote/mce_remote_driver.h"
+#endif
+
 namespace esphome {
 namespace usb_hidx {
 
@@ -57,6 +61,22 @@ void USBHIDXComponent::loop() {
       ESP_LOGW(TAG, "USB client event error: %s", esp_err_to_name(err));
     }
   }
+
+  // If no device is connected, periodically power-cycle the root port to
+  // recover from CHECK_SHORT_DEV_DESC enumeration failures (slow devices).
+  if (this->connected_devices_ == 0 && this->active_channels_ == 0) {
+    uint32_t now = millis();
+    if (now - this->last_root_port_reset_ > 5000) {
+      this->last_root_port_reset_ = now;
+      ESP_LOGD(TAG, "No device detected, power-cycling USB root port");
+      usb_host_lib_set_root_port_power(false);
+      vTaskDelay(pdMS_TO_TICKS(10));
+      usb_host_lib_set_root_port_power(true);
+      vTaskDelay(pdMS_TO_TICKS(100));
+    }
+  } else {
+    this->last_root_port_reset_ = millis();
+  }
 }
 
 HIDDevice *USBHIDXComponent::find_device_by_handle(usb_device_handle_t dev_hdl) {
@@ -95,6 +115,9 @@ void USBHIDXComponent::client_event_callback(const usb_host_client_event_msg_t *
 void USBHIDXComponent::handle_new_device(uint8_t address) {
   ESP_LOGI(TAG, "New USB device detected at address %d", address);
 
+  // Small delay to allow device to stabilize after connect/reconnect
+  vTaskDelay(pdMS_TO_TICKS(100));
+
   int slot = -1;
   for (int i = 0; i < 4; i++) {
     if (!devices_[i].active) {
@@ -132,12 +155,25 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
 
   // Check for Xbox 360 devices (vendor-specific class 0xFF)
   bool is_xbox360 = (dev->vid == 0x045E && (dev->pid == 0x028E || dev->pid == 0x0719)) ||
-                    (dev->vid == 0x2DC8 && dev->pid == 0x310B);  // 8BitDo (Xbox mode)
+                    (dev->vid == 0x2DC8 && dev->pid == 0x310B) ||  // 8BitDo (Xbox mode)
+                    (dev->vid == 0x1BAD) ||  // Mad Catz / Rock Band instruments
+                    (dev->vid == 0x1430);    // RedOctane / Guitar Hero instruments
   
   // Check for 8BitDo devices (may use vendor-specific class)
   bool is_8bitdo = (dev->vid == 0x2DC8 && dev->pid != 0x310B);  // Exclude Xbox mode
 
-  if (dev_desc->bDeviceClass != 0x03 && dev_desc->bDeviceClass != 0x00 && !is_xbox360 && !is_8bitdo) {
+  // Check for MCE IR receivers (may use vendor-specific interface class)
+  bool is_mce = (dev->vid == 0x1784 || dev->vid == 0x0471 || dev->vid == 0x0609 ||
+                 dev->vid == 0x1460 || dev->vid == 0x1308 || dev->vid == 0x051C ||
+                 dev->vid == 0x107B || dev->vid == 0x03EE || dev->vid == 0x179D ||
+                 dev->vid == 0x195D || dev->vid == 0x1509 || dev->vid == 0x043E ||
+                 dev->vid == 0x147A || dev->vid == 0x1934 || dev->vid == 0x2304 ||
+                 dev->vid == 0x1019 || dev->vid == 0x0FB8 || dev->vid == 0x185B ||
+                 dev->vid == 0x04EB || dev->vid == 0x105A || dev->vid == 0x0572 ||
+                 dev->vid == 0x0BDA || dev->vid == 0x2596 || dev->vid == 0x03F3 ||
+                 (dev->vid == 0x045E && (dev->pid == 0x006D || dev->pid == 0x00A0 || dev->pid == 0x00F2)));
+
+  if (dev_desc->bDeviceClass != 0x03 && dev_desc->bDeviceClass != 0x00 && !is_xbox360 && !is_8bitdo && !is_mce) {
     ESP_LOGD(TAG, "Not a HID device (class 0x%02X), ignoring", dev_desc->bDeviceClass);
     usb_host_device_close(this->client_hdl_, dev->dev_hdl);
     return;
@@ -182,15 +218,22 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
                  temp_intf->bNumEndpoints);
       }
       
-      // Accept HID class (0x03), Xbox 360 vendor-specific (0xFF), or 8BitDo devices
+      // Accept HID class (0x03), Xbox 360 vendor-specific (0xFF), 8BitDo, or MCE vendor-specific
       if ((temp_intf->bInterfaceClass == 0x03 || 
            (is_xbox360 && (temp_intf->bInterfaceClass == 0xFF || temp_intf->bInterfaceClass == 0x03)) ||
-           (is_8bitdo && temp_intf->bInterfaceClass == 0xFF)) &&
+           (is_8bitdo && temp_intf->bInterfaceClass == 0xFF) ||
+           (is_mce && (temp_intf->bInterfaceClass == 0xFF || temp_intf->bInterfaceClass == 0x03))) &&
           temp_intf->bInterfaceNumber == 0) {
         intf_desc = temp_intf;
         dev->protocol = intf_desc->bInterfaceProtocol;
         ESP_LOGI(TAG, "Found HID interface, protocol %d, class 0x%02X", dev->protocol, temp_intf->bInterfaceClass);
         break;
+      }
+      // Log rejected interfaces for MCE to help debug
+      if (is_mce) {
+        ESP_LOGI(TAG, "MCE intf %d: Class=0x%02X Sub=0x%02X Proto=0x%02X",
+                 temp_intf->bInterfaceNumber, temp_intf->bInterfaceClass,
+                 temp_intf->bInterfaceSubClass, temp_intf->bInterfaceProtocol);
       }
       // For 8BitDo, also accept standard HID on interface 0
       if (is_8bitdo && temp_intf->bInterfaceClass == 0x03 && temp_intf->bInterfaceNumber == 0) {
@@ -217,9 +260,18 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
     if (desc->bDescriptorType == USB_B_DESCRIPTOR_TYPE_ENDPOINT) {
       const usb_ep_desc_t *temp_ep = (const usb_ep_desc_t *) desc;
       if ((temp_ep->bEndpointAddress & 0x80) && ((temp_ep->bmAttributes & 0x03) == 0x03)) {
+        // Fix invalid bInterval=0 (ESP-IDF requires 1-255 for interrupt endpoints)
+        if (temp_ep->bInterval == 0) {
+          ESP_LOGW(TAG, "Fixing invalid bInterval=0 on IN endpoint 0x%02X", temp_ep->bEndpointAddress);
+          const_cast<usb_ep_desc_t *>(temp_ep)->bInterval = 1;
+        }
         ep_desc = temp_ep;
-        ESP_LOGI(TAG, "Found interrupt IN endpoint: 0x%02X", ep_desc->bEndpointAddress);
+        ESP_LOGI(TAG, "Found interrupt IN endpoint: 0x%02X (interval=%d)", ep_desc->bEndpointAddress, ep_desc->bInterval);
       } else if (!(temp_ep->bEndpointAddress & 0x80) && ((temp_ep->bmAttributes & 0x03) == 0x03)) {
+        if (temp_ep->bInterval == 0) {
+          ESP_LOGW(TAG, "Fixing invalid bInterval=0 on OUT endpoint 0x%02X", temp_ep->bEndpointAddress);
+          const_cast<usb_ep_desc_t *>(temp_ep)->bInterval = 1;
+        }
         out_ep = temp_ep->bEndpointAddress;
         ESP_LOGI(TAG, "Found interrupt OUT endpoint: 0x%02X", out_ep);
       }
@@ -276,19 +328,27 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
       // Store Xbox 360 device reference
       if (strcmp(driver->get_name(), "Xbox360") == 0) {
         this->xbox360_device_ = dev;
+#ifdef USB_HIDX_ENABLE_GAMEPAD
         // Initialize immediately after match so controller starts sending reports
         auto *xbox_driver = static_cast<Xbox360Driver *>(driver);
         xbox_driver->set_device(dev);
         xbox_driver->init_controller(dev);
+#endif
       }
 #ifdef USB_HIDX_ENABLE_GAMEPAD
       // Call on_device_ready for drivers that need initialization
-      if (strcmp(driver->get_name(), "PlayStation") == 0) {
+      if (strcmp(driver->get_name(), "PlayStation") == 0 ||
+          strcmp(driver->get_name(), "PS3") == 0 ||
+          strcmp(driver->get_name(), "PS4") == 0 ||
+          strcmp(driver->get_name(), "PS5") == 0) {
         auto *ps_driver = static_cast<PlayStationDriver *>(driver);
         ps_driver->on_device_ready(dev);
       } else if (strcmp(driver->get_name(), "Switch") == 0) {
         auto *switch_driver = static_cast<SwitchDriver *>(driver);
         switch_driver->on_device_ready(dev);
+      } else if (strcmp(driver->get_name(), "MCERemote") == 0) {
+        auto *mce_driver = static_cast<MCERemoteDriver *>(driver);
+        mce_driver->on_device_ready(dev);
       }
 #endif
       break;
@@ -310,7 +370,19 @@ void USBHIDXComponent::handle_new_device(uint8_t address) {
     this->connected_devices_--;
   } else {
     ESP_LOGI(TAG, "Device monitoring started (protocol %d)", dev->protocol);
-
+#ifdef USE_TEXT_SENSOR
+    if (this->device_name_sensor_) {
+      // Build combined name from all active devices
+      std::string combined;
+      for (int i = 0; i < 4; i++) {
+        if (devices_[i].active && devices_[i].driver) {
+          if (!combined.empty()) combined += "+";
+          combined += devices_[i].driver->get_name();
+        }
+      }
+      this->device_name_sensor_->publish_state(combined.empty() ? "Unknown" : combined);
+    }
+#endif
     // If keyboard (and not an Xbox360/8BitDo in Xbox mode), try to set up media interface
     if (dev->protocol == 0x01 && !is_xbox360) {
       ESP_LOGI(TAG, "Keyboard detected, attempting to set up media interface");
@@ -341,6 +413,22 @@ void USBHIDXComponent::handle_device_gone(usb_device_handle_t dev_hdl) {
   }
 
   ESP_LOGI(TAG, "Device removed, %d devices remaining", this->connected_devices_);
+#ifdef USE_TEXT_SENSOR
+  if (this->device_name_sensor_) {
+    if (this->connected_devices_ == 0) {
+      this->device_name_sensor_->publish_state("None");
+    } else {
+      std::string combined;
+      for (int i = 0; i < 4; i++) {
+        if (devices_[i].active && devices_[i].driver) {
+          if (!combined.empty()) combined += "+";
+          combined += devices_[i].driver->get_name();
+        }
+      }
+      this->device_name_sensor_->publish_state(combined.empty() ? "None" : combined);
+    }
+  }
+#endif
 }
 
 void USBHIDXComponent::transfer_callback(usb_transfer_t *transfer) {
@@ -399,11 +487,17 @@ void USBHIDXComponent::transfer_callback(usb_transfer_t *transfer) {
       }
       // XBOX 360 DEBUG END
       
-      // Log PlayStation transfers
-      if (is_ps_device) {
-        ESP_LOGI(TAG, "PlayStation transfer: status=%d, bytes=%d, EP=0x%02X", transfer->status,
-                 transfer->actual_num_bytes, transfer->bEndpointAddress);
+    // Log raw data for PS3 at INFO level so it's always visible
+    if (is_ps_device && transfer->actual_num_bytes > 0) {
+      std::string ps_hex = "PS3 RAW: [";
+      for (int i = 0; i < std::min((int)transfer->actual_num_bytes, 20); i++) {
+        char buf[8];
+        snprintf(buf, sizeof(buf), "%02X%s", transfer->data_buffer[i], i < transfer->actual_num_bytes - 1 ? " " : "");
+        ps_hex += buf;
       }
+      ps_hex += "]";
+      ESP_LOGD(TAG, "%s", ps_hex.c_str());
+    }
 
       // ESP_LOGD(TAG, "Transfer from EP 0x%02X: %d bytes", transfer->bEndpointAddress, transfer->actual_num_bytes);
 

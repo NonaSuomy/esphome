@@ -57,60 +57,38 @@ class TouchscreenDriver : public HIDDeviceDriver {
     if (len < 5)
       return;
 
-    // Generic multitouch report format
-    // Most touchscreens follow similar patterns
-
     uint8_t report_id = data[0];
 
     // Single touch report (most common)
     if (len >= 7) {
-      // Touch state (byte 1, bit 0 = tip switch/contact)
       bool touching = data[1] & 0x01;
-
-      // X coordinate (16-bit, bytes 2-3)
       uint16_t x = (data[3] << 8) | data[2];
-
-      // Y coordinate (16-bit, bytes 4-5)
       uint16_t y = (data[5] << 8) | data[4];
 
-      // Contact ID (if multitouch)
-      uint8_t contact_id = len > 6 ? data[6] : 0;
-
-      // Log touch events
-      if (touching && !last_touching_) {
-        ESP_LOGI("usb_hidx.touch", "Touch Down: X=%d Y=%d", x, y);
-        last_x_ = x;
-        last_y_ = y;
-      } else if (!touching && last_touching_) {
-        ESP_LOGI("usb_hidx.touch", "Touch Up");
-      } else if (touching) {
-        // Log movement if significant
-        if (abs((int) x - (int) last_x_) > 10 || abs((int) y - (int) last_y_) > 10) {
-          ESP_LOGV("usb_hidx.touch", "Touch Move: X=%d Y=%d", x, y);
-          last_x_ = x;
-          last_y_ = y;
+      if (touching) {
+        // Publish delta movement relative to last position
+        if (last_touching_) {
+          int16_t dx = (int16_t)x - (int16_t)last_x_;
+          int16_t dy = (int16_t)y - (int16_t)last_y_;
+          if (dx != 0 && parent_->get_mouse_x_sensor())
+            parent_->get_mouse_x_sensor()->publish_state(dx);
+          if (dy != 0 && parent_->get_mouse_y_sensor())
+            parent_->get_mouse_y_sensor()->publish_state(dy);
         }
+        // Publish left button held while touching
+        if (parent_->get_mouse_left_sensor())
+          parent_->get_mouse_left_sensor()->publish_state(true);
+        ESP_LOGV("usb_hidx.touch", "Touch: X=%d Y=%d", x, y);
+      } else if (last_touching_) {
+        if (parent_->get_mouse_left_sensor())
+          parent_->get_mouse_left_sensor()->publish_state(false);
+        ESP_LOGI("usb_hidx.touch", "Touch Up");
       }
 
       last_touching_ = touching;
-    }
-
-    // Multitouch report (multiple contacts)
-    if (len >= 10 && data[1] > 1) {
-      uint8_t contact_count = data[1];
-      ESP_LOGV("usb_hidx.touch", "Multitouch: %d contacts", contact_count);
-
-      // Parse each contact (typically 5-7 bytes per contact)
-      for (int i = 0; i < contact_count && (2 + i * 7) < len; i++) {
-        int offset = 2 + i * 7;
-        bool touching = data[offset] & 0x01;
-        uint16_t x = (data[offset + 2] << 8) | data[offset + 1];
-        uint16_t y = (data[offset + 4] << 8) | data[offset + 3];
-        uint8_t contact_id = data[offset + 5];
-
-        if (touching) {
-          ESP_LOGV("usb_hidx.touch", "Contact %d: X=%d Y=%d", contact_id, x, y);
-        }
+      if (touching) {
+        last_x_ = x;
+        last_y_ = y;
       }
     }
   }

@@ -52,22 +52,21 @@ class KeyboardDriver : public HIDDeviceDriver {
     static uint8_t prev_modifier = 0;
     if (data[0] != prev_modifier) {
       uint8_t changed = data[0] ^ prev_modifier;
-      if (changed & 0x01)
-        ESP_LOGI("KeyboardDriver", "Left Ctrl %s", (data[0] & 0x01) ? "pressed" : "released");
-      if (changed & 0x02)
-        ESP_LOGI("KeyboardDriver", "Left Shift %s", (data[0] & 0x02) ? "pressed" : "released");
-      if (changed & 0x04)
-        ESP_LOGI("KeyboardDriver", "Left Alt %s", (data[0] & 0x04) ? "pressed" : "released");
-      if (changed & 0x08)
-        ESP_LOGI("KeyboardDriver", "Left GUI (Windows) %s", (data[0] & 0x08) ? "pressed" : "released");
-      if (changed & 0x10)
-        ESP_LOGI("KeyboardDriver", "Right Ctrl %s", (data[0] & 0x10) ? "pressed" : "released");
-      if (changed & 0x20)
-        ESP_LOGI("KeyboardDriver", "Right Shift %s", (data[0] & 0x20) ? "pressed" : "released");
-      if (changed & 0x40)
-        ESP_LOGI("KeyboardDriver", "Right Alt %s", (data[0] & 0x40) ? "pressed" : "released");
-      if (changed & 0x80)
-        ESP_LOGI("KeyboardDriver", "Right GUI (Windows) %s", (data[0] & 0x80) ? "pressed" : "released");
+      auto pub_mod = [&](const char *name, bool pressed) {
+        ESP_LOGI("KeyboardDriver", "%s %s", name, pressed ? "pressed" : "released");
+#ifdef USE_TEXT_SENSOR
+        if (pressed && parent_->get_keyboard_sensor())
+          parent_->get_keyboard_sensor()->publish_state(name);
+#endif
+      };
+      if (changed & 0x01) pub_mod("Left Ctrl",    (data[0] & 0x01));
+      if (changed & 0x02) pub_mod("Left Shift",   (data[0] & 0x02));
+      if (changed & 0x04) pub_mod("Left Alt",     (data[0] & 0x04));
+      if (changed & 0x08) pub_mod("Win",           (data[0] & 0x08));
+      if (changed & 0x10) pub_mod("Right Ctrl",   (data[0] & 0x10));
+      if (changed & 0x20) pub_mod("Right Shift",  (data[0] & 0x20));
+      if (changed & 0x40) pub_mod("Right Alt",    (data[0] & 0x40));
+      if (changed & 0x80) pub_mod("Right Win",    (data[0] & 0x80));
       prev_modifier = data[0];
     }
 
@@ -164,14 +163,26 @@ class KeyboardDriver : public HIDDeviceDriver {
             caps_lock_state_ = !caps_lock_state_;
             ESP_LOGI("KeyboardDriver", "Caps Lock: %s", caps_lock_state_ ? "ON" : "OFF");
             update_keyboard_leds(device);
+#ifdef USE_TEXT_SENSOR
+            if (parent_->get_keyboard_sensor())
+              parent_->get_keyboard_sensor()->publish_state(caps_lock_state_ ? "Caps Lock ON" : "Caps Lock OFF");
+#endif
           } else if (data[i] == 0x53) {  // Num Lock
             num_lock_state_ = !num_lock_state_;
             ESP_LOGI("KeyboardDriver", "Num Lock: %s", num_lock_state_ ? "ON" : "OFF");
             update_keyboard_leds(device);
+#ifdef USE_TEXT_SENSOR
+            if (parent_->get_keyboard_sensor())
+              parent_->get_keyboard_sensor()->publish_state(num_lock_state_ ? "Num Lock ON" : "Num Lock OFF");
+#endif
           } else if (data[i] == 0x47) {  // Scroll Lock
             scroll_lock_state_ = !scroll_lock_state_;
             ESP_LOGI("KeyboardDriver", "Scroll Lock: %s", scroll_lock_state_ ? "ON" : "OFF");
             update_keyboard_leds(device);
+#ifdef USE_TEXT_SENSOR
+            if (parent_->get_keyboard_sensor())
+              parent_->get_keyboard_sensor()->publish_state(scroll_lock_state_ ? "Scroll Lock ON" : "Scroll Lock OFF");
+#endif
           } else {
             // Convert to ASCII and build string
             char ascii = hid_to_ascii(data[i], shift);
@@ -187,11 +198,19 @@ class KeyboardDriver : public HIDDeviceDriver {
             
             if (ascii != 0) {
               ESP_LOGI("KeyboardDriver", "ASCII key: 0x%02X ('%c')", ascii, (ascii >= 32 && ascii <= 126) ? ascii : '?');
-              // Publish to text sensor
 #ifdef USE_TEXT_SENSOR
               if (parent_->get_keyboard_sensor()) {
-                char buf[2] = {ascii, 0};
-                parent_->get_keyboard_sensor()->publish_state(buf);
+                const char *name = nullptr;
+                if      (ascii == 0x08) name = "Backspace";
+                else if (ascii == 0x09) name = "Tab";
+                else if (ascii == 0x0A) name = "Enter";
+                else if (ascii == 0x1B) name = "Escape";
+                if (name) {
+                  parent_->get_keyboard_sensor()->publish_state(name);
+                } else {
+                  char buf[2] = {ascii, 0};
+                  parent_->get_keyboard_sensor()->publish_state(buf);
+                }
               }
 #endif
               // Also send to PocketSSH if available
@@ -201,12 +220,45 @@ class KeyboardDriver : public HIDDeviceDriver {
               }
 #endif
             } else {
-              // Non-ASCII key (arrow keys, function keys, etc.)
+              // Non-ASCII key - publish named string
               ESP_LOGD("KeyboardDriver", "Non-ASCII key: 0x%02X", data[i]);
-#ifdef USE_POCKETSSH
-              if (esphome::pocketssh::global_pocketssh) {
-                esphome::pocketssh::global_pocketssh->handle_key(data[i]);
+              const char *key_name = nullptr;
+              switch (data[i]) {
+                case 0x29: key_name = "Escape";     break;
+                case 0x3A: key_name = "F1";         break;
+                case 0x3B: key_name = "F2";         break;
+                case 0x3C: key_name = "F3";         break;
+                case 0x3D: key_name = "F4";         break;
+                case 0x3E: key_name = "F5";         break;
+                case 0x3F: key_name = "F6";         break;
+                case 0x40: key_name = "F7";         break;
+                case 0x41: key_name = "F8";         break;
+                case 0x42: key_name = "F9";         break;
+                case 0x43: key_name = "F10";        break;
+                case 0x44: key_name = "F11";        break;
+                case 0x45: key_name = "F12";        break;
+                case 0x46: key_name = "Print Screen"; break;
+                case 0x47: key_name = "Scroll Lock"; break;
+                case 0x48: key_name = "Pause";      break;
+                case 0x49: key_name = "Insert";     break;
+                case 0x4A: key_name = "Home";       break;
+                case 0x4B: key_name = "Page Up";    break;
+                case 0x4C: key_name = "Delete";     break;
+                case 0x4D: key_name = "End";        break;
+                case 0x4E: key_name = "Page Down";  break;
+                case 0x4F: key_name = "Right";      break;
+                case 0x50: key_name = "Left";       break;
+                case 0x51: key_name = "Down";       break;
+                case 0x52: key_name = "Up";         break;
+                case 0x65: key_name = "Menu";       break;
               }
+#ifdef USE_TEXT_SENSOR
+              if (key_name && parent_->get_keyboard_sensor())
+                parent_->get_keyboard_sensor()->publish_state(key_name);
+#endif
+#ifdef USE_POCKETSSH
+              if (esphome::pocketssh::global_pocketssh)
+                esphome::pocketssh::global_pocketssh->handle_key(data[i]);
 #endif
             }
           }
@@ -386,37 +438,42 @@ class KeyboardDriver : public HIDDeviceDriver {
     // Report ID 0x02: Touchpad (Logitech K400r)
     if (data[0] == 0x02 && len >= 8) {
       uint8_t buttons = data[1];
-      uint16_t x_raw = (uint16_t) data[2] | ((uint16_t) data[3] << 8);
-      uint16_t y_raw = (uint16_t) data[4] | ((uint16_t) data[5] << 8);
 
-      uint16_t x_coord = x_raw & 0x0FFF;
-      uint16_t y_coord = y_raw & 0x0FFF;
+      // Both X and Y are signed 16-bit relative deltas
+      // X = int16_t(data[3] | data[4]<<8)
+      // Y = int16_t(data[4] | data[5]<<8) -- but X only uses low byte, Y uses bytes 4+5
+      // From raw capture: data[3]=X low byte, data[4]+data[5]=Y as int16_t LE
+      int16_t x_delta = (int8_t)data[3];
+      int16_t y_delta = (int16_t)((uint16_t)data[4] | ((uint16_t)data[5] << 8));
 
       static uint8_t last_buttons = 0;
-      static uint16_t last_x = 0;
-      static uint16_t last_y = 0;
 
       if (buttons != last_buttons) {
         if ((buttons & 0x01) && !(last_buttons & 0x01)) {
-          ESP_LOGI("KeyboardDriver", "Touchpad: Left Click at X=%d Y=%d", x_coord, y_coord);
+          ESP_LOGI("KeyboardDriver", "Touchpad: Left Click at X=%d Y=%d", x_delta, y_delta);
+          if (parent_->get_mouse_left_sensor()) parent_->get_mouse_left_sensor()->publish_state(true);
         }
         if (!(buttons & 0x01) && (last_buttons & 0x01)) {
           ESP_LOGI("KeyboardDriver", "Touchpad: Left Release");
+          if (parent_->get_mouse_left_sensor()) parent_->get_mouse_left_sensor()->publish_state(false);
         }
         if ((buttons & 0x02) && !(last_buttons & 0x02)) {
-          ESP_LOGI("KeyboardDriver", "Touchpad: Right Click at X=%d Y=%d", x_coord, y_coord);
+          ESP_LOGI("KeyboardDriver", "Touchpad: Right Click at X=%d Y=%d", x_delta, y_delta);
+          if (parent_->get_mouse_right_sensor()) parent_->get_mouse_right_sensor()->publish_state(true);
         }
         if (!(buttons & 0x02) && (last_buttons & 0x02)) {
           ESP_LOGI("KeyboardDriver", "Touchpad: Right Release");
+          if (parent_->get_mouse_right_sensor()) parent_->get_mouse_right_sensor()->publish_state(false);
         }
         last_buttons = buttons;
       }
 
-      if ((x_coord != 0 || y_coord != 0) &&
-          (abs((int) x_coord - (int) last_x) > 200 || abs((int) y_coord - (int) last_y) > 200)) {
-        ESP_LOGI("KeyboardDriver", "Touchpad: Position X=%d Y=%d", x_coord, y_coord);
-        last_x = x_coord;
-        last_y = y_coord;
+      if (x_delta != 0 || y_delta != 0) {
+        if (x_delta != 0 && parent_->get_mouse_x_sensor())
+          parent_->get_mouse_x_sensor()->publish_state(x_delta / 3.0f);
+        if (y_delta != 0 && parent_->get_mouse_y_sensor())
+          parent_->get_mouse_y_sensor()->publish_state(y_delta / 10.0f);
+        ESP_LOGI("KeyboardDriver", "Touchpad: dx=%d dy=%d", x_delta, y_delta);
       }
       return;
     }
@@ -467,14 +524,16 @@ class KeyboardDriver : public HIDDeviceDriver {
         int8_t y_delta = (int8_t) byte2;
         if (x_delta != 0 || y_delta != 0) {
           ESP_LOGI("KeyboardDriver", "Touchpad: Movement delta X=%d Y=%d", x_delta, y_delta);
+          if (parent_->get_mouse_x_sensor()) parent_->get_mouse_x_sensor()->publish_state(x_delta);
+          if (parent_->get_mouse_y_sensor()) parent_->get_mouse_y_sensor()->publish_state(y_delta);
         }
         return;
       }
 
-      // Log all non-zero reports for debugging
+      // Log all non-zero reports for scroll/gesture debugging
       if (byte1 != 0 || byte2 != 0 || byte3 != 0 || byte5 != 0) {
-        ESP_LOGD("KeyboardDriver", "Media: [%02X %02X %02X %02X %02X %02X %02X %02X]", data[0], data[1], data[2],
-                 data[3], data[4], data[5], data[6], data[7]);
+        ESP_LOGI("KeyboardDriver", "Media 0x01: [%02X %02X %02X %02X %02X %02X %02X %02X]",
+                 data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
       }
 
       const char *key_name = nullptr;

@@ -10,7 +10,7 @@ CONF_TYPE = "type"
 CONFIG_SCHEMA = text_sensor.text_sensor_schema().extend(
     {
         cv.GenerateID(CONF_USB_HIDX_ID): cv.use_id(USBHIDXComponent),
-        cv.Required(CONF_TYPE): cv.one_of("keyboard", lower=True),
+        cv.Required(CONF_TYPE): cv.one_of("keyboard", "device", lower=True),
     }
 )
 
@@ -21,3 +21,5 @@ async def to_code(config):
 
     if config[CONF_TYPE] == "keyboard":
         cg.add(parent.register_keyboard_sensor(var))
+    elif config[CONF_TYPE] == "device":
+        cg.add(parent.register_device_name_sensor(var))
