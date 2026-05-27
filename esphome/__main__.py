@@ -608,7 +608,7 @@ def run_miniterm(config: ConfigType, port: str, args) -> int:
 
     try:
         module = importlib.import_module("esphome.components." + CORE.target_platform)
-        process_stacktrace = getattr(module, "process_stacktrace")
+        process_stacktrace = module.process_stacktrace
     except (AttributeError, ImportError):
         _LOGGER.info(
             'Stacktrace analysis is unavailable: no compatible analyzer found for target platform "%s".',
@@ -639,7 +639,7 @@ def run_miniterm(config: ConfigType, port: str, args) -> int:
                         chunk = ser.read(ser.in_waiting or 1)
                         if not chunk:
                             continue
-                        time_ = datetime.now()
+                        time_ = datetime.now().astimezone()
                         milliseconds = time_.microsecond // 1000
                         time_str = f"[{time_.hour:02}:{time_.minute:02}:{time_.second:02}.{milliseconds:03}]"
 
@@ -794,7 +794,7 @@ def _check_and_emit_build_info() -> None:
 
     # Read build_info from JSON
     try:
-        with open(build_info_json_path, encoding="utf-8") as f:
+        with build_info_json_path.open(encoding="utf-8") as f:
             build_info = json.load(f)
     except (OSError, json.JSONDecodeError) as e:
         _LOGGER.debug("Failed to read build_info: %s", e)
@@ -1056,7 +1056,7 @@ def _wait_for_serial_port(
     def _port_found() -> bool:
         if port is not None:
             if os.name == "posix":
-                return os.path.exists(port)
+                return Path(port).exists()
             return any(p.path == port for p in get_serial_ports())
         ports = get_serial_ports()
         if known_ports is not None:
@@ -1101,7 +1101,7 @@ def upload_program(
     host = devices[0]
     try:
         module = importlib.import_module("esphome.components." + CORE.target_platform)
-        if getattr(module, "upload_program")(config, args, host):
+        if module.upload_program(config, args, host):
             return 0, host
     except AttributeError:
         pass
@@ -1353,7 +1353,7 @@ def _validate_bootloader_binary(binary: Path) -> None:
 def show_logs(config: ConfigType, args: ArgsProtocol, devices: list[str]) -> int | None:
     try:
         module = importlib.import_module("esphome.components." + CORE.target_platform)
-        if getattr(module, "show_logs")(config, args, devices):
+        if module.show_logs(config, args, devices):
             return 0
     except AttributeError:
         pass
@@ -1800,7 +1800,7 @@ def command_analyze_memory(args: ArgsProtocol, config: ConfigType) -> int:
         ram_report = ram_analyzer.generate_report()
         print()
         print(ram_report)
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:  # noqa: BLE001  # pylint: disable=broad-except
         _LOGGER.warning("RAM strings analysis failed: %s", e)
 
     return 0
