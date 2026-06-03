@@ -19,7 +19,7 @@ void LSM6DSComponent::setup() {
   if (who_am_i == 0x6C) {
     ESP_LOGI(TAG, "Detected LSM6DSOX");
   } else if (who_am_i == 0x6A) {
-    ESP_LOGI(TAG, "Detected LSM6DS3TR-C");
+    ESP_LOGI(TAG, "Detected LSM6DS3TR-C/LSM6DSM");
   } else if (who_am_i == 0x69) {
     ESP_LOGI(TAG, "Detected LSM6DSO32TR");
   } else {
