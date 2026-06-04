@@ -1,6 +1,6 @@
 #pragma once
 
-#include "esphome/components/lsm6ds_base/lsm6ds.h"
+#include "esphome/components/lsm6ds_base/lsm6ds_base.h"
 #include "esphome/components/spi/spi.h"
 
 namespace esphome {

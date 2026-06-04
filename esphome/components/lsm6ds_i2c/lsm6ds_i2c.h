@@ -1,7 +1,7 @@
 #pragma once
 
 #include "esphome/components/i2c/i2c.h"
-#include "esphome/components/lsm6ds_base/lsm6ds.h"
+#include "esphome/components/lsm6ds_base/lsm6ds_base.h"
 
 namespace esphome {
 namespace lsm6ds_i2c {

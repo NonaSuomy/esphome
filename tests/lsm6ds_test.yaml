@@ -24,7 +24,7 @@ lsm6ds_spi:
   cs_pin: 5
 
 sensor:
-  - platform: lsm6ds
+  - platform: lsm6ds_i2c
     lsm6ds_id: my_lsm6ds_i2c
     accel_x:
       name: "I2C Accel X"
@@ -33,7 +33,7 @@ sensor:
     temperature:
       name: "I2C Temp"
 
-  - platform: lsm6ds
+  - platform: lsm6ds_spi
     lsm6ds_id: my_lsm6ds_spi
     accel_x:
       name: "SPI Accel X"
