@@ -2,14 +2,9 @@
 
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
-#include "esphome/components/i2c/i2c.h"
-
-#ifdef USE_SPI
-#include "esphome/components/spi/spi.h"
-#endif
 
 namespace esphome {
-namespace lsm6ds {
+namespace lsm6ds_base {
 
 enum LSM6DSAccelRange {
   LSM6DS_ACCEL_RANGE_2G = 0x00,
@@ -81,35 +76,5 @@ class LSM6DSComponent : public PollingComponent {
   float gyro_sensitivity_;
 };
 
-class LSM6DSI2CDevice : public LSM6DSComponent, public i2c::I2CDevice {
- public:
-  bool read_register(uint8_t reg, uint8_t *data, size_t len) override {
-    return this->read_bytes(reg, data, len);
-  }
-  bool write_register(uint8_t reg, uint8_t data) override {
-    return this->write_byte(reg, data);
-  }
-};
-
-#ifdef USE_SPI
-class LSM6DSSPIDevice : public LSM6DSComponent, public spi::SPIDevice {
- public:
-  bool read_register(uint8_t reg, uint8_t *data, size_t len) override {
-    this->enable();
-    this->transfer_byte(reg | 0x80);
-    this->transfer_bytes(nullptr, data, len);
-    this->disable();
-    return true;
-  }
-  bool write_register(uint8_t reg, uint8_t data) override {
-    this->enable();
-    this->transfer_byte(reg & 0x7F);
-    this->transfer_byte(data);
-    this->disable();
-    return true;
-  }
-};
-#endif
-
-}  // namespace lsm6ds
+}  // namespace lsm6ds_base
 }  // namespace esphome

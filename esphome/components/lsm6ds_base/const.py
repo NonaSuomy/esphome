@@ -1,0 +1,26 @@
+# Registers
+LSM6DS_WHO_AM_I = 0x0F
+LSM6DS_CTRL1_XL = 0x10
+LSM6DS_CTRL2_G = 0x11
+LSM6DS_CTRL3_C = 0x12
+LSM6DS_STATUS_REG = 0x1E
+LSM6DS_OUT_TEMP_L = 0x20
+LSM6DS_OUTX_L_G = 0x22
+LSM6DS_OUTX_L_A = 0x28
+
+# WHO_AM_I Values for different variants
+LSM6DSOX_WHO_AM_I_VALUE = 0x6C
+LSM6DS3TR_WHO_AM_I_VALUE = 0x6A
+LSM6DSO32TR_WHO_AM_I_VALUE = 0x69
+
+CONF_LSM6DS_ID = "lsm6ds_id"
+CONF_ACCEL_X = "accel_x"
+CONF_ACCEL_Y = "accel_y"
+CONF_ACCEL_Z = "accel_z"
+CONF_GYRO_X = "gyro_x"
+CONF_GYRO_Y = "gyro_y"
+CONF_GYRO_Z = "gyro_z"
+CONF_ACCEL_RANGE = "accel_range"
+CONF_GYRO_RANGE = "gyro_range"
+CONF_ACCEL_ODR = "accel_odr"
+CONF_GYRO_ODR = "gyro_odr"

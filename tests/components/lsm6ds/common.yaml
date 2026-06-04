@@ -1,0 +1,31 @@
+lsm6ds_i2c:
+  id: lsm6ds_i2c_hub
+
+lsm6ds_spi:
+  id: lsm6ds_spi_hub
+  cs_pin: GPIO5
+
+sensor:
+  - platform: lsm6ds
+    lsm6ds_id: lsm6ds_i2c_hub
+    accel_x:
+      name: "I2C Accel X"
+    accel_y:
+      name: "I2C Accel Y"
+    accel_z:
+      name: "I2C Accel Z"
+    gyro_x:
+      name: "I2C Gyro X"
+    gyro_y:
+      name: "I2C Gyro Y"
+    gyro_z:
+      name: "I2C Gyro Z"
+    temperature:
+      name: "I2C Temperature"
+
+  - platform: lsm6ds
+    lsm6ds_id: lsm6ds_spi_hub
+    accel_x:
+      name: "SPI Accel X"
+    gyro_x:
+      name: "SPI Gyro X"
