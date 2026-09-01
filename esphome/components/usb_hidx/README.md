@@ -40,8 +40,9 @@ usb_hidx:
     type: xbox360
 ```
 
-For a configuration that uses only platform entries, specify `driver:` on each
-gamepad entry. A build can also explicitly select drivers:
+Platform entries select the driver they need. Gamepad entries default to the
+generic parser; set `driver:` when a protocol-specific parser is required. A
+build can also explicitly select drivers:
 
 ```yaml
 usb_hidx:
@@ -118,6 +119,15 @@ are metadata only; they do not currently route standard driver reports to
 separate entity sets. Use `type: raw` with `vid`/`pid` when per-device routing
 is required.
 
+Driver headers remain grouped under `devices/<driver>/`. The fork's source
+packaging preserves that directory tree, so adding a driver does not require
+flattening or duplicating its files.
+
+When this component is fetched from GitHub, use the matching ESPHome fork
+(`hidx-testing-004`) as the ESPHome runtime, or use a local component checkout.
+The directory-preserving `SOURCE_DIRS` packaging hook is part of this fork;
+stock ESPHome loaders may omit headers below Python subpackage directories.
+
 Input entities are binary sensors/sensors because they represent reports from
 the USB device. Use regular ESPHome `button` or `switch` entities with HIDX
 output actions for device output reports such as rumble or LEDs.
@@ -132,6 +142,9 @@ channel usage so an installation can report a real rejection instead of a
 guessed device count.
 
 The ESP32-P4 DWC configuration in this project includes the local split/TT HCD
-override. Keep the matching `config/idf_components/usb` override and the
-`tt_usb_override.py` pre-script together when moving the project to another
-checkout; the script resolves those files relative to itself.
+override. For native ESP-IDF 6.x builds, `usb_host` selects
+`config/idf_components/usb` through the generated IDF dependency manifest when
+that directory is present. Keep that directory with the project when moving
+the configuration to another checkout. `tt_usb_override.py` is retained for
+PlatformIO/legacy-IDF builds; native ESP-IDF builds do not execute
+`platformio_options.extra_scripts`.

@@ -99,7 +99,17 @@ async def register_usb_client(config: ConfigType) -> MockObj:
 async def to_code(config: ConfigType) -> None:
     # IDF 6.0 moved USB host to an external component
     if idf_version() >= cv.Version(6, 0, 0):
-        add_idf_component(name="espressif/usb", ref="1.4.1")
+        # Keep the managed component name stable so all existing ESPHome
+        # requirements continue to resolve, but allow this checkout's
+        # project-local implementation to replace the registry package.  A
+        # local path is especially important for the P4 split/TT HCD work:
+        # native ESP-IDF builds ignore PlatformIO extra scripts, so the
+        # patched component must be selected through the IDF manifest itself.
+        local_usb = CORE.config_dir / "idf_components" / "usb"
+        if local_usb.is_dir():
+            add_idf_component(name="espressif/usb", path=str(local_usb))
+        else:
+            add_idf_component(name="espressif/usb", ref="1.4.1")
     add_idf_sdkconfig_option("CONFIG_USB_HOST_CONTROL_TRANSFER_MAX_SIZE", 1024)
     if config.get(CONF_ENABLE_HUBS):
         add_idf_sdkconfig_option("CONFIG_USB_HOST_HUBS_SUPPORTED", True)

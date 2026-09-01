@@ -9,9 +9,15 @@ class PlayStationDriver : public HIDDeviceDriver {
  public:
   PlayStationDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new PlayStationDriver(*this); }
+
   void set_device(HIDDevice *device) { device_ = device; }
 
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
+    // All recognized IDs below assign this value. Resetting it here keeps the
+    // registry template deterministic if more IDs are added later.
+    controller_type_ = PS3;
+
     if (vid == 0x054C && pid == 0x0268) {
       controller_type_ = PS3;
       return true;
@@ -31,7 +37,7 @@ class PlayStationDriver : public HIDDeviceDriver {
     return false;
   }
 
-  void on_device_ready(HIDDevice *device) {
+  void on_device_ready(HIDDevice *device) override {
     device_ = device;
     if (controller_type_ == PS3) {
       ESP_LOGI("usb_hidx.ps", "PS3 DualShock 3 / Sixaxis detected");
@@ -104,8 +110,10 @@ class PlayStationDriver : public HIDDeviceDriver {
       pub(parent_->gamepad_button_r_sensor_, b3 & 0x08);   // R1
       pub(parent_->gamepad_button_y_sensor_, b3 & 0x10);   // Triangle -> Y/top
       pub(parent_->gamepad_button_b_sensor_, b3 & 0x20);   // Circle   -> B/right
-      pub(parent_->gamepad_button_a_sensor_, b3 & 0x40);   // Cross    -> A/bottom
-      pub(parent_->gamepad_button_x_sensor_, b3 & 0x80);   // Square   -> X/left
+      pub(parent_->get_gamepad_button_circle_sensor(), b3 & 0x20);
+      pub(parent_->gamepad_button_a_sensor_, b3 & 0x40);  // Cross    -> A/bottom
+      pub(parent_->get_gamepad_button_cross_sensor(), b3 & 0x40);
+      pub(parent_->gamepad_button_x_sensor_, b3 & 0x80);  // Square   -> X/left
       last_btn2_ = b3;
     }
     if (b4 != last_btn3_) {
@@ -149,7 +157,9 @@ class PlayStationDriver : public HIDDeviceDriver {
       }
       pub(parent_->gamepad_button_x_sensor_, btn1 & 0x10);  // Square
       pub(parent_->gamepad_button_a_sensor_, btn1 & 0x20);  // Cross
+      pub(parent_->get_gamepad_button_cross_sensor(), btn1 & 0x20);
       pub(parent_->gamepad_button_b_sensor_, btn1 & 0x40);  // Circle
+      pub(parent_->get_gamepad_button_circle_sensor(), btn1 & 0x40);
       pub(parent_->gamepad_button_y_sensor_, btn1 & 0x80);  // Triangle
       last_btn1_ = btn1;
     }
@@ -205,7 +215,9 @@ class PlayStationDriver : public HIDDeviceDriver {
       }
       pub(parent_->gamepad_button_x_sensor_, btn1 & 0x10);
       pub(parent_->gamepad_button_a_sensor_, btn1 & 0x20);
+      pub(parent_->get_gamepad_button_cross_sensor(), btn1 & 0x20);
       pub(parent_->gamepad_button_b_sensor_, btn1 & 0x40);
+      pub(parent_->get_gamepad_button_circle_sensor(), btn1 & 0x40);
       pub(parent_->gamepad_button_y_sensor_, btn1 & 0x80);
       last_btn1_ = btn1;
     }

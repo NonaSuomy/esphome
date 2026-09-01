@@ -9,7 +9,13 @@ class ThrustmasterDriver : public HIDDeviceDriver {
  public:
   ThrustmasterDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new ThrustmasterDriver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
+    // Keep the template's default valid even when a non-Thrustmaster device
+    // is checked after a prior match.
+    device_type_ = GAMEPAD;
+
     // Thrustmaster devices
     if (vid == 0x044F) {
       // Detect device type by PID
@@ -28,7 +34,7 @@ class ThrustmasterDriver : public HIDDeviceDriver {
     return false;
   }
 
-  void on_device_ready(HIDDevice *device) {
+  void on_device_ready(HIDDevice *device) override {
     device_ = device;
     const char *type_name[] = {"Racing Wheel", "Flight Stick", "Gamepad"};
     ESP_LOGI("usb_hidx.thrustmaster", "Thrustmaster %s ready", type_name[device_type_]);

@@ -65,7 +65,8 @@ static_assert(MAX_REQUESTS >= 1 && MAX_REQUESTS <= 32, "MAX_REQUESTS must be bet
 // This is tied to the static_assert above, which enforces MAX_REQUESTS is between 1 and 32.
 // If MAX_REQUESTS is increased above 32, this logic and the static_assert must be updated.
 using trq_bitmask_t = std::conditional<(MAX_REQUESTS <= 16), uint16_t, uint32_t>::type;
-static constexpr trq_bitmask_t ALL_REQUESTS_IN_USE = MAX_REQUESTS == 32 ? ~0 : (1 << MAX_REQUESTS) - 1;
+static constexpr trq_bitmask_t ALL_REQUESTS_IN_USE =
+    MAX_REQUESTS == 32 ? ~static_cast<trq_bitmask_t>(0) : (static_cast<trq_bitmask_t>(1) << MAX_REQUESTS) - 1;
 
 static constexpr size_t USB_MAX_PACKET_SIZE =
     USB_HOST_MAX_PACKET_SIZE;                        // Max USB packet size (64 for FS, 512 for P4 HS)
@@ -89,7 +90,7 @@ class USBClient;
 
 // struct used to capture all data needed for a transfer
 struct TransferRequest {
-  usb_transfer_t *transfer;
+  usb_transfer_t *transfer{nullptr};
   transfer_cb_t callback;
   TransferStatus status;
   USBClient *client;
@@ -183,6 +184,7 @@ class USBClient : public Component {
   std::atomic<trq_bitmask_t> trq_in_use_;
   uint16_t vid_{};
   uint16_t pid_{};
+  bool disconnecting_{false};
 };
 class USBHost final : public Component {
  public:

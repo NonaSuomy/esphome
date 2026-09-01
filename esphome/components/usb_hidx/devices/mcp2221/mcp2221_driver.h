@@ -12,6 +12,8 @@ class MCP2221Driver : public HIDDeviceDriver {
  public:
   MCP2221Driver(USBHIDXComponent *parent) : parent_(parent) { response_sem_ = xSemaphoreCreateBinary(); }
 
+  HIDDeviceDriver *clone() const override { return new MCP2221Driver(parent_); }
+
   ~MCP2221Driver() {
     if (response_sem_) {
       vSemaphoreDelete(response_sem_);
@@ -25,7 +27,7 @@ class MCP2221Driver : public HIDDeviceDriver {
     return false;
   }
 
-  void on_device_ready(HIDDevice *device) {
+  void on_device_ready(HIDDevice *device) override {
     device_ = device;
     ESP_LOGI("usb_hidx.mcp2221", "MCP2221A USB-to-I2C Bridge detected");
     ESP_LOGI("usb_hidx.mcp2221", "Features: I2C Master, 4x GPIO, 3x ADC");

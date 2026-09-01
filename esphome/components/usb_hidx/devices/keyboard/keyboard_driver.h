@@ -15,6 +15,8 @@ class KeyboardDriver : public HIDDeviceDriver {
  public:
   KeyboardDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new KeyboardDriver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
     // Don't match Xbox 360 controllers
     if (vid == 0x045E && (pid == 0x028E || pid == 0x0719))
@@ -49,9 +51,8 @@ class KeyboardDriver : public HIDDeviceDriver {
       return;
 
     // Log modifier keys when they change
-    static uint8_t prev_modifier = 0;
-    if (data[0] != prev_modifier) {
-      uint8_t changed = data[0] ^ prev_modifier;
+    if (data[0] != prev_modifier_) {
+      uint8_t changed = data[0] ^ prev_modifier_;
       auto pub_mod = [&](const char *name, bool pressed) {
         ESP_LOGI("KeyboardDriver", "%s %s", name, pressed ? "pressed" : "released");
 #ifdef USE_TEXT_SENSOR
@@ -75,7 +76,7 @@ class KeyboardDriver : public HIDDeviceDriver {
         pub_mod("Right Alt", (data[0] & 0x40));
       if (changed & 0x80)
         pub_mod("Right Win", (data[0] & 0x80));
-      prev_modifier = data[0];
+      prev_modifier_ = data[0];
     }
 
     // Update key binary sensors
@@ -103,17 +104,20 @@ class KeyboardDriver : public HIDDeviceDriver {
     for (int i = 2; i < 8; i++) {
       if (data[i] != 0) {
         bool was_pressed = false;
-        bool should_repeat = false;
+        bool should_emit = true;
 
         for (int j = 0; j < 6; j++) {
           if (prev_keys_[j] == data[i]) {
             was_pressed = true;
             // Check if key should repeat
             if (now - last_key_time_ > 500 && repeat_count_ == 0) {
-              should_repeat = true;
+              should_emit = true;
               repeat_count_ = 1;
             } else if (repeat_count_ > 0 && now - last_key_time_ > 50) {
-              should_repeat = true;
+              should_emit = true;
+              last_key_time_ = now;
+            } else {
+              should_emit = false;
             }
             break;
           }
@@ -122,11 +126,11 @@ class KeyboardDriver : public HIDDeviceDriver {
         if (!was_pressed) {
           repeat_count_ = 0;
           last_key_time_ = now;
-        } else {
-          continue;  // Skip - key already held, no repeat
+        } else if (!should_emit) {
+          continue;  // Key is held and its repeat delay has not elapsed.
         }
 
-        if (!was_pressed) {
+        if (should_emit) {
           // Check for Windows key combinations (Logitech K400r media keys F1-F6)
           if (win_key && !ctrl_key) {
             const char *combo_name = nullptr;
@@ -340,6 +344,13 @@ class KeyboardDriver : public HIDDeviceDriver {
  protected:
   USBHIDXComponent *parent_;
   uint8_t prev_keys_[6]{0};
+  uint8_t prev_modifier_{0};
+  uint8_t last_media_buttons_{0};
+  uint8_t prev_media_byte1_{0};
+  uint8_t prev_media_byte2_{0};
+  uint8_t prev_single_byte1_{0};
+  uint8_t prev_system_byte1_{0};
+  uint8_t prev_zoom_byte2_{0};
   bool caps_lock_state_{false};
   bool num_lock_state_{false};
   bool scroll_lock_state_{false};
@@ -513,32 +524,30 @@ class KeyboardDriver : public HIDDeviceDriver {
       int16_t x_delta = (int8_t) data[3];
       int16_t y_delta = (int16_t) ((uint16_t) data[4] | ((uint16_t) data[5] << 8));
 
-      static uint8_t last_buttons = 0;
-
-      if (buttons != last_buttons) {
+      if (buttons != last_media_buttons_) {
 #ifdef USE_BINARY_SENSOR
-        if ((buttons & 0x01) && !(last_buttons & 0x01)) {
+        if ((buttons & 0x01) && !(last_media_buttons_ & 0x01)) {
           ESP_LOGI("KeyboardDriver", "Touchpad: Left Click at X=%d Y=%d", x_delta, y_delta);
           if (parent_->get_mouse_left_sensor())
             parent_->get_mouse_left_sensor()->publish_state(true);
         }
-        if (!(buttons & 0x01) && (last_buttons & 0x01)) {
+        if (!(buttons & 0x01) && (last_media_buttons_ & 0x01)) {
           ESP_LOGI("KeyboardDriver", "Touchpad: Left Release");
           if (parent_->get_mouse_left_sensor())
             parent_->get_mouse_left_sensor()->publish_state(false);
         }
-        if ((buttons & 0x02) && !(last_buttons & 0x02)) {
+        if ((buttons & 0x02) && !(last_media_buttons_ & 0x02)) {
           ESP_LOGI("KeyboardDriver", "Touchpad: Right Click at X=%d Y=%d", x_delta, y_delta);
           if (parent_->get_mouse_right_sensor())
             parent_->get_mouse_right_sensor()->publish_state(true);
         }
-        if (!(buttons & 0x02) && (last_buttons & 0x02)) {
+        if (!(buttons & 0x02) && (last_media_buttons_ & 0x02)) {
           ESP_LOGI("KeyboardDriver", "Touchpad: Right Release");
           if (parent_->get_mouse_right_sensor())
             parent_->get_mouse_right_sensor()->publish_state(false);
         }
 #endif
-        last_buttons = buttons;
+        last_media_buttons_ = buttons;
       }
 
       if (x_delta != 0 || y_delta != 0) {
@@ -548,7 +557,7 @@ class KeyboardDriver : public HIDDeviceDriver {
         if (y_delta != 0 && parent_->get_mouse_y_sensor())
           parent_->get_mouse_y_sensor()->publish_state(y_delta / 10.0f);
 #endif
-        ESP_LOGI("KeyboardDriver", "Touchpad: dx=%d dy=%d", x_delta, y_delta);
+        ESP_LOGV("KeyboardDriver", "Touchpad: dx=%d dy=%d", x_delta, y_delta);
       }
       return;
     }
@@ -558,11 +567,8 @@ class KeyboardDriver : public HIDDeviceDriver {
       uint8_t byte1 = data[1];
       uint8_t byte2 = data[2];
 
-      static uint8_t prev_byte1 = 0;
-      static uint8_t prev_byte2 = 0;
-
       // Check for key press in byte1 (changed from 0 to non-zero)
-      if (byte1 != 0 && prev_byte1 == 0) {
+      if (byte1 != 0 && prev_media_byte1_ == 0) {
         const char *key_name = consumer_code_to_name(byte1);
         if (key_name) {
           publish_media_key(key_name);
@@ -573,7 +579,7 @@ class KeyboardDriver : public HIDDeviceDriver {
 
       // Check for key press in byte2 (changed from 0 to non-zero)
       // Skip 0x02 as it appears to be a modifier/flag byte
-      if (byte2 != 0 && byte2 != 0x02 && prev_byte2 == 0) {
+      if (byte2 != 0 && byte2 != 0x02 && prev_media_byte2_ == 0) {
         const char *key_name = consumer_code_to_name(byte2);
         if (key_name) {
           publish_media_key(key_name);
@@ -582,8 +588,8 @@ class KeyboardDriver : public HIDDeviceDriver {
         }
       }
 
-      prev_byte1 = byte1;
-      prev_byte2 = byte2;
+      prev_media_byte1_ = byte1;
+      prev_media_byte2_ = byte2;
       return;
     }
 
@@ -598,7 +604,7 @@ class KeyboardDriver : public HIDDeviceDriver {
         int8_t x_delta = (int8_t) byte1;
         int8_t y_delta = (int8_t) byte2;
         if (x_delta != 0 || y_delta != 0) {
-          ESP_LOGI("KeyboardDriver", "Touchpad: Movement delta X=%d Y=%d", x_delta, y_delta);
+          ESP_LOGV("KeyboardDriver", "Touchpad: Movement delta X=%d Y=%d", x_delta, y_delta);
 #ifdef USE_SENSOR
           if (parent_->get_mouse_x_sensor())
             parent_->get_mouse_x_sensor()->publish_state(x_delta);
@@ -609,9 +615,10 @@ class KeyboardDriver : public HIDDeviceDriver {
         return;
       }
 
-      // Log all non-zero reports for scroll/gesture debugging
+      // Keep high-rate touchpad diagnostics at verbose level so normal
+      // operation cannot flood the serial console.
       if (byte1 != 0 || byte2 != 0 || byte3 != 0 || byte5 != 0) {
-        ESP_LOGI("KeyboardDriver", "Media 0x01: [%02X %02X %02X %02X %02X %02X %02X %02X]", data[0], data[1], data[2],
+        ESP_LOGV("KeyboardDriver", "Media 0x01: [%02X %02X %02X %02X %02X %02X %02X %02X]", data[0], data[1], data[2],
                  data[3], data[4], data[5], data[6], data[7]);
       }
 
@@ -745,8 +752,7 @@ class KeyboardDriver : public HIDDeviceDriver {
 
     if (data[0] == 0x01 && len >= 2) {
       // Report ID 0x01: Single-byte consumer codes (Microsoft keyboards)
-      static uint8_t prev_byte1 = 0;
-      if (data[1] != prev_byte1 && data[1] != 0) {
+      if (data[1] != prev_single_byte1_ && data[1] != 0) {
         const char *key_name = consumer_code_to_name(data[1]);
         if (key_name) {
           publish_media_key(key_name);
@@ -754,26 +760,23 @@ class KeyboardDriver : public HIDDeviceDriver {
           ESP_LOGW("KeyboardDriver", "Unknown consumer code: 0x%02X", data[1]);
         }
       }
-      prev_byte1 = data[1];
+      prev_single_byte1_ = data[1];
     } else if (data[0] == 0x02 && len >= 2) {
       // Report ID 0x02: System control (sleep, power)
-      static uint8_t prev_byte1_r2 = 0;
-      if (data[1] == 0x02 && prev_byte1_r2 != 0x02) {
+      if (data[1] == 0x02 && prev_system_byte1_ != 0x02) {
         ESP_LOGI("KeyboardDriver", "Sleep key detected!");
         publish_media_key("Sleep");
       }
-      prev_byte1_r2 = data[1];
+      prev_system_byte1_ = data[1];
     } else if (data[0] == 0x01 && len >= 3) {
       // Report ID 0x01: Zoom keys
       uint8_t byte2 = data[2];
-      static uint8_t prev_byte2_r1 = 0;
-
-      if (byte2 == 0x01 && prev_byte2_r1 != 0x01)
+      if (byte2 == 0x01 && prev_zoom_byte2_ != 0x01)
         publish_media_key("Zoom In");
-      else if (byte2 == 0xFF && prev_byte2_r1 != 0xFF)
+      else if (byte2 == 0xFF && prev_zoom_byte2_ != 0xFF)
         publish_media_key("Zoom Out");
 
-      prev_byte2_r1 = byte2;
+      prev_zoom_byte2_ = byte2;
     }
   }
 

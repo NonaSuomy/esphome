@@ -9,11 +9,12 @@ class LogitechDriver : public HIDDeviceDriver {
  public:
   LogitechDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new LogitechDriver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
     // Logitech Unifying/Nano Receivers only - not gamepads
-    if (vid == 0x046D && (pid == 0xC52B || pid == 0xC532 || pid == 0xC52F ||
-                          pid == 0xC534 || pid == 0xC539 || pid == 0xC53F ||
-                          pid == 0xC548)) {
+    if (vid == 0x046D && (pid == 0xC52B || pid == 0xC532 || pid == 0xC52F || pid == 0xC534 || pid == 0xC539 ||
+                          pid == 0xC53F || pid == 0xC548)) {
       return true;
     }
     // Logitech K400r keyboard/touchpad (direct USB)
@@ -23,7 +24,7 @@ class LogitechDriver : public HIDDeviceDriver {
     return false;
   }
 
-  void on_device_ready(HIDDevice *device) {
+  void on_device_ready(HIDDevice *device) override {
     device_ = device;
     ESP_LOGI("usb_hidx.logitech", "Logitech device detected");
   }

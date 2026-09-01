@@ -37,6 +37,18 @@ class BinarySensor {
 
 #ifdef USE_SENSOR
 #include "esphome/components/sensor/sensor.h"
+#else
+// Keep header-only drivers source-compatible in builds that only use button
+// or raw-report entities. ESPHome omits sensor.cpp in that case, so these
+// callbacks are deliberately no-ops.
+namespace esphome {
+namespace sensor {
+class Sensor {
+ public:
+  void publish_state(float) {}
+};
+}  // namespace sensor
+}  // namespace esphome
 #endif
 
 namespace esphome {
@@ -53,7 +65,18 @@ struct HIDDevice {
   usb_device_handle_t dev_hdl{nullptr};
   usb_transfer_t *transfer{nullptr};
   usb_transfer_t *media_transfer{nullptr};
+  // Output/control transfers are short-lived but may still be owned by the
+  // USB host after a device-gone event. Keep them associated with the device
+  // record until their callbacks release them.
+  std::vector<usb_transfer_t *> output_transfers;
+  bool transfer_retry_pending{false};
+  bool media_transfer_retry_pending{false};
+  uint8_t transfer_error_count{0};
+  uint8_t media_transfer_error_count{0};
+  uint32_t transfer_retry_at{0};
+  uint32_t media_transfer_retry_at{0};
   uint8_t interface_num{0};
+  bool interface_claimed{false};
   uint8_t media_interface_num{0};
   bool media_interface_claimed{false};
   uint8_t dev_addr{0};
@@ -78,9 +101,20 @@ struct HIDDeviceSelector {
 class HIDDeviceDriver {
  public:
   virtual ~HIDDeviceDriver() = default;
+  // The registry stores configured driver templates. Every physical USB
+  // device receives its own clone so state from two identical devices cannot
+  // overwrite one another.
+  virtual HIDDeviceDriver *clone() const = 0;
   virtual bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) = 0;
   virtual void process_report(const uint8_t *data, size_t len, HIDDevice *device) = 0;
   virtual const char *get_name() = 0;
+  virtual void on_device_ready(HIDDevice *device) { (void) device; }
+  virtual void on_device_removed() {}
+  virtual void send_rumble(HIDDevice *device, uint8_t left_motor, uint8_t right_motor) {
+    (void) device;
+    (void) left_motor;
+    (void) right_motor;
+  }
 };
 
 class USBHIDXComponent : public Component {
@@ -89,7 +123,7 @@ class USBHIDXComponent : public Component {
   void loop() override;
   float get_setup_priority() const override { return setup_priority::HARDWARE; }
 
-  void register_device_driver(HIDDeviceDriver *driver) { drivers_.push_back(driver); }
+  void register_device_driver(HIDDeviceDriver *driver) { drivers_.emplace_back(driver); }
   void set_xbox360_driver(Xbox360Driver *driver) { xbox360_driver_ = driver; }
   // These pointers are kept available to header-only protocol drivers even
   // when a raw-only build omits ESPHome's binary-sensor component.  In that
@@ -114,6 +148,12 @@ class USBHIDXComponent : public Component {
   void register_gamepad_button_capture_sensor(binary_sensor::BinarySensor *sensor) {
     gamepad_button_capture_sensor_ = sensor;
   }
+  void register_gamepad_button_cross_sensor(binary_sensor::BinarySensor *sensor) {
+    gamepad_button_cross_sensor_ = sensor;
+  }
+  void register_gamepad_button_circle_sensor(binary_sensor::BinarySensor *sensor) {
+    gamepad_button_circle_sensor_ = sensor;
+  }
   void register_gamepad_button_l3_sensor(binary_sensor::BinarySensor *sensor) { gamepad_button_l3_sensor_ = sensor; }
   void register_gamepad_button_r3_sensor(binary_sensor::BinarySensor *sensor) { gamepad_button_r3_sensor_ = sensor; }
   void register_gamepad_dpad_up_sensor(binary_sensor::BinarySensor *sensor) { gamepad_dpad_up_sensor_ = sensor; }
@@ -132,6 +172,8 @@ class USBHIDXComponent : public Component {
   binary_sensor::BinarySensor *get_gamepad_button_plus_sensor() { return gamepad_button_plus_sensor_; }
   binary_sensor::BinarySensor *get_gamepad_button_home_sensor() { return gamepad_button_home_sensor_; }
   binary_sensor::BinarySensor *get_gamepad_button_capture_sensor() { return gamepad_button_capture_sensor_; }
+  binary_sensor::BinarySensor *get_gamepad_button_cross_sensor() { return gamepad_button_cross_sensor_; }
+  binary_sensor::BinarySensor *get_gamepad_button_circle_sensor() { return gamepad_button_circle_sensor_; }
   binary_sensor::BinarySensor *get_gamepad_button_l3_sensor() { return gamepad_button_l3_sensor_; }
   binary_sensor::BinarySensor *get_gamepad_button_r3_sensor() { return gamepad_button_r3_sensor_; }
   binary_sensor::BinarySensor *get_gamepad_dpad_up_sensor() { return gamepad_dpad_up_sensor_; }
@@ -179,6 +221,14 @@ class USBHIDXComponent : public Component {
   sensor::Sensor *get_gamepad_left_stick_y_sensor() { return gamepad_left_stick_y_sensor_; }
   sensor::Sensor *get_gamepad_right_stick_x_sensor() { return gamepad_right_stick_x_sensor_; }
   sensor::Sensor *get_gamepad_right_stick_y_sensor() { return gamepad_right_stick_y_sensor_; }
+#else
+  sensor::Sensor *get_mouse_x_sensor() { return nullptr; }
+  sensor::Sensor *get_mouse_y_sensor() { return nullptr; }
+  sensor::Sensor *get_mouse_wheel_sensor() { return nullptr; }
+  sensor::Sensor *get_gamepad_left_stick_x_sensor() { return nullptr; }
+  sensor::Sensor *get_gamepad_left_stick_y_sensor() { return nullptr; }
+  sensor::Sensor *get_gamepad_right_stick_x_sensor() { return nullptr; }
+  sensor::Sensor *get_gamepad_right_stick_y_sensor() { return nullptr; }
 #endif
 
   binary_sensor::BinarySensor *get_mouse_left_sensor() { return mouse_left_sensor_; }
@@ -223,7 +273,10 @@ class USBHIDXComponent : public Component {
   int connected_devices_{0};
   bool client_registered_{false};
 
-  std::vector<HIDDeviceDriver *> drivers_;
+  // Templates live for the component lifetime; active_driver_instances_ owns
+  // one independent stateful instance for each matched physical device.
+  std::vector<std::unique_ptr<HIDDeviceDriver>> drivers_;
+  std::vector<std::unique_ptr<HIDDeviceDriver>> active_driver_instances_;
   binary_sensor::BinarySensor *gamepad_button_a_sensor_{nullptr};
   binary_sensor::BinarySensor *gamepad_button_b_sensor_{nullptr};
   binary_sensor::BinarySensor *gamepad_button_x_sensor_{nullptr};
@@ -236,6 +289,8 @@ class USBHIDXComponent : public Component {
   binary_sensor::BinarySensor *gamepad_button_plus_sensor_{nullptr};
   binary_sensor::BinarySensor *gamepad_button_home_sensor_{nullptr};
   binary_sensor::BinarySensor *gamepad_button_capture_sensor_{nullptr};
+  binary_sensor::BinarySensor *gamepad_button_cross_sensor_{nullptr};
+  binary_sensor::BinarySensor *gamepad_button_circle_sensor_{nullptr};
   binary_sensor::BinarySensor *gamepad_button_l3_sensor_{nullptr};
   binary_sensor::BinarySensor *gamepad_button_r3_sensor_{nullptr};
   binary_sensor::BinarySensor *gamepad_dpad_up_sensor_{nullptr};
@@ -286,6 +341,7 @@ class USBHIDXComponent : public Component {
   std::vector<RawSensorBinding> raw_sensor_bindings_;
 #endif
   HIDDevice *xbox360_device_{nullptr};
+  HIDDevice *switch_device_{nullptr};
   Xbox360Driver *xbox360_driver_{nullptr};
   PlayStationDriver *playstation_driver_{nullptr};
   SwitchDriver *switch_driver_{nullptr};
@@ -298,7 +354,12 @@ class USBHIDXComponent : public Component {
   void setup_media_interface(HIDDevice *dev, const usb_config_desc_t *config_desc);
   HIDDevice *find_device_by_handle(usb_device_handle_t dev_hdl);
   HIDDevice *find_device_by_transfer(usb_transfer_t *transfer);
+  void service_transfer_retries();
+  void try_finalize_device(HIDDevice *device);
+  void track_output_transfer(HIDDevice *device, usb_transfer_t *transfer);
+  void untrack_output_transfer(HIDDevice *device, usb_transfer_t *transfer);
   void publish_raw_bindings(HIDDevice *device, const uint8_t *data, size_t len);
+  bool has_raw_bindings_for(const HIDDevice *device) const;
 #ifdef USE_TEXT_SENSOR
   void update_resource_status();
 #endif

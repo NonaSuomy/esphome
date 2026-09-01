@@ -340,6 +340,33 @@ def test_component_manifest_resources_recursive_filter_source_files_supports_sub
     assert names == ["wake/wake_freertos.cpp"]
 
 
+def test_component_manifest_resources_source_dirs_preserves_nested_driver_tree(
+    tmp_path: Path,
+) -> None:
+    """SOURCE_DIRS includes C/C++ files below Python driver packages without flattening them."""
+    package_root = tmp_path / "usb_hidx"
+    driver_root = package_root / "devices" / "keyboard"
+    driver_root.mkdir(parents=True)
+    (package_root / "usb_hidx.cpp").write_text("")
+    (driver_root / "__init__.py").write_text("")
+    (driver_root / "keyboard_driver.h").write_text("")
+    (driver_root / "README.md").write_text("")
+    pycache = package_root / "devices" / "__pycache__"
+    pycache.mkdir()
+    (pycache / "ignored.h").write_text("")
+
+    mock_module = MagicMock()
+    mock_module.__package__ = "esphome.components.usb_hidx"
+    del mock_module.FILTER_SOURCE_FILES
+    mock_module.SOURCE_DIRS = ("devices",)
+
+    manifest = ComponentManifest(mock_module)
+    with patch("importlib.resources.files", return_value=package_root):
+        names = sorted(resource.resource for resource in manifest.resources)
+
+    assert names == ["devices/keyboard/keyboard_driver.h", "usb_hidx.cpp"]
+
+
 # ---------------------------------------------------------------------------
 # Component aliases (renamed-platform back-compat)
 # ---------------------------------------------------------------------------

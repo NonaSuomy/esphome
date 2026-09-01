@@ -9,6 +9,8 @@ class TouchscreenDriver : public HIDDeviceDriver {
  public:
   TouchscreenDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new TouchscreenDriver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
     // Generic multitouch devices (usage page 0x0D)
     // Accept any device that reports as digitizer/touchscreen
@@ -46,7 +48,7 @@ class TouchscreenDriver : public HIDDeviceDriver {
     return false;
   }
 
-  void on_device_ready(HIDDevice *device) {
+  void on_device_ready(HIDDevice *device) override {
     device_ = device;
     ESP_LOGI("usb_hidx.touch", "USB Touchscreen detected");
   }
@@ -68,8 +70,8 @@ class TouchscreenDriver : public HIDDeviceDriver {
       if (touching) {
         // Publish delta movement relative to last position
         if (last_touching_) {
-          int16_t dx = (int16_t)x - (int16_t)last_x_;
-          int16_t dy = (int16_t)y - (int16_t)last_y_;
+          int16_t dx = (int16_t) x - (int16_t) last_x_;
+          int16_t dy = (int16_t) y - (int16_t) last_y_;
           if (dx != 0 && parent_->get_mouse_x_sensor())
             parent_->get_mouse_x_sensor()->publish_state(dx);
           if (dy != 0 && parent_->get_mouse_y_sensor())

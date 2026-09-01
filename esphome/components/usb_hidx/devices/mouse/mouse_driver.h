@@ -9,6 +9,8 @@ class MouseDriver : public HIDDeviceDriver {
  public:
   MouseDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new MouseDriver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
     return protocol == 0x02;  // HID mouse protocol
   }

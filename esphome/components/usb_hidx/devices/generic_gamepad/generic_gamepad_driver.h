@@ -9,9 +9,17 @@ class GenericGamepadDriver : public HIDDeviceDriver {
  public:
   GenericGamepadDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new GenericGamepadDriver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
+    // The registry template is reused for every arriving device. Reset
+    // protocol-specific match state before evaluating the next device so a
+    // previously matched 8BitDo pad cannot change a later generic pad's
+    // parser after cloning.
+    is_8bitdo_ = false;
+
     // Don't match Xbox 360 (handled by Xbox360Driver)
-    if (vid == 0x045E && pid == 0x028E)
+    if (vid == 0x045E && (pid == 0x028E || pid == 0x0719))
       return false;
     // Don't match 8BitDo in Xbox mode (handled by Xbox360Driver)
     if (vid == 0x2DC8 && pid == 0x310B)
@@ -47,7 +55,10 @@ class GenericGamepadDriver : public HIDDeviceDriver {
     if (len < 8)
       return;
 
-    // Debug: Log raw report data for 8BitDo controllers (first time only)
+      // Debug: Log raw report data for 8BitDo controllers (first time only).
+      // Keep this opt-in because a controller can generate reports many times
+      // per second and serial logging can starve USB servicing.
+#ifdef USB_HIDX_DEBUG_REPORTS
     if (is_8bitdo_ && !report_logged_) {
       ESP_LOGI("usb_hidx.gamepad", "8BitDo Report Length: %d", len);
       std::string hex_dump = "Raw: ";
@@ -60,11 +71,11 @@ class GenericGamepadDriver : public HIDDeviceDriver {
       report_logged_ = true;
     }
 
-    // Log every report for debugging (remove after testing)
     if (is_8bitdo_) {
-      ESP_LOGD("usb_hidx.gamepad", "Report [%d bytes]: %02X %02X %02X %02X %02X %02X %02X %02X",
-               len, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]);
+      ESP_LOGD("usb_hidx.gamepad", "Report [%d bytes]: %02X %02X %02X %02X %02X %02X %02X %02X", len, data[0], data[1],
+               data[2], data[3], data[4], data[5], data[6], data[7]);
     }
+#endif
 
     // 8BitDo controllers use standard HID gamepad format
     // Typical format: [buttons_low, buttons_high, lx, ly, rx, ry, triggers...]
@@ -89,13 +100,11 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         ESP_LOGI("usb_hidx.gamepad", "Button Y pressed");
       if ((btn0 & 0x02) && !(last_buttons_[0] & 0x02)) {
         ESP_LOGI("usb_hidx.gamepad", "Button B pressed");
-        if (parent_->gamepad_button_b_sensor_)
-          parent_->gamepad_button_b_sensor_->publish_state(true);
+        publish_b(true);
       }
       if ((btn0 & 0x04) && !(last_buttons_[0] & 0x04)) {
         ESP_LOGI("usb_hidx.gamepad", "Button A pressed");
-        if (parent_->gamepad_button_a_sensor_)
-          parent_->gamepad_button_a_sensor_->publish_state(true);
+        publish_a(true);
       }
       if ((btn0 & 0x08) && !(last_buttons_[0] & 0x08))
         ESP_LOGI("usb_hidx.gamepad", "Button X pressed");
@@ -107,17 +116,15 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         ESP_LOGI("usb_hidx.gamepad", "Button ZL pressed");
       if ((btn0 & 0x80) && !(last_buttons_[0] & 0x80))
         ESP_LOGI("usb_hidx.gamepad", "Button ZR pressed");
-      
+
       // Handle button releases
       if (!(btn0 & 0x02) && (last_buttons_[0] & 0x02)) {
-        if (parent_->gamepad_button_b_sensor_)
-          parent_->gamepad_button_b_sensor_->publish_state(false);
+        publish_b(false);
       }
       if (!(btn0 & 0x04) && (last_buttons_[0] & 0x04)) {
-        if (parent_->gamepad_button_a_sensor_)
-          parent_->gamepad_button_a_sensor_->publish_state(false);
+        publish_a(false);
       }
-      
+
       last_buttons_[0] = btn0;
     }
 
@@ -142,7 +149,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
     // 0x00=Neutral, 0x01=Up, 0x02=Right, 0x04=Down, 0x06=Left
     if (dpad != last_dpad_) {
       ESP_LOGD("usb_hidx.gamepad", "[FIXED_V2] D-Pad changed: %02X -> %02X", last_dpad_, dpad);
-      
+
       // Release previous directions
       if (last_dpad_ == 0x01 && parent_->gamepad_dpad_up_sensor_)
         parent_->gamepad_dpad_up_sensor_->publish_state(false);
@@ -152,7 +159,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         parent_->gamepad_dpad_down_sensor_->publish_state(false);
       if (last_dpad_ == 0x06 && parent_->gamepad_dpad_left_sensor_)
         parent_->gamepad_dpad_left_sensor_->publish_state(false);
-      
+
       // Press new direction
       if (dpad == 0x01) {
         ESP_LOGI("usb_hidx.switch", "[FIXED_V2] D-Pad: Up");
@@ -173,7 +180,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
       } else if (dpad == 0x00) {
         ESP_LOGD("usb_hidx.gamepad", "[FIXED_V2] D-Pad: Neutral");
       }
-      
+
       last_dpad_ = dpad;
     }
 
@@ -193,6 +200,20 @@ class GenericGamepadDriver : public HIDDeviceDriver {
   const char *get_name() override { return is_8bitdo_ ? "8BitDo" : "GenericGamepad"; }
 
  protected:
+  void publish_a(bool state) {
+    if (parent_->gamepad_button_a_sensor_)
+      parent_->gamepad_button_a_sensor_->publish_state(state);
+    if (parent_->gamepad_button_cross_sensor_)
+      parent_->gamepad_button_cross_sensor_->publish_state(state);
+  }
+
+  void publish_b(bool state) {
+    if (parent_->gamepad_button_b_sensor_)
+      parent_->gamepad_button_b_sensor_->publish_state(state);
+    if (parent_->gamepad_button_circle_sensor_)
+      parent_->gamepad_button_circle_sensor_->publish_state(state);
+  }
+
   void process_8bitdo_report(const uint8_t *data, size_t len) {
     // 8BitDo Ultimate 2 format (standard HID gamepad):
     // Byte 0-1: Button bits (16 buttons)
@@ -206,12 +227,12 @@ class GenericGamepadDriver : public HIDDeviceDriver {
     // Byte 9: Right stick Y (high byte)
     // Byte 10: D-pad hat switch
     // Byte 11-12: Triggers
-    
+
     uint16_t buttons = data[0] | (data[1] << 8);
-    
+
     // Standard button mapping (matches Linux BTN_SOUTH/EAST/NORTH/WEST)
     // Bit 0: BTN_SOUTH (A/Cross) - Bottom button
-    // Bit 1: BTN_EAST (B/Circle) - Right button  
+    // Bit 1: BTN_EAST (B/Circle) - Right button
     // Bit 2: BTN_WEST (X/Square) - Left button
     // Bit 3: BTN_NORTH (Y/Triangle) - Top button
     // Bit 4: BTN_TL (L1/LB)
@@ -221,30 +242,26 @@ class GenericGamepadDriver : public HIDDeviceDriver {
     // Bit 8: BTN_MODE (Home/Guide)
     // Bit 9: BTN_THUMBL (L3)
     // Bit 10: BTN_THUMBR (R3)
-    
+
     if (buttons != last_buttons_16_) {
       ESP_LOGI("usb_hidx.gamepad", "Button state changed: 0x%04X -> 0x%04X", last_buttons_16_, buttons);
-      
+
       // BTN_SOUTH (A button)
       if ((buttons & 0x0001) && !(last_buttons_16_ & 0x0001)) {
         ESP_LOGI("usb_hidx.gamepad", "Button A (South) pressed");
-        if (parent_->gamepad_button_a_sensor_)
-          parent_->gamepad_button_a_sensor_->publish_state(true);
+        publish_a(true);
       } else if (!(buttons & 0x0001) && (last_buttons_16_ & 0x0001)) {
-        if (parent_->gamepad_button_a_sensor_)
-          parent_->gamepad_button_a_sensor_->publish_state(false);
+        publish_a(false);
       }
-      
+
       // BTN_EAST (B button)
       if ((buttons & 0x0002) && !(last_buttons_16_ & 0x0002)) {
         ESP_LOGI("usb_hidx.gamepad", "Button B (East) pressed");
-        if (parent_->gamepad_button_b_sensor_)
-          parent_->gamepad_button_b_sensor_->publish_state(true);
+        publish_b(true);
       } else if (!(buttons & 0x0002) && (last_buttons_16_ & 0x0002)) {
-        if (parent_->gamepad_button_b_sensor_)
-          parent_->gamepad_button_b_sensor_->publish_state(false);
+        publish_b(false);
       }
-      
+
       // BTN_WEST (X button)
       if ((buttons & 0x0004) && !(last_buttons_16_ & 0x0004)) {
         ESP_LOGI("usb_hidx.gamepad", "Button X (West) pressed");
@@ -254,7 +271,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         if (parent_->gamepad_button_x_sensor_)
           parent_->gamepad_button_x_sensor_->publish_state(false);
       }
-      
+
       // BTN_NORTH (Y button)
       if ((buttons & 0x0008) && !(last_buttons_16_ & 0x0008)) {
         ESP_LOGI("usb_hidx.gamepad", "Button Y (North) pressed");
@@ -264,7 +281,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         if (parent_->gamepad_button_y_sensor_)
           parent_->gamepad_button_y_sensor_->publish_state(false);
       }
-      
+
       // BTN_TL (L1/LB)
       if ((buttons & 0x0010) && !(last_buttons_16_ & 0x0010)) {
         ESP_LOGI("usb_hidx.gamepad", "Button L pressed");
@@ -274,7 +291,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         if (parent_->gamepad_button_l_sensor_)
           parent_->gamepad_button_l_sensor_->publish_state(false);
       }
-      
+
       // BTN_TR (R1/RB)
       if ((buttons & 0x0020) && !(last_buttons_16_ & 0x0020)) {
         ESP_LOGI("usb_hidx.gamepad", "Button R pressed");
@@ -284,7 +301,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         if (parent_->gamepad_button_r_sensor_)
           parent_->gamepad_button_r_sensor_->publish_state(false);
       }
-      
+
       // BTN_SELECT (Back/Share)
       if ((buttons & 0x0040) && !(last_buttons_16_ & 0x0040)) {
         ESP_LOGI("usb_hidx.gamepad", "Button Select pressed");
@@ -294,7 +311,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         if (parent_->gamepad_button_minus_sensor_)
           parent_->gamepad_button_minus_sensor_->publish_state(false);
       }
-      
+
       // BTN_START (Start/Options)
       if ((buttons & 0x0080) && !(last_buttons_16_ & 0x0080)) {
         ESP_LOGI("usb_hidx.gamepad", "Button Start pressed");
@@ -304,7 +321,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         if (parent_->gamepad_button_plus_sensor_)
           parent_->gamepad_button_plus_sensor_->publish_state(false);
       }
-      
+
       // BTN_MODE (Home/Guide)
       if ((buttons & 0x0100) && !(last_buttons_16_ & 0x0100)) {
         ESP_LOGI("usb_hidx.gamepad", "Button Home pressed");
@@ -314,7 +331,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         if (parent_->gamepad_button_home_sensor_)
           parent_->gamepad_button_home_sensor_->publish_state(false);
       }
-      
+
       // BTN_THUMBL (L3)
       if ((buttons & 0x0200) && !(last_buttons_16_ & 0x0200)) {
         ESP_LOGI("usb_hidx.gamepad", "Button L3 pressed");
@@ -324,7 +341,7 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         if (parent_->gamepad_button_l3_sensor_)
           parent_->gamepad_button_l3_sensor_->publish_state(false);
       }
-      
+
       // BTN_THUMBR (R3)
       if ((buttons & 0x0400) && !(last_buttons_16_ & 0x0400)) {
         ESP_LOGI("usb_hidx.gamepad", "Button R3 pressed");
@@ -334,10 +351,10 @@ class GenericGamepadDriver : public HIDDeviceDriver {
         if (parent_->gamepad_button_r3_sensor_)
           parent_->gamepad_button_r3_sensor_->publish_state(false);
       }
-      
+
       last_buttons_16_ = buttons;
     }
-    
+
     // D-pad (HAT switch) - typically at byte 10 for 8BitDo
     if (len > 10) {
       uint8_t dpad = data[10];
@@ -351,36 +368,36 @@ class GenericGamepadDriver : public HIDDeviceDriver {
           parent_->gamepad_dpad_left_sensor_->publish_state(false);
         if (parent_->gamepad_dpad_right_sensor_)
           parent_->gamepad_dpad_right_sensor_->publish_state(false);
-        
+
         // HAT switch values: 0=Up, 1=UpRight, 2=Right, 3=DownRight, 4=Down, 5=DownLeft, 6=Left, 7=UpLeft, 8=Neutral
-        if (dpad == 0 || dpad == 1 || dpad == 7) { // Up
+        if (dpad == 0 || dpad == 1 || dpad == 7) {  // Up
           if (parent_->gamepad_dpad_up_sensor_)
             parent_->gamepad_dpad_up_sensor_->publish_state(true);
         }
-        if (dpad == 4 || dpad == 3 || dpad == 5) { // Down
+        if (dpad == 4 || dpad == 3 || dpad == 5) {  // Down
           if (parent_->gamepad_dpad_down_sensor_)
             parent_->gamepad_dpad_down_sensor_->publish_state(true);
         }
-        if (dpad == 6 || dpad == 5 || dpad == 7) { // Left
+        if (dpad == 6 || dpad == 5 || dpad == 7) {  // Left
           if (parent_->gamepad_dpad_left_sensor_)
             parent_->gamepad_dpad_left_sensor_->publish_state(true);
         }
-        if (dpad == 2 || dpad == 1 || dpad == 3) { // Right
+        if (dpad == 2 || dpad == 1 || dpad == 3) {  // Right
           if (parent_->gamepad_dpad_right_sensor_)
             parent_->gamepad_dpad_right_sensor_->publish_state(true);
         }
-        
+
         last_dpad_ = dpad;
       }
     }
-    
+
     // Analog sticks (16-bit values)
     if (len >= 10) {
-      int16_t lx = (int16_t)(data[2] | (data[3] << 8));
-      int16_t ly = (int16_t)(data[4] | (data[5] << 8));
-      int16_t rx = (int16_t)(data[6] | (data[7] << 8));
-      int16_t ry = (int16_t)(data[8] | (data[9] << 8));
-      
+      int16_t lx = (int16_t) (data[2] | (data[3] << 8));
+      int16_t ly = (int16_t) (data[4] | (data[5] << 8));
+      int16_t rx = (int16_t) (data[6] | (data[7] << 8));
+      int16_t ry = (int16_t) (data[8] | (data[9] << 8));
+
       if (abs(lx - last_lx_16_) > 2000 || abs(ly - last_ly_16_) > 2000) {
         ESP_LOGD("usb_hidx.gamepad", "Left Stick: X=%d Y=%d", lx, ly);
         last_lx_16_ = lx;
@@ -420,41 +437,47 @@ class GenericGamepadDriver : public HIDDeviceDriver {
   void process_6byte_report(const uint8_t *data, size_t len) {
     uint8_t btn0 = data[0];
     uint8_t btn1 = data[1];
-    uint8_t hat  = (data[5] >> 4) & 0x0F;  // upper nibble
-    if (hat == 0x0F) hat = data[5] & 0x0F; // try lower nibble
+    uint8_t hat = (data[5] >> 4) & 0x0F;  // upper nibble
+    if (hat == 0x0F)
+      hat = data[5] & 0x0F;  // try lower nibble
 
-    auto pub = [](binary_sensor::BinarySensor *s, bool v) { if (s) s->publish_state(v); };
+    auto pub = [](binary_sensor::BinarySensor *s, bool v) {
+      if (s)
+        s->publish_state(v);
+    };
 
     if (btn0 != last_6b_btn0_) {
-      pub(parent_->gamepad_button_a_sensor_,   (btn0 & 0x02) != 0);
-      pub(parent_->gamepad_button_b_sensor_,   (btn0 & 0x04) != 0);
-      pub(parent_->gamepad_button_x_sensor_,   (btn0 & 0x08) != 0);
-      pub(parent_->gamepad_button_y_sensor_,   (btn0 & 0x01) != 0);
-      pub(parent_->gamepad_button_l_sensor_,   (btn0 & 0x10) != 0);
-      pub(parent_->gamepad_button_r_sensor_,   (btn0 & 0x20) != 0);
-      pub(parent_->gamepad_button_zl_sensor_,  (btn0 & 0x40) != 0);
-      pub(parent_->gamepad_button_zr_sensor_,  (btn0 & 0x80) != 0);
+      pub(parent_->gamepad_button_a_sensor_, (btn0 & 0x02) != 0);
+      pub(parent_->gamepad_button_b_sensor_, (btn0 & 0x04) != 0);
+      pub(parent_->gamepad_button_x_sensor_, (btn0 & 0x08) != 0);
+      pub(parent_->gamepad_button_y_sensor_, (btn0 & 0x01) != 0);
+      pub(parent_->gamepad_button_l_sensor_, (btn0 & 0x10) != 0);
+      pub(parent_->gamepad_button_r_sensor_, (btn0 & 0x20) != 0);
+      pub(parent_->gamepad_button_zl_sensor_, (btn0 & 0x40) != 0);
+      pub(parent_->gamepad_button_zr_sensor_, (btn0 & 0x80) != 0);
       last_6b_btn0_ = btn0;
     }
     if (btn1 != last_6b_btn1_) {
       pub(parent_->gamepad_button_minus_sensor_, (btn1 & 0x01) != 0);
-      pub(parent_->gamepad_button_plus_sensor_,  (btn1 & 0x02) != 0);
-      pub(parent_->gamepad_button_l3_sensor_,    (btn1 & 0x04) != 0);
-      pub(parent_->gamepad_button_r3_sensor_,    (btn1 & 0x08) != 0);
+      pub(parent_->gamepad_button_plus_sensor_, (btn1 & 0x02) != 0);
+      pub(parent_->gamepad_button_l3_sensor_, (btn1 & 0x04) != 0);
+      pub(parent_->gamepad_button_r3_sensor_, (btn1 & 0x08) != 0);
       last_6b_btn1_ = btn1;
     }
     if (hat != last_6b_hat_) {
-      pub(parent_->gamepad_dpad_up_sensor_,    hat == 0 || hat == 1 || hat == 7);
+      pub(parent_->gamepad_dpad_up_sensor_, hat == 0 || hat == 1 || hat == 7);
       pub(parent_->gamepad_dpad_right_sensor_, hat == 2 || hat == 1 || hat == 3);
-      pub(parent_->gamepad_dpad_down_sensor_,  hat == 4 || hat == 3 || hat == 5);
-      pub(parent_->gamepad_dpad_left_sensor_,  hat == 6 || hat == 5 || hat == 7);
+      pub(parent_->gamepad_dpad_down_sensor_, hat == 4 || hat == 3 || hat == 5);
+      pub(parent_->gamepad_dpad_left_sensor_, hat == 6 || hat == 5 || hat == 7);
       last_6b_hat_ = hat;
     }
     // axes: bytes 2=lx, 3=ly, 4 upper=rx lower=ry (packed nibbles) or byte4=rx byte5=ry
     // publish scaled -100..100
-    auto scale = [](uint8_t v) -> float { return ((int)v - 128) / 1.28f; };
-    if (parent_->get_gamepad_left_stick_x_sensor())  parent_->get_gamepad_left_stick_x_sensor()->publish_state(scale(data[2]));
-    if (parent_->get_gamepad_left_stick_y_sensor())  parent_->get_gamepad_left_stick_y_sensor()->publish_state(scale(data[3]));
+    auto scale = [](uint8_t v) -> float { return ((int) v - 128) / 1.28f; };
+    if (parent_->get_gamepad_left_stick_x_sensor())
+      parent_->get_gamepad_left_stick_x_sensor()->publish_state(scale(data[2]));
+    if (parent_->get_gamepad_left_stick_y_sensor())
+      parent_->get_gamepad_left_stick_y_sensor()->publish_state(scale(data[3]));
   }
 };
 

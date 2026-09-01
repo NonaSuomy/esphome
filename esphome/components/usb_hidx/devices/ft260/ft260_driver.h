@@ -9,6 +9,8 @@ class FT260Driver : public HIDDeviceDriver {
  public:
   FT260Driver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new FT260Driver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
     // FTDI FT260
     if (vid == 0x0403 && pid == 0x6030) {
@@ -17,7 +19,7 @@ class FT260Driver : public HIDDeviceDriver {
     return false;
   }
 
-  void on_device_ready(HIDDevice *device) {
+  void on_device_ready(HIDDevice *device) override {
     device_ = device;
     ESP_LOGI("usb_hidx.ft260", "FT260 USB-to-I2C Bridge detected");
     ESP_LOGI("usb_hidx.ft260", "Features: I2C Master, UART, 6x GPIO");
@@ -92,7 +94,9 @@ class FT260Driver : public HIDDeviceDriver {
 
     if (length > 0 && len >= 2 + length) {
       ESP_LOGI("usb_hidx.ft260", "I2C Read: %d bytes", length);
-      ESP_LOGV("usb_hidx.ft260", "Data: [%02X %02X %02X...]", data[2], data[3], data[4]);
+      if (length >= 3 && len >= 5) {
+        ESP_LOGV("usb_hidx.ft260", "Data: [%02X %02X %02X...]", data[2], data[3], data[4]);
+      }
     }
   }
 

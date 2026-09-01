@@ -1,13 +1,19 @@
 from pathlib import Path
 
 import esphome.codegen as cg
-from esphome.components import binary_sensor, sensor
+from esphome.components import (
+    binary_sensor as esphome_binary_sensor,
+    sensor as esphome_sensor,
+)
 import esphome.config_validation as cv
 from esphome.const import CONF_ID
 
 CODEOWNERS = ["@nonasuomy"]
 DEPENDENCIES = ["esp32"]
-AUTO_LOAD = ["usb_host"]
+# The legacy nested ``mouse``/``gamepad`` blocks create entities from this
+# component's ``to_code`` function. Load only the entity runtimes those blocks
+# actually use; platform-style entries load their own runtimes normally.
+SOURCE_DIRS = ("devices",)
 
 CONF_HUB = "hub"
 CONF_KEYBOARD = "keyboard"
@@ -21,10 +27,12 @@ CONF_PID = "pid"
 CONF_LAYOUT = "layout"
 CONF_LEFT_BUTTON = "left_button"
 CONF_RIGHT_BUTTON = "right_button"
+CONF_MIDDLE_BUTTON = "middle_button"
 CONF_BUTTON_A = "button_a"
 CONF_BUTTON_B = "button_b"
 CONF_X_DELTA = "x_delta"
 CONF_Y_DELTA = "y_delta"
+CONF_WHEEL = "wheel"
 CONF_TYPE = "type"
 CONF_DRIVER = "driver"
 CONF_OFFSET = "offset"
@@ -95,10 +103,12 @@ KEYBOARD_SCHEMA = cv.Schema(
 MOUSE_SCHEMA = cv.Schema(
     {
         cv.Optional(CONF_DEVICE_ID): cv.string,
-        cv.Optional(CONF_LEFT_BUTTON): binary_sensor.binary_sensor_schema(),
-        cv.Optional(CONF_RIGHT_BUTTON): binary_sensor.binary_sensor_schema(),
-        cv.Optional(CONF_X_DELTA): sensor.sensor_schema(),
-        cv.Optional(CONF_Y_DELTA): sensor.sensor_schema(),
+        cv.Optional(CONF_LEFT_BUTTON): esphome_binary_sensor.binary_sensor_schema(),
+        cv.Optional(CONF_RIGHT_BUTTON): esphome_binary_sensor.binary_sensor_schema(),
+        cv.Optional(CONF_MIDDLE_BUTTON): esphome_binary_sensor.binary_sensor_schema(),
+        cv.Optional(CONF_X_DELTA): esphome_sensor.sensor_schema(),
+        cv.Optional(CONF_Y_DELTA): esphome_sensor.sensor_schema(),
+        cv.Optional(CONF_WHEEL): esphome_sensor.sensor_schema(),
     }
 )
 
@@ -108,8 +118,8 @@ GAMEPAD_SCHEMA = cv.Schema(
         cv.Optional(CONF_TYPE, default="generic"): cv.one_of(
             *DRIVER_ALIASES.keys(), lower=True
         ),
-        cv.Optional(CONF_BUTTON_A): binary_sensor.binary_sensor_schema(),
-        cv.Optional(CONF_BUTTON_B): binary_sensor.binary_sensor_schema(),
+        cv.Optional(CONF_BUTTON_A): esphome_binary_sensor.binary_sensor_schema(),
+        cv.Optional(CONF_BUTTON_B): esphome_binary_sensor.binary_sensor_schema(),
     }
 )
 
@@ -128,9 +138,23 @@ CONFIG_SCHEMA = cv.Schema(
 ).extend(cv.COMPONENT_SCHEMA)
 
 
+def AUTO_LOAD(config):
+    loads = ["usb_host"]
+    mouse = config.get(CONF_MOUSE, {})
+    gamepad = config.get(CONF_GAMEPAD, {})
+    if any(
+        key in mouse
+        for key in (CONF_LEFT_BUTTON, CONF_RIGHT_BUTTON, CONF_MIDDLE_BUTTON)
+    ) or any(key in gamepad for key in (CONF_BUTTON_A, CONF_BUTTON_B)):
+        loads.append("binary_sensor")
+    if any(key in mouse for key in (CONF_X_DELTA, CONF_Y_DELTA, CONF_WHEEL)):
+        loads.append("sensor")
+    return loads
+
+
 async def to_code(config):
-    var = cg.new_Pvariable(config[CONF_ID])
-    await cg.register_component(var, config)
+    component = cg.new_Pvariable(config[CONF_ID])
+    await cg.register_component(component, config)
 
     # Keep the driver registry's relative device includes local to this
     # component. This is an include path only; driver source is still pulled
@@ -171,6 +195,50 @@ async def to_code(config):
 
     for driver in sorted(selected_drivers):
         cg.add_build_flag(f"-D{DRIVER_MACROS[driver]}")
+
+    # Keep the legacy nested blocks functional. These schemas predate the
+    # platform-style entities, but they still appear in existing user YAML.
+    # They must be materialized here; otherwise validation succeeds while the
+    # requested mappings are silently discarded.
+    mouse = config.get(CONF_MOUSE)
+    if mouse is not None:
+        if CONF_LEFT_BUTTON in mouse:
+            entity = await esphome_binary_sensor.new_binary_sensor(
+                mouse[CONF_LEFT_BUTTON]
+            )
+            cg.add(component.register_mouse_left_sensor(entity))
+        if CONF_RIGHT_BUTTON in mouse:
+            entity = await esphome_binary_sensor.new_binary_sensor(
+                mouse[CONF_RIGHT_BUTTON]
+            )
+            cg.add(component.register_mouse_right_sensor(entity))
+        if CONF_MIDDLE_BUTTON in mouse:
+            entity = await esphome_binary_sensor.new_binary_sensor(
+                mouse[CONF_MIDDLE_BUTTON]
+            )
+            cg.add(component.register_mouse_middle_sensor(entity))
+        if CONF_X_DELTA in mouse:
+            entity = await esphome_sensor.new_sensor(mouse[CONF_X_DELTA])
+            cg.add(component.register_mouse_x_sensor(entity))
+        if CONF_Y_DELTA in mouse:
+            entity = await esphome_sensor.new_sensor(mouse[CONF_Y_DELTA])
+            cg.add(component.register_mouse_y_sensor(entity))
+        if CONF_WHEEL in mouse:
+            entity = await esphome_sensor.new_sensor(mouse[CONF_WHEEL])
+            cg.add(component.register_mouse_wheel_sensor(entity))
+
+    gamepad = config.get(CONF_GAMEPAD)
+    if gamepad is not None:
+        if CONF_BUTTON_A in gamepad:
+            entity = await esphome_binary_sensor.new_binary_sensor(
+                gamepad[CONF_BUTTON_A]
+            )
+            cg.add(component.register_gamepad_button_a_sensor(entity))
+        if CONF_BUTTON_B in gamepad:
+            entity = await esphome_binary_sensor.new_binary_sensor(
+                gamepad[CONF_BUTTON_B]
+            )
+            cg.add(component.register_gamepad_button_b_sensor(entity))
 
 
 def enable_driver(driver):

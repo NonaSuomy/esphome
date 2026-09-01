@@ -166,6 +166,10 @@ static const char *get_descriptor_string(const usb_str_desc_t *desc, std::span<c
 static void client_event_cb(const usb_host_client_event_msg_t *event_msg, void *ptr) {
   auto *client = static_cast<USBClient *>(ptr);
 
+  if (client == nullptr || event_msg == nullptr) {
+    return;
+  }
+
   // Allocate event from pool
   UsbEvent *event = client->event_pool.allocate();
   if (event == nullptr) {
@@ -218,7 +222,21 @@ void USBClient::setup() {
   // Pre-allocate USB transfer buffers for all slots at startup
   // This avoids any dynamic allocation during runtime
   for (auto &request : this->requests_) {
-    usb_host_transfer_alloc(USB_MAX_PACKET_SIZE, 0, &request.transfer);
+    err = usb_host_transfer_alloc(USB_MAX_PACKET_SIZE, 0, &request.transfer);
+    if (err != ESP_OK || request.transfer == nullptr) {
+      ESP_LOGE(TAG, "transfer allocation failed: %s", esp_err_to_name(err));
+      for (auto &allocated : this->requests_) {
+        if (allocated.transfer != nullptr) {
+          usb_host_transfer_free(allocated.transfer);
+          allocated.transfer = nullptr;
+        }
+      }
+      usb_host_client_deregister(this->handle_);
+      this->handle_ = nullptr;
+      this->status_set_error(LOG_STR("Transfer allocation failed"));
+      this->mark_failed();
+      return;
+    }
     request.client = this;  // Set once, never changes
   }
 
@@ -231,6 +249,15 @@ void USBClient::setup() {
 
   if (this->usb_task_handle_ == nullptr) {
     ESP_LOGE(TAG, "Failed to create USB task");
+    for (auto &request : this->requests_) {
+      if (request.transfer != nullptr) {
+        usb_host_transfer_free(request.transfer);
+        request.transfer = nullptr;
+      }
+    }
+    usb_host_client_deregister(this->handle_);
+    this->handle_ = nullptr;
+    this->status_set_error(LOG_STR("USB task creation failed"));
     this->mark_failed();
   }
 }
@@ -241,7 +268,11 @@ void USBClient::usb_task_fn(void *arg) {
 }
 void USBClient::usb_task_loop_() const {
   while (true) {
-    usb_host_client_handle_events(this->handle_, portMAX_DELAY);
+    const esp_err_t err = usb_host_client_handle_events(this->handle_, portMAX_DELAY);
+    if (err != ESP_OK) {
+      ESP_LOGW(TAG, "USB client event loop failed: %s", esp_err_to_name(err));
+      vTaskDelay(pdMS_TO_TICKS(1));
+    }
   }
 }
 
@@ -352,7 +383,13 @@ void USBClient::on_removed(usb_device_handle_t handle) {
 
 // CALLBACK CONTEXT: USB task (called from usb_host_client_handle_events in USB task)
 static void control_callback(const usb_transfer_t *xfer) {
+  if (xfer == nullptr || xfer->context == nullptr) {
+    return;
+  }
   auto *trq = static_cast<TransferRequest *>(xfer->context);
+  if (trq->client == nullptr) {
+    return;
+  }
   trq->status.error_code = xfer->status;
   trq->status.success = xfer->status == USB_TRANSFER_STATUS_COMPLETED;
   trq->status.endpoint = xfer->bEndpointAddress;
@@ -377,6 +414,9 @@ static void control_callback(const usb_transfer_t *xfer) {
 // This multi-threaded access is intentional for performance - USB task can
 // immediately restart transfers without waiting for main loop scheduling.
 TransferRequest *USBClient::get_trq_() {
+  if (this->handle_ == nullptr || this->device_handle_ == nullptr || this->disconnecting_) {
+    return nullptr;
+  }
   trq_bitmask_t mask = this->trq_in_use_.load(std::memory_order_acquire);
 
   // Find first available slot (bit = 0) and try to claim it atomically
@@ -396,6 +436,11 @@ TransferRequest *USBClient::get_trq_() {
       auto i = __builtin_ctz(lsb);  // count trailing zeroes
       // Successfully claimed slot i - prepare the TransferRequest
       auto *trq = &this->requests_[i];
+      if (trq->transfer == nullptr) {
+        this->trq_in_use_.fetch_and(~lsb, std::memory_order_release);
+        ESP_LOGE(TAG, "Transfer slot %u has no transfer object", i);
+        return nullptr;
+      }
       trq->transfer->context = trq;
       trq->transfer->device_handle = this->device_handle_;
       return trq;
@@ -406,14 +451,26 @@ TransferRequest *USBClient::get_trq_() {
 }
 
 void USBClient::disconnect() {
-  this->on_disconnected();
-  auto err = usb_host_device_close(this->handle_, this->device_handle_);
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "Device close failed: %s", esp_err_to_name(err));
+  this->disconnecting_ = true;
+  if (this->device_handle_ == nullptr) {
+    this->on_disconnected();
+    this->state_ = USB_CLIENT_INIT;
+    this->device_addr_ = -1;
+    this->disconnecting_ = false;
+    return;
   }
+
+  auto err = usb_host_device_close(this->handle_, this->device_handle_);
+  if (err != ESP_OK && err != ESP_ERR_NOT_FOUND) {
+    ESP_LOGE(TAG, "Device close failed: %s", esp_err_to_name(err));
+    this->disconnecting_ = false;
+    return;
+  }
+  this->on_disconnected();
   this->state_ = USB_CLIENT_INIT;
   this->device_handle_ = nullptr;
   this->device_addr_ = -1;
+  this->disconnecting_ = false;
 }
 
 // THREAD CONTEXT: Called from main loop thread only
@@ -455,7 +512,13 @@ bool USBClient::control_transfer(uint8_t type, uint8_t request, uint16_t value, 
 
 // CALLBACK CONTEXT: USB task (called from usb_host_client_handle_events in USB task)
 static void transfer_callback(usb_transfer_t *xfer) {
+  if (xfer == nullptr || xfer->context == nullptr) {
+    return;
+  }
   auto *trq = static_cast<TransferRequest *>(xfer->context);
+  if (trq->client == nullptr) {
+    return;
+  }
   trq->status.error_code = xfer->status;
   trq->status.success = xfer->status == USB_TRANSFER_STATUS_COMPLETED;
   trq->status.endpoint = xfer->bEndpointAddress;
@@ -533,7 +596,7 @@ bool USBClient::transfer_out(uint8_t ep_address, const transfer_cb_t &callback, 
     ESP_LOGE(TAG, "Too many requests queued");
     return false;
   }
-  if (length > trq->transfer->data_buffer_size) {
+  if ((data == nullptr && length != 0) || length > trq->transfer->data_buffer_size) {
     ESP_LOGE(TAG, "transfer_out: data length %u exceeds buffer size %u", length, trq->transfer->data_buffer_size);
     this->release_trq(trq);
     return false;
@@ -542,7 +605,9 @@ bool USBClient::transfer_out(uint8_t ep_address, const transfer_cb_t &callback, 
   trq->transfer->callback = transfer_callback;
   trq->transfer->bEndpointAddress = ep_address | USB_DIR_OUT;
   trq->transfer->num_bytes = length;
-  memcpy(trq->transfer->data_buffer, data, length);
+  if (length != 0) {
+    memcpy(trq->transfer->data_buffer, data, length);
+  }
   auto err = usb_host_transfer_submit(trq->transfer);
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "Failed to submit transfer, address=%x, length=%d, err=%x", ep_address, length, err);
@@ -568,12 +633,16 @@ void USBClient::release_trq(TransferRequest *trq) {
   if (trq == nullptr)
     return;
 
-  // Calculate index from pointer arithmetic
-  size_t index = trq - this->requests_;
-  if (index >= MAX_REQUESTS) {
+  // Validate the address numerically before deriving an array index. Pointer
+  // subtraction is undefined for a pointer that is not within this array.
+  const uintptr_t base = reinterpret_cast<uintptr_t>(this->requests_);
+  const uintptr_t end = base + sizeof(this->requests_);
+  const uintptr_t address = reinterpret_cast<uintptr_t>(trq);
+  if (address < base || address >= end || (address - base) % sizeof(TransferRequest) != 0) {
     ESP_LOGE(TAG, "Invalid TransferRequest pointer");
     return;
   }
+  const size_t index = (address - base) / sizeof(TransferRequest);
 
   // Atomically clear the bit to mark slot as available
   // fetch_and with inverted bitmask clears the bit atomically

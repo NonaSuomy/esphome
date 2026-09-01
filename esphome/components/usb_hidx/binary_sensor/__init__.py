@@ -199,12 +199,8 @@ async def to_code(config):
         enable_driver(config.get(CONF_DRIVER, "mouse"))
     elif device_type == "switch":
         enable_driver(config.get(CONF_DRIVER, "switch"))
-    elif device_type == "gamepad" and CONF_DRIVER in config:
-        # A top-level ``usb_hidx.gamepad.type`` can select the concrete
-        # driver for the standard entities.  Platform-only configurations
-        # must name their driver explicitly; silently enabling the generic
-        # gamepad here would pull an extra driver into every build.
-        enable_driver(config[CONF_DRIVER])
+    elif device_type == "gamepad":
+        enable_driver(config.get(CONF_DRIVER, "generic_gamepad"))
 
     if device_type == "keyboard":
         if CONF_KEY in config:
@@ -254,18 +250,7 @@ async def to_code(config):
         elif config.get(CONF_DPAD_DOWN):
             cg.add(parent.register_gamepad_dpad_down_sensor(var))
         elif config.get(CONF_BUTTON_CROSS) or config.get(CONF_BUTTON_CIRCLE):
-            # Store sensors in parent, driver will pick them up when initialized
             if config.get(CONF_BUTTON_CROSS):
-                cg.add_define("USB_HIDX_PS_BUTTON_CROSS")
-                cg.add(
-                    cg.RawExpression(
-                        f"auto *ps_driver = id({config[CONF_USB_HIDX_ID]}).get_playstation_driver(); if (ps_driver) ps_driver->set_button_cross_sensor({var})"
-                    )
-                )
+                cg.add(parent.register_gamepad_button_cross_sensor(var))
             if config.get(CONF_BUTTON_CIRCLE):
-                cg.add_define("USB_HIDX_PS_BUTTON_CIRCLE")
-                cg.add(
-                    cg.RawExpression(
-                        f"auto *ps_driver = id({config[CONF_USB_HIDX_ID]}).get_playstation_driver(); if (ps_driver) ps_driver->set_button_circle_sensor({var})"
-                    )
-                )
+                cg.add(parent.register_gamepad_button_circle_sensor(var))

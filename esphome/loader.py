@@ -215,6 +215,30 @@ class ComponentManifest:
                         continue
                     ret.append(FileResource(self.package, resource))
 
+        # A component can keep source files in a directory that also contains
+        # Python subpackages.  This is useful for keeping protocol drivers
+        # together without flattening their public source tree.  The normal
+        # recursive_sources mode intentionally skips Python subpackages, so
+        # use the explicit SOURCE_DIRS opt-in for this case.
+        for source_dir in getattr(self.module, "SOURCE_DIRS", ()):
+            source_root = root.joinpath(source_dir)
+            if not source_root.is_dir():
+                continue
+            pending = [(source_root, source_dir)]
+            while pending:
+                directory, prefix = pending.pop()
+                for child in directory.iterdir():
+                    name = child.name
+                    resource = f"{prefix}/{name}"
+                    if child.is_file():
+                        if Path(name).suffix not in SOURCE_FILE_EXTENSIONS:
+                            continue
+                        if resource in excluded_files:
+                            continue
+                        ret.append(FileResource(self.package, resource))
+                    elif child.is_dir() and name != "__pycache__":
+                        pending.append((child, resource))
+
         return ret
 
 

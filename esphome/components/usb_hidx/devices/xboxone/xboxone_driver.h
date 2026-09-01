@@ -9,7 +9,13 @@ class XboxOneDriver : public HIDDeviceDriver {
  public:
   XboxOneDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new XboxOneDriver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
+    // Reset template state before each match; ordinary Xbox One devices may
+    // arrive after a Series X|S device in the same process.
+    is_series_xs_ = false;
+
     // Microsoft Xbox One controllers
     if (vid == 0x045E && (pid == 0x02D1 || pid == 0x02DD || pid == 0x02E3 || pid == 0x02EA || pid == 0x0B00 ||
                           pid == 0x0B05 || pid == 0x0B12)) {
@@ -23,7 +29,7 @@ class XboxOneDriver : public HIDDeviceDriver {
     return false;
   }
 
-  void on_device_ready(HIDDevice *device) {
+  void on_device_ready(HIDDevice *device) override {
     device_ = device;
     ESP_LOGI("usb_hidx.xbone", is_series_xs_ ? "Xbox Series X|S controller detected" : "Xbox One controller detected");
   }

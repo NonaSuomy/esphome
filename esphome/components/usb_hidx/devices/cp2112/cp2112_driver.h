@@ -9,6 +9,8 @@ class CP2112Driver : public HIDDeviceDriver {
  public:
   CP2112Driver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new CP2112Driver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
     // Silicon Labs CP2112
     if (vid == 0x10C4 && pid == 0xEA90) {
@@ -17,7 +19,7 @@ class CP2112Driver : public HIDDeviceDriver {
     return false;
   }
 
-  void on_device_ready(HIDDevice *device) {
+  void on_device_ready(HIDDevice *device) override {
     device_ = device;
     ESP_LOGI("usb_hidx.cp2112", "CP2112 USB-to-SMBus/I2C Bridge detected");
     ESP_LOGI("usb_hidx.cp2112", "Features: SMBus/I2C Master, 8x GPIO");
@@ -72,7 +74,9 @@ class CP2112Driver : public HIDDeviceDriver {
 
     if (status == 0x00) {
       ESP_LOGI("usb_hidx.cp2112", "I2C Read: %d bytes", length);
-      if (len >= 3 + length) {
+      // The diagnostic preview reads three payload bytes, so validate both
+      // the declared payload and the actual report length first.
+      if (length >= 3 && len >= static_cast<size_t>(3 + length)) {
         ESP_LOGV("usb_hidx.cp2112", "Data: [%02X %02X %02X...]", data[3], data[4], data[5]);
       }
     } else if (status == 0x02) {

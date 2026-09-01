@@ -100,11 +100,10 @@ async def to_code(config):
         elif config.get(CONF_WHEEL):
             cg.add(parent.register_mouse_wheel_sensor(var))
     elif config[CONF_TYPE] == "gamepad":
-        # Keep platform-only builds selective.  A top-level gamepad block can
-        # select the driver for these standard entities; otherwise the YAML
-        # entry should provide ``driver:`` explicitly.
-        if CONF_DRIVER in config:
-            enable_driver(config[CONF_DRIVER])
+        # Keep platform-only builds selective while making the generic
+        # gamepad mapping useful without a legacy ``usb_hidx.gamepad`` block.
+        # A caller can still select a protocol-specific driver explicitly.
+        enable_driver(config.get(CONF_DRIVER, "generic_gamepad"))
         axis = config.get(CONF_AXIS)
         register_fn = AXIS_REGISTERS.get(axis)
         if register_fn:

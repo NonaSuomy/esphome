@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 from esphome.components import binary_sensor
-from esphome.components.usb_hidx import USBHIDXComponent, enable_driver
+from esphome.components.usb_hidx import DRIVER_ALIASES, USBHIDXComponent, enable_driver
 import esphome.config_validation as cv
 
 CONF_USB_HIDX_ID = "usb_hidx_id"
@@ -27,16 +27,13 @@ CONF_DPAD_UP = "dpad_up"
 CONF_DPAD_DOWN = "dpad_down"
 CONF_DPAD_LEFT = "dpad_left"
 CONF_DPAD_RIGHT = "dpad_right"
-CONF_DPAD_LEFT = "dpad_left"
-CONF_DPAD_RIGHT = "dpad_right"
-CONF_DPAD_DOWN = "dpad_down"
 
 CONFIG_SCHEMA = binary_sensor.binary_sensor_schema().extend(
     {
         cv.GenerateID(CONF_USB_HIDX_ID): cv.use_id(USBHIDXComponent),
         cv.Optional(CONF_DEVICE_ID): cv.string,
-        cv.Optional(CONF_TYPE, default="generic"): cv.string,
-        cv.Optional(CONF_DRIVER): cv.string,
+        cv.Optional(CONF_TYPE, default="switch"): cv.one_of("switch", lower=True),
+        cv.Optional(CONF_DRIVER): cv.one_of(*DRIVER_ALIASES.keys(), lower=True),
         cv.Optional(CONF_BUTTON_A): cv.boolean,
         cv.Optional(CONF_BUTTON_B): cv.boolean,
         cv.Optional(CONF_BUTTON_X): cv.boolean,
@@ -103,12 +100,6 @@ async def to_code(config):
     if config.get(CONF_DPAD_RIGHT):
         cg.add(parent.register_gamepad_dpad_right_sensor(var))
     if config.get(CONF_BUTTON_CROSS):
-        driver = cg.RawExpression(
-            f"id({config[CONF_USB_HIDX_ID]}).get_playstation_driver()"
-        )
-        cg.add(driver.set_button_cross_sensor(var))
+        cg.add(parent.register_gamepad_button_cross_sensor(var))
     if config.get(CONF_BUTTON_CIRCLE):
-        driver = cg.RawExpression(
-            f"id({config[CONF_USB_HIDX_ID]}).get_playstation_driver()"
-        )
-        cg.add(driver.set_button_circle_sensor(var))
+        cg.add(parent.register_gamepad_button_circle_sensor(var))

@@ -9,9 +9,9 @@ class InteractDriver : public HIDDeviceDriver {
  public:
   InteractDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
-  bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
-    return (vid == 0x05FD && pid == 0x0251);
-  }
+  HIDDeviceDriver *clone() const override { return new InteractDriver(*this); }
+
+  bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override { return (vid == 0x05FD && pid == 0x0251); }
 
   void process_report(const uint8_t *data, size_t len, HIDDevice *device) override {
     if (len < 6)
@@ -19,8 +19,8 @@ class InteractDriver : public HIDDeviceDriver {
 
     // Report format: [ReportID, Buttons, X, Y, D-pad/Buttons, Extra]
     uint8_t buttons = data[1];
-    uint8_t x = data[2];  // Analog X: 0x00=left, 0x7F=center, 0xFF=right
-    uint8_t y = data[3];  // Analog Y: 0x00=up, 0x7F=center, 0xFF=down
+    uint8_t x = data[2];         // Analog X: 0x00=left, 0x7F=center, 0xFF=right
+    uint8_t y = data[3];         // Analog Y: 0x00=up, 0x7F=center, 0xFF=down
     uint8_t hat_byte = data[4];  // 8-way hat switch + buttons
     uint8_t extra_byte = data[5];
 
@@ -31,8 +31,8 @@ class InteractDriver : public HIDDeviceDriver {
     bool right = (x > 0xC0);
 
     // Check if analog position changed significantly
-    bool analog_changed = (abs((int)x - (int)last_x_) > 20 || abs((int)y - (int)last_y_) > 20);
-    
+    bool analog_changed = (abs((int) x - (int) last_x_) > 20 || abs((int) y - (int) last_y_) > 20);
+
     if (analog_changed || hat_byte != last_hat_byte_ || extra_byte != last_extra_byte_) {
       if (analog_changed)
         ESP_LOGI("usb_hidx.interact", "Stick X:%d Y:%d", x, y);
@@ -67,14 +67,14 @@ class InteractDriver : public HIDDeviceDriver {
         if (parent_->gamepad_button_a_sensor_)
           parent_->gamepad_button_a_sensor_->publish_state(false);
       }
-      
+
       if ((hat_byte & 0x20) && !(last_hat_byte_ & 0x20))
         ESP_LOGI("usb_hidx.interact", "Button 1");
       if ((hat_byte & 0x40) && !(last_hat_byte_ & 0x40))
         ESP_LOGI("usb_hidx.interact", "Button 2");
       if ((hat_byte & 0x80) && !(last_hat_byte_ & 0x80))
         ESP_LOGI("usb_hidx.interact", "Button 3");
-      
+
       last_hat_byte_ = hat_byte;
     }
 
@@ -86,7 +86,7 @@ class InteractDriver : public HIDDeviceDriver {
         ESP_LOGI("usb_hidx.interact", "Button 5");
       last_extra_byte_ = extra_byte;
     }
-    
+
     last_x_ = x;
     last_y_ = y;
     last_buttons_ = buttons;

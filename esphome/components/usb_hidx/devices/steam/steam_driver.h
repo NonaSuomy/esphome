@@ -9,6 +9,8 @@ class SteamDriver : public HIDDeviceDriver {
  public:
   SteamDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new SteamDriver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
     // Valve Steam Controller
     if (vid == 0x28DE && pid == 0x1142) {
@@ -21,7 +23,7 @@ class SteamDriver : public HIDDeviceDriver {
     return false;
   }
 
-  void on_device_ready(HIDDevice *device) {
+  void on_device_ready(HIDDevice *device) override {
     device_ = device;
     ESP_LOGI("usb_hidx.steam", "Steam Controller detected");
   }

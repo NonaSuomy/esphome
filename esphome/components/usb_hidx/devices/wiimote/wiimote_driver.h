@@ -9,20 +9,24 @@ class WiimoteDriver : public HIDDeviceDriver {
  public:
   WiimoteDriver(USBHIDXComponent *parent) : parent_(parent) {}
 
+  HIDDeviceDriver *clone() const override { return new WiimoteDriver(*this); }
+
   bool match_device(uint8_t protocol, uint16_t vid, uint16_t pid) override {
+    // This object is a registry template and is matched repeatedly.
+    is_plus_ = (vid == 0x057E && pid == 0x0330);
+
     // Nintendo Wii Remote
     if (vid == 0x057E && pid == 0x0306) {
       return true;
     }
     // Wii Remote Plus
     if (vid == 0x057E && pid == 0x0330) {
-      is_plus_ = true;
       return true;
     }
     return false;
   }
 
-  void on_device_ready(HIDDevice *device) {
+  void on_device_ready(HIDDevice *device) override {
     device_ = device;
     ESP_LOGI("usb_hidx.wiimote", is_plus_ ? "Wii Remote Plus detected" : "Wii Remote detected");
   }
