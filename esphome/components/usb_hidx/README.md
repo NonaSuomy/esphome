@@ -4,6 +4,27 @@ USB HIDX is an ESPHome USB HID host component for ESP32 targets with USB host
 support. Drivers are selected at code-generation time; a build only includes
 drivers requested by the component configuration or by a USB HIDX platform.
 
+## Using the GitHub test branch
+
+To use the current HIDX and matching USB host component without checking out
+the fork, add this to an ESPHome YAML configuration:
+
+```yaml
+external_components:
+  - source:
+      type: git
+      url: https://github.com/NonaSuomy/esphome
+      ref: hidx-testing-004
+    components:
+      - usb_hidx
+      - usb_host
+    refresh: 1d
+```
+
+The `usb_host` entry is intentional: it provides the matching host-component
+configuration used by the HIDX branch, including the selectable USB
+peripheral map.
+
 ## Driver selection
 
 The legacy category blocks remain supported:
