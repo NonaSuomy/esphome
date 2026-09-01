@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import esphome.codegen as cg
 from esphome.components.esp32 import (
     VARIANT_ESP32H4,
@@ -100,14 +102,20 @@ async def to_code(config: ConfigType) -> None:
     # IDF 6.0 moved USB host to an external component
     if idf_version() >= cv.Version(6, 0, 0):
         # Keep the managed component name stable so all existing ESPHome
-        # requirements continue to resolve, but allow this checkout's
-        # project-local implementation to replace the registry package.  A
-        # local path is especially important for the P4 split/TT HCD work:
-        # native ESP-IDF builds ignore PlatformIO extra scripts, so the
-        # patched component must be selected through the IDF manifest itself.
+        # requirements continue to resolve. Prefer a project-local override
+        # when supplied, otherwise use the tracked implementation shipped
+        # with this component. This makes the P4 split/TT HCD reproducible
+        # for GitHub users; native ESP-IDF builds do not execute PlatformIO
+        # extra scripts.
         local_usb = CORE.config_dir / "idf_components" / "usb"
-        if local_usb.is_dir():
-            add_idf_component(name="espressif/usb", path=str(local_usb))
+        # The IDF package lives at repository top level so ESPHome's
+        # integration linter does not mistake its C headers for Python
+        # component files. This also works when the component is loaded from
+        # an external GitHub checkout.
+        packaged_usb = Path(__file__).resolve().parents[3] / "usb_hidx_idf" / "usb"
+        usb_override = local_usb if local_usb.is_dir() else packaged_usb
+        if usb_override.is_dir():
+            add_idf_component(name="espressif/usb", path=str(usb_override))
         else:
             add_idf_component(name="espressif/usb", ref="1.4.1")
     add_idf_sdkconfig_option("CONFIG_USB_HOST_CONTROL_TRANSFER_MAX_SIZE", 1024)

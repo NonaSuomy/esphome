@@ -141,10 +141,9 @@ memory, and the configured hub topology). `resource_status` exposes the HCD
 channel usage so an installation can report a real rejection instead of a
 guessed device count.
 
-The ESP32-P4 DWC configuration in this project includes the local split/TT HCD
-override. For native ESP-IDF 6.x builds, `usb_host` selects
-`config/idf_components/usb` through the generated IDF dependency manifest when
-that directory is present. Keep that directory with the project when moving
-the configuration to another checkout. `tt_usb_override.py` is retained for
-PlatformIO/legacy-IDF builds; native ESP-IDF builds do not execute
-`platformio_options.extra_scripts`.
+The ESP32-P4 DWC configuration in this project includes the split/TT HCD
+override in the tracked `usb_hidx_idf/usb` package. For native
+ESP-IDF 6.x builds, `usb_host` selects that package through the generated IDF
+dependency manifest, so GitHub users do not need to copy files into their
+configuration directory. A project-local `config/idf_components/usb`
+override, when present, still takes precedence for development and testing.

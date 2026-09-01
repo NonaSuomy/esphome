@@ -294,6 +294,8 @@ def highlight(s):
         "esphome/components/socket/headers.h",
         "esphome/core/defines.h",
         "esphome/components/http_request/httplib.h",
+        # Vendored ESP-IDF USB host sources retain upstream C macro style.
+        "usb_hidx_idf/*",
     ],
 )
 def lint_no_defines(fname, match):
