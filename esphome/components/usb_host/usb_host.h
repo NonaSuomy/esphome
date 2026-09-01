@@ -189,9 +189,11 @@ class USBHost final : public Component {
   float get_setup_priority() const override { return setup_priority::BUS; }
   void loop() override;
   void setup() override;
+  void set_peripheral_map(unsigned peripheral_map) { this->peripheral_map_ = peripheral_map; }
 
  protected:
   std::vector<USBClient *> clients_{};
+  unsigned peripheral_map_{1};
 };
 
 }  // namespace esphome::usb_host

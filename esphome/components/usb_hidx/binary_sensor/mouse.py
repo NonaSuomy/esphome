@@ -1,1 +1,1 @@
-from esphome.components.Backup_usb_hidx.devices.mouse.binary_sensor import *
+from ..devices.mouse.binary_sensor import CONFIG_SCHEMA, to_code  # noqa: F401

@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 from esphome.components import sensor
-from esphome.components.Backup_usb_hidx import USBHIDXComponent
+from esphome.components.usb_hidx import USBHIDXComponent, enable_driver
 import esphome.config_validation as cv
 
 CONF_USB_HIDX_ID = "usb_hidx_id"
@@ -21,6 +21,7 @@ CONFIG_SCHEMA = sensor.sensor_schema().extend(
 
 
 async def to_code(config):
+    enable_driver("mouse")
     parent = await cg.get_variable(config[CONF_USB_HIDX_ID])
     var = await sensor.new_sensor(config)
 

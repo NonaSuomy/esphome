@@ -29,6 +29,7 @@ CONF_PID = "pid"
 CONF_ENABLE_HUBS = "enable_hubs"
 CONF_MAX_TRANSFER_REQUESTS = "max_transfer_requests"
 CONF_MAX_PACKET_SIZE = "max_packet_size"
+CONF_PERIPHERAL_MAP = "peripheral_map"
 
 
 def usb_device_schema(
@@ -72,6 +73,7 @@ CONFIG_SCHEMA = cv.All(
             cv.Optional(CONF_MAX_PACKET_SIZE, default=64): cv.one_of(
                 64, 128, 256, 512, 1024, int=True
             ),
+            cv.Optional(CONF_PERIPHERAL_MAP, default=1): cv.int_range(min=1, max=3),
             cv.Optional(CONF_DEVICES): cv.ensure_list(usb_device_schema()),
         }
     ),
@@ -106,6 +108,7 @@ async def to_code(config: ConfigType) -> None:
     cg.add_define("USB_HOST_MAX_PACKET_SIZE", config[CONF_MAX_PACKET_SIZE])
 
     var = cg.new_Pvariable(config[CONF_ID])
+    cg.add(var.set_peripheral_map(config[CONF_PERIPHERAL_MAP]))
     await cg.register_component(var, config)
     for device in config.get(CONF_DEVICES) or ():
         await register_usb_client(device)

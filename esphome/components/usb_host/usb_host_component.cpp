@@ -9,6 +9,7 @@ namespace esphome::usb_host {
 
 void USBHost::setup() {
   usb_host_config_t config{};
+  config.peripheral_map = this->peripheral_map_;
 
   if (usb_host_install(&config) != ESP_OK) {
     this->status_set_error(LOG_STR("usb_host_install failed"));

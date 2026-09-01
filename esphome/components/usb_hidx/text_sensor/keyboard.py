@@ -1,1 +1,1 @@
-from esphome.components.Backup_usb_hidx.devices.keyboard import *
+from ..devices.keyboard import CONFIG_SCHEMA, to_code  # noqa: F401

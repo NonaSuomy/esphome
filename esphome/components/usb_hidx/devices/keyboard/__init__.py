@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 from esphome.components import text_sensor
-from esphome.components.Backup_usb_hidx import USBHIDXComponent
+from esphome.components.usb_hidx import USBHIDXComponent, enable_driver
 import esphome.config_validation as cv
 
 CONF_USB_HIDX_ID = "usb_hidx_id"
@@ -15,6 +15,7 @@ CONFIG_SCHEMA = text_sensor.text_sensor_schema().extend(
 
 
 async def to_code(config):
+    enable_driver("keyboard")
     parent = await cg.get_variable(config[CONF_USB_HIDX_ID])
     var = await text_sensor.new_text_sensor(config)
     cg.add(parent.register_keyboard_sensor(var))

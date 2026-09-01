@@ -1,5 +1,4 @@
 from pathlib import Path
-import sys
 
 import esphome.codegen as cg
 from esphome.components import binary_sensor, sensor
@@ -14,7 +13,11 @@ CONF_HUB = "hub"
 CONF_KEYBOARD = "keyboard"
 CONF_MOUSE = "mouse"
 CONF_GAMEPAD = "gamepad"
+CONF_DRIVERS = "drivers"
+CONF_MCE_REMOTE = "mce_remote"
 CONF_DEVICE_ID = "device_id"
+CONF_VID = "vid"
+CONF_PID = "pid"
 CONF_LAYOUT = "layout"
 CONF_LEFT_BUTTON = "left_button"
 CONF_RIGHT_BUTTON = "right_button"
@@ -23,6 +26,59 @@ CONF_BUTTON_B = "button_b"
 CONF_X_DELTA = "x_delta"
 CONF_Y_DELTA = "y_delta"
 CONF_TYPE = "type"
+CONF_DRIVER = "driver"
+CONF_OFFSET = "offset"
+CONF_MASK = "mask"
+CONF_VALUE = "value"
+
+DRIVER_NAMES = (
+    "keyboard",
+    "mouse",
+    "generic_gamepad",
+    "xbox360",
+    "xboxone",
+    "playstation",
+    "steam",
+    "stadia",
+    "switch",
+    "wiimote",
+    "thrustmaster",
+    "touchscreen",
+    "interact",
+    "logitech",
+    "mce_remote",
+    "mcp2221",
+    "cp2112",
+    "ft260",
+)
+
+DRIVER_ALIASES = {
+    "generic": "generic_gamepad",
+    "generic_gamepad": "generic_gamepad",
+    "keyboard": "keyboard",
+    "mouse": "mouse",
+    "xbox360": "xbox360",
+    "xboxone": "xboxone",
+    "playstation": "playstation",
+    "ps3": "playstation",
+    "ps4": "playstation",
+    "ps5": "playstation",
+    "steam": "steam",
+    "stadia": "stadia",
+    "switch": "switch",
+    "wiimote": "wiimote",
+    "thrustmaster": "thrustmaster",
+    "touchscreen": "touchscreen",
+    "interact": "interact",
+    "logitech": "logitech",
+    "mce": "mce_remote",
+    "mce_remote": "mce_remote",
+    "mcp2221": "mcp2221",
+    "cp2112": "cp2112",
+    "ft260": "ft260",
+}
+
+DRIVER_MACROS = {name: "USB_HIDX_ENABLE_" + name.upper() for name in DRIVER_NAMES}
 
 usb_hidx_ns = cg.esphome_ns.namespace("usb_hidx")
 USBHIDXComponent = usb_hidx_ns.class_("USBHIDXComponent", cg.Component)
@@ -49,7 +105,9 @@ MOUSE_SCHEMA = cv.Schema(
 GAMEPAD_SCHEMA = cv.Schema(
     {
         cv.Optional(CONF_DEVICE_ID): cv.string,
-        cv.Optional(CONF_TYPE, default="generic"): cv.string,
+        cv.Optional(CONF_TYPE, default="generic"): cv.one_of(
+            *DRIVER_ALIASES.keys(), lower=True
+        ),
         cv.Optional(CONF_BUTTON_A): binary_sensor.binary_sensor_schema(),
         cv.Optional(CONF_BUTTON_B): binary_sensor.binary_sensor_schema(),
     }
@@ -59,6 +117,10 @@ CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(USBHIDXComponent),
         cv.Optional(CONF_HUB, default=True): cv.boolean,
+        cv.Optional(CONF_DRIVERS, default=[]): cv.ensure_list(
+            cv.one_of(*DRIVER_ALIASES.keys(), lower=True)
+        ),
+        cv.Optional(CONF_MCE_REMOTE, default=False): cv.boolean,
         cv.Optional(CONF_KEYBOARD): KEYBOARD_SCHEMA,
         cv.Optional(CONF_MOUSE): MOUSE_SCHEMA,
         cv.Optional(CONF_GAMEPAD): GAMEPAD_SCHEMA,
@@ -70,12 +132,22 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
 
+    # Keep the driver registry's relative device includes local to this
+    # component. This is an include path only; driver source is still pulled
+    # in solely by the selected USB_HIDX_ENABLE_* macros below.
+    cg.add_build_flag(f"-I{Path(__file__).parent}")
+
     if config[CONF_HUB]:
         cg.add_define("USB_HIDX_HUB_ENABLED")
 
-    # Only include drivers for devices configured in YAML
+    # Select individual drivers at compile time.  The old implementation
+    # selected whole families (for example every gamepad driver); keeping the
+    # selection at the individual-driver level is important on memory-limited
+    # ESP32 targets.
+    selected_drivers = {DRIVER_ALIASES[name] for name in config.get(CONF_DRIVERS, [])}
+
     if CONF_KEYBOARD in config:
-        cg.add_build_flag("-DUSB_HIDX_ENABLE_KEYBOARD")
+        selected_drivers.add("keyboard")
         # Set keyboard layout
         layout = config[CONF_KEYBOARD].get(CONF_LAYOUT, "us")
         if layout == "us":
@@ -89,30 +161,33 @@ async def to_code(config):
         elif layout == "es":
             cg.add_define("KEYBOARD_LAYOUT_ES")
     if CONF_MOUSE in config:
-        cg.add_build_flag("-DUSB_HIDX_ENABLE_MOUSE")
+        selected_drivers.add("mouse")
     if CONF_GAMEPAD in config:
-        cg.add_build_flag("-DUSB_HIDX_ENABLE_GAMEPAD")
+        selected_drivers.add(
+            DRIVER_ALIASES[config[CONF_GAMEPAD].get(CONF_TYPE, "generic")]
+        )
+    if config.get(CONF_MCE_REMOTE, False):
+        selected_drivers.add("mce_remote")
 
-    # Auto-discover and add device driver include paths
-    component_dir = Path(__file__).parent
-    devices_dir = component_dir / "devices"
+    for driver in sorted(selected_drivers):
+        cg.add_build_flag(f"-D{DRIVER_MACROS[driver]}")
 
-    # Add component directory itself to include path
-    cg.add_build_flag(f"-I{component_dir}")
 
-    # Add devices directory to Python path for platform discovery
-    if str(devices_dir) not in sys.path:
-        sys.path.insert(0, str(devices_dir))
+def enable_driver(driver):
+    """Enable one driver from a platform declaration.
 
-    if devices_dir.exists():
-        for device_folder in devices_dir.iterdir():
-            if device_folder.is_dir() and not device_folder.name.startswith("_"):
-                # Add device folder to include path
-                cg.add_build_flag(f"-I{device_folder}")
+    Platform entries are allowed to be used without a populated legacy
+    ``usb_hidx.keyboard/mouse/gamepad`` block, so they must participate in
+    compile-time driver selection themselves.
+    """
+    canonical = DRIVER_ALIASES.get(driver.lower(), driver.lower())
+    if canonical not in DRIVER_MACROS:
+        raise cv.Invalid(f"Unknown USB HIDX driver: {driver}")
+    cg.add_build_flag(f"-D{DRIVER_MACROS[canonical]}")
 
-                # Register device platforms (text_sensor, binary_sensor, sensor)
-                for platform_type in ["text_sensor", "binary_sensor", "sensor"]:
-                    platform_file = device_folder / f"{platform_type}.py"
-                    if platform_file.exists():
-                        # Register as usb_hidx.DEVICE_NAME platform
-                        cg.add_platformio_option("lib_ldf_mode", "deep+")
+
+def driver_from_type(driver_type):
+    canonical = DRIVER_ALIASES.get(driver_type.lower())
+    if canonical is None:
+        raise cv.Invalid(f"Unknown USB HIDX driver type: {driver_type}")
+    return canonical

@@ -2,11 +2,17 @@ import esphome.codegen as cg
 from esphome.components import binary_sensor
 import esphome.config_validation as cv
 
-from .. import USBHIDXComponent
+from .. import DRIVER_ALIASES, USBHIDXComponent, enable_driver
 
 CONF_USB_HIDX_ID = "usb_hidx_id"
 CONF_TYPE = "type"
+CONF_DRIVER = "driver"
 CONF_KEY = "key"
+CONF_VID = "vid"
+CONF_PID = "pid"
+CONF_OFFSET = "offset"
+CONF_MASK = "mask"
+CONF_VALUE = "value"
 CONF_LEFT_BUTTON = "left_button"
 CONF_RIGHT_BUTTON = "right_button"
 CONF_MIDDLE_BUTTON = "middle_button"
@@ -34,8 +40,16 @@ CONF_DPAD_DOWN = "dpad_down"
 CONFIG_SCHEMA = binary_sensor.binary_sensor_schema().extend(
     {
         cv.GenerateID(CONF_USB_HIDX_ID): cv.use_id(USBHIDXComponent),
-        cv.Required(CONF_TYPE): cv.one_of("keyboard", "mouse", "gamepad", "switch", lower=True),
+        cv.Required(CONF_TYPE): cv.one_of(
+            "keyboard", "mouse", "gamepad", "switch", "raw", lower=True
+        ),
+        cv.Optional(CONF_DRIVER): cv.one_of(*DRIVER_ALIASES.keys(), lower=True),
         cv.Optional(CONF_KEY): cv.hex_uint8_t,
+        cv.Optional(CONF_VID): cv.hex_uint16_t,
+        cv.Optional(CONF_PID): cv.hex_uint16_t,
+        cv.Optional(CONF_OFFSET): cv.int_range(min=0, max=255),
+        cv.Optional(CONF_MASK): cv.hex_uint8_t,
+        cv.Optional(CONF_VALUE): cv.hex_uint8_t,
         cv.Optional(CONF_LEFT_BUTTON): cv.boolean,
         cv.Optional(CONF_RIGHT_BUTTON): cv.boolean,
         cv.Optional(CONF_MIDDLE_BUTTON): cv.boolean,
@@ -63,11 +77,134 @@ CONFIG_SCHEMA = binary_sensor.binary_sensor_schema().extend(
 )
 
 
+def validate_config(config):
+    device_type = config[CONF_TYPE]
+    if device_type == "raw":
+        if CONF_DRIVER in config:
+            raise cv.Invalid(
+                "raw USB HIDX binary sensors cannot select a protocol driver"
+            )
+        if CONF_OFFSET not in config or CONF_MASK not in config:
+            raise cv.Invalid("raw USB HIDX binary sensors require offset and mask")
+        if config[CONF_MASK] == 0:
+            raise cv.Invalid("raw USB HIDX binary sensor mask must not be zero")
+        if any(
+            config.get(key)
+            for key in (
+                CONF_KEY,
+                CONF_LEFT_BUTTON,
+                CONF_RIGHT_BUTTON,
+                CONF_MIDDLE_BUTTON,
+                CONF_BUTTON_A,
+                CONF_BUTTON_B,
+                CONF_BUTTON_X,
+                CONF_BUTTON_Y,
+                CONF_BUTTON_L,
+                CONF_BUTTON_R,
+                CONF_BUTTON_ZL,
+                CONF_BUTTON_ZR,
+                CONF_BUTTON_MINUS,
+                CONF_BUTTON_PLUS,
+                CONF_BUTTON_HOME,
+                CONF_BUTTON_CAPTURE,
+                CONF_BUTTON_L3,
+                CONF_BUTTON_R3,
+                CONF_BUTTON_CROSS,
+                CONF_BUTTON_CIRCLE,
+                CONF_DPAD_UP,
+                CONF_DPAD_LEFT,
+                CONF_DPAD_RIGHT,
+                CONF_DPAD_DOWN,
+            )
+        ):
+            raise cv.Invalid(
+                "raw USB HIDX binary sensors cannot use protocol-specific mappings"
+            )
+        return config
+
+    if CONF_VID in config or CONF_PID in config:
+        raise cv.Invalid("vid and pid selectors are supported only with type: raw")
+
+    if device_type == "keyboard":
+        if CONF_KEY not in config:
+            raise cv.Invalid("keyboard USB HIDX binary sensors require key")
+    elif device_type == "mouse":
+        mouse_mappings = sum(
+            bool(config.get(key))
+            for key in (CONF_LEFT_BUTTON, CONF_RIGHT_BUTTON, CONF_MIDDLE_BUTTON)
+        )
+        if mouse_mappings != 1:
+            raise cv.Invalid(
+                "mouse USB HIDX binary sensors require exactly one button mapping"
+            )
+    elif device_type in ("gamepad", "switch"):
+        gamepad_mappings = sum(
+            bool(config.get(key))
+            for key in (
+                CONF_BUTTON_A,
+                CONF_BUTTON_B,
+                CONF_BUTTON_X,
+                CONF_BUTTON_Y,
+                CONF_BUTTON_L,
+                CONF_BUTTON_R,
+                CONF_BUTTON_ZL,
+                CONF_BUTTON_ZR,
+                CONF_BUTTON_MINUS,
+                CONF_BUTTON_PLUS,
+                CONF_BUTTON_HOME,
+                CONF_BUTTON_CAPTURE,
+                CONF_BUTTON_L3,
+                CONF_BUTTON_R3,
+                CONF_BUTTON_CROSS,
+                CONF_BUTTON_CIRCLE,
+                CONF_DPAD_UP,
+                CONF_DPAD_LEFT,
+                CONF_DPAD_RIGHT,
+                CONF_DPAD_DOWN,
+            )
+        )
+        if gamepad_mappings != 1:
+            raise cv.Invalid(
+                "gamepad USB HIDX binary sensors require exactly one button mapping"
+            )
+    return config
+
+
+CONFIG_SCHEMA = cv.All(CONFIG_SCHEMA, validate_config)
+
+
 async def to_code(config):
     parent = await cg.get_variable(config[CONF_USB_HIDX_ID])
     var = await binary_sensor.new_binary_sensor(config)
 
     device_type = config[CONF_TYPE]
+
+    if device_type == "raw":
+        cg.add(
+            parent.register_raw_binary_sensor(
+                var,
+                config[CONF_OFFSET],
+                config[CONF_MASK],
+                config.get(CONF_VALUE, 0),
+                CONF_VALUE in config,
+                config.get(CONF_VID, 0),
+                config.get(CONF_PID, 0),
+            )
+        )
+        return
+
+    if device_type == "keyboard":
+        enable_driver(config.get(CONF_DRIVER, "keyboard"))
+    elif device_type == "mouse":
+        enable_driver(config.get(CONF_DRIVER, "mouse"))
+    elif device_type == "switch":
+        enable_driver(config.get(CONF_DRIVER, "switch"))
+    elif device_type == "gamepad" and CONF_DRIVER in config:
+        # A top-level ``usb_hidx.gamepad.type`` can select the concrete
+        # driver for the standard entities.  Platform-only configurations
+        # must name their driver explicitly; silently enabling the generic
+        # gamepad here would pull an extra driver into every build.
+        enable_driver(config[CONF_DRIVER])
 
     if device_type == "keyboard":
         if CONF_KEY in config:
@@ -79,7 +216,7 @@ async def to_code(config):
             cg.add(parent.register_mouse_right_sensor(var))
         elif config.get(CONF_MIDDLE_BUTTON):
             cg.add(parent.register_mouse_middle_sensor(var))
-    elif device_type == "gamepad" or device_type == "switch":
+    elif device_type in ("gamepad", "switch"):
         if config.get(CONF_BUTTON_A):
             cg.add(parent.register_gamepad_button_a_sensor(var))
         elif config.get(CONF_BUTTON_B):

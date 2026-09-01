@@ -1,11 +1,12 @@
 import esphome.codegen as cg
 from esphome.components import binary_sensor
-from esphome.components.usb_hidx import USBHIDXComponent
+from esphome.components.usb_hidx import USBHIDXComponent, enable_driver
 import esphome.config_validation as cv
 
 CONF_USB_HIDX_ID = "usb_hidx_id"
 CONF_DEVICE_ID = "device_id"
 CONF_TYPE = "type"
+CONF_DRIVER = "driver"
 CONF_BUTTON_A = "button_a"
 CONF_BUTTON_B = "button_b"
 CONF_BUTTON_X = "button_x"
@@ -33,6 +34,7 @@ CONFIG_SCHEMA = binary_sensor.binary_sensor_schema().extend(
         cv.GenerateID(CONF_USB_HIDX_ID): cv.use_id(USBHIDXComponent),
         cv.Optional(CONF_DEVICE_ID): cv.string,
         cv.Optional(CONF_TYPE, default="generic"): cv.string,
+        cv.Optional(CONF_DRIVER): cv.string,
         cv.Optional(CONF_BUTTON_A): cv.boolean,
         cv.Optional(CONF_BUTTON_B): cv.boolean,
         cv.Optional(CONF_BUTTON_X): cv.boolean,
@@ -56,6 +58,7 @@ CONFIG_SCHEMA = binary_sensor.binary_sensor_schema().extend(
 
 
 async def to_code(config):
+    enable_driver(config.get(CONF_DRIVER, config.get(CONF_TYPE, "generic_gamepad")))
     parent = await cg.get_variable(config[CONF_USB_HIDX_ID])
     var = await binary_sensor.new_binary_sensor(config)
 
