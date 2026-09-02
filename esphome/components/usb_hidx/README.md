@@ -6,8 +6,8 @@ drivers requested by the component configuration or by a USB HIDX platform.
 
 ## Using the GitHub test branch
 
-To use the current HIDX and matching USB host component without checking out
-the fork, add this to an ESPHome YAML configuration:
+To use HIDX without checking out or modifying the ESPHome fork, add this to
+an ESPHome YAML configuration:
 
 ```yaml
 external_components:
@@ -17,13 +17,22 @@ external_components:
       ref: hidx-testing-004
     components:
       - usb_hidx
-      - usb_host
     refresh: 1d
 ```
 
-The `usb_host` entry is intentional: it provides the matching host-component
-configuration used by the HIDX branch, including the selectable USB
-peripheral map.
+The external `usb_hidx` component auto-loads `usb_host`. Keep the normal
+configuration block in the YAML and enable hubs when a hub is present:
+
+```yaml
+usb_host:
+  enable_hubs: true
+```
+
+For native ESP-IDF builds, HIDX registers its bundled P4 USB HCD and an
+include-only driver-header component automatically. This is the standalone
+path: users do not need the matching ESPHome fork, a copied `idf_components`
+directory, or a flattened copy of the driver headers. A project-local
+`config/idf_components/usb` override still takes precedence for development.
 
 ## Driver selection
 
@@ -123,10 +132,10 @@ Driver headers remain grouped under `devices/<driver>/`. The fork's source
 packaging preserves that directory tree, so adding a driver does not require
 flattening or duplicating its files.
 
-When this component is fetched from GitHub, use the matching ESPHome fork
-(`hidx-testing-004`) as the ESPHome runtime, or use a local component checkout.
-The directory-preserving `SOURCE_DIRS` packaging hook is part of this fork;
-stock ESPHome loaders may omit headers below Python subpackage directories.
+The fork's `SOURCE_DIRS` packaging hook remains supported, but is no longer
+required for native ESP-IDF builds. The include-only managed component above
+is what makes the external component work with stock ESPHome while keeping
+drivers under `devices/<driver>/`.
 
 Input entities are binary sensors/sensors because they represent reports from
 the USB device. Use regular ESPHome `button` or `switch` entities with HIDX

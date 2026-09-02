@@ -5,8 +5,11 @@ from esphome.components import (
     binary_sensor as esphome_binary_sensor,
     sensor as esphome_sensor,
 )
+from esphome.components.esp32 import add_idf_component, idf_version
 import esphome.config_validation as cv
-from esphome.const import CONF_ID
+from esphome.const import CONF_DEVICE_ID, CONF_ID, CONF_TYPE
+from esphome.core import CORE
+from esphome.coroutine import CoroPriority, coroutine_with_priority
 
 CODEOWNERS = ["@nonasuomy"]
 DEPENDENCIES = ["esp32"]
@@ -15,13 +18,19 @@ DEPENDENCIES = ["esp32"]
 # actually use; platform-style entries load their own runtimes normally.
 SOURCE_DIRS = ("devices",)
 
+# This is an include-only IDF component.  It lets stock ESPHome's native IDF
+# build see the driver headers below this Python component, even though stock
+# ESPHome intentionally does not stage nested Python subpackages as C++ source.
+# The matching CMakeLists.txt lives beside this module and is referenced by
+# path at code-generation time; no ESPHome core patch is required.
+_IDF_DRIVER_COMPONENT = "usb_hidx"
+
 CONF_HUB = "hub"
 CONF_KEYBOARD = "keyboard"
 CONF_MOUSE = "mouse"
 CONF_GAMEPAD = "gamepad"
 CONF_DRIVERS = "drivers"
 CONF_MCE_REMOTE = "mce_remote"
-CONF_DEVICE_ID = "device_id"
 CONF_VID = "vid"
 CONF_PID = "pid"
 CONF_LAYOUT = "layout"
@@ -33,11 +42,8 @@ CONF_BUTTON_B = "button_b"
 CONF_X_DELTA = "x_delta"
 CONF_Y_DELTA = "y_delta"
 CONF_WHEEL = "wheel"
-CONF_TYPE = "type"
 CONF_DRIVER = "driver"
-CONF_OFFSET = "offset"
 CONF_MASK = "mask"
-CONF_VALUE = "value"
 
 DRIVER_NAMES = (
     "keyboard",
@@ -152,13 +158,48 @@ def AUTO_LOAD(config):
     return loads
 
 
+@coroutine_with_priority(CoroPriority.FINAL)
+def _register_standalone_idf_components():
+    """Register the bundled native-IDF pieces after all component code runs.
+
+    The final priority is intentional.  It allows this external component to
+    replace the stock ``espressif/usb`` 1.4.x dependency that the auto-loaded
+    ``usb_host`` component registers, while still honoring a project-local
+    ``config/idf_components/usb`` override used for development.
+    """
+    if not CORE.using_toolchain_esp_idf:
+        return
+
+    component_dir = Path(__file__).resolve().parent
+    if (component_dir / "CMakeLists.txt").is_file():
+        add_idf_component(
+            name=_IDF_DRIVER_COMPONENT,
+            path=str(component_dir),
+        )
+
+    # ESP-IDF 6 moved USB host out of the framework.  Use the bundled HCD
+    # implementation so P4 split/TT transfers work without modifying the
+    # user's ESP-IDF or ESPHome installation.
+    if idf_version() >= cv.Version(6, 0, 0):
+        local_usb = CORE.config_dir / "idf_components" / "usb"
+        packaged_usb = component_dir.parents[2] / "usb_hidx_idf" / "usb"
+        usb_override = local_usb if local_usb.is_dir() else packaged_usb
+        if usb_override.is_dir():
+            add_idf_component(name="espressif/usb", path=str(usb_override))
+
+
 async def to_code(config):
     component = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(component, config)
 
+    # Schedule after the auto-loaded usb_host component so this component is
+    # usable from stock ESPHome with only an external usb_hidx checkout.
+    CORE.add_job(_register_standalone_idf_components)
+
     # Keep the driver registry's relative device includes local to this
-    # component. This is an include path only; driver source is still pulled
-    # in solely by the selected USB_HIDX_ENABLE_* macros below.
+    # component for PlatformIO/Arduino builds. Native ESP-IDF uses the
+    # include-only managed component registered above because its framework
+    # helper intentionally filters -I from global build flags.
     cg.add_build_flag(f"-I{Path(__file__).parent}")
 
     if config[CONF_HUB]:
