@@ -103,6 +103,15 @@ class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
 
   // --- Error Handling Helper DECLARATION ---
   void handle_error(uint8_t error_code);
+  bool is_no_valid_distance_(uint8_t error_code) const;
+
+  // --- Non-blocking measurement DECLARATIONS ---
+  enum class Measurement : uint8_t { IDLE, RANGE, ALS };
+  void start_range_();
+  void poll_range_();
+  void finish_range_();
+  void start_als_();
+  void poll_als_();
 
   // --- I2C Helper DECLARATIONS ---
   bool write_byte(uint16_t reg, uint8_t value);
@@ -120,6 +129,8 @@ class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
   uint8_t scaling_{1};
   int8_t ptp_offset_{0};
   VL6180XAlsGain als_gain_{GAIN_1};
+  Measurement measuring_{Measurement::IDLE};
+  uint32_t measurement_start_{0};
 
  private:
    // --- Static Member DECLARATION ---

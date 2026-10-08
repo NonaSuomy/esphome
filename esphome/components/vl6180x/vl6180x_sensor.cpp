@@ -14,6 +14,12 @@ static const uint16_t ALS_INTEGRATION_PERIOD_REGISTER_VALUE = 0x0063; // 99 -> 1
 static const float ALS_INTEGRATION_PERIOD_MS = 100.0f;
 // Define ALS constant from datasheet for lux calculation
 static const float ALS_LUX_RESOLUTION_FACTOR = 0.32f;
+// Non-blocking measurement: the result is collected with the scheduler instead of waiting in update()
+static const char *const RANGE_POLL_TIMER = "range";
+static const char *const ALS_POLL_TIMER = "als";
+static const uint32_t RANGE_FIRST_POLL_MS = 10; // A range measurement takes several ms at least
+static const uint32_t POLL_INTERVAL_MS = 5;
+static const uint32_t RANGE_TIMEOUT_MS = 500;
 
 
 void VL6180XSensor::setup() {
@@ -207,7 +213,7 @@ void VL6180XSensor::handle_error(uint8_t error_code) {
     case VL6180X_ERROR_RANGEOFLOW:
       ESP_LOGV(TAG, "Range Error: Range algo overflow (target too far?)"); break;
     case VL6180X_ERROR_RANGINGFILTERED:
-      ESP_LOGW(TAG, "Range Error: Distance filtered by Wrap Around Filter (WAF)"); break;
+      ESP_LOGV(TAG, "Range Error: Distance filtered by Wrap Around Filter (WAF)"); break;
     case VL6180X_ERROR_DATANOTREADY:
       // This shouldn't happen with polling, but log if it does
       ESP_LOGE(TAG, "Range Error: Data not ready (unexpected)"); break;
@@ -216,140 +222,196 @@ void VL6180XSensor::handle_error(uint8_t error_code) {
   }
 }
 
+// Range status codes 6 to 16 describe the measuring conditions (nothing in range, signal too weak,
+// target too close or too far, too much ambient light), not a fault of the sensor.
+bool VL6180XSensor::is_no_valid_distance_(uint8_t error_code) const {
+  return error_code >= VL6180X_ERROR_ECEFAIL && error_code <= VL6180X_ERROR_RANGINGFILTERED;
+}
 
+
+// Measurements do not block: update() starts one and returns, and the result is collected with the
+// scheduler. Waiting inside update() held ESPHome's main loop for up to the 49 ms maximum convergence
+// time whenever nothing was in range.
 void VL6180XSensor::update() {
+  if (this->measuring_ != Measurement::IDLE) {
+    ESP_LOGV(TAG, "Update: Previous measurement still running, skipping this one");
+    return;
+  }
   ESP_LOGV(TAG, "Update: Starting measurement cycle (Range Scaling: %dx, ALS Gain: %.2fx)",
            this->scaling_, this->get_als_gain_multiplier());
 
-  // --- Range Measurement ---
   if (this->distance_sensor_ != nullptr) {
-    if (!this->write_byte(SYSRANGE__START, 0x01)) {
-        ESP_LOGW(TAG, "Update: Failed to write SYSRANGE__START");
-        this->status_set_warning(); this->distance_sensor_->publish_state(NAN);
-    } else {
-        uint8_t status = 0; uint16_t timeout = 0; const uint16_t max_timeout = 500; bool timed_out = false;
-        do {
-          if (!this->read_byte(RESULT__INTERRUPT_STATUS_GPIO, &status)) {
-            ESP_LOGW(TAG, "Update: Failed to read RESULT__INTERRUPT_STATUS_GPIO for Range");
-            this->status_set_warning(); this->distance_sensor_->publish_state(NAN);
-            this->write_byte(SYSTEM__INTERRUPT_CLEAR, 0x07); timed_out = true; break;
-          }
-          if ((status & 0x04) != 0) break; // Range ready
-          delay(1); timeout++;
-          if (timeout > max_timeout) { timed_out = true; break; }
-        } while (true);
-        this->write_byte(SYSTEM__INTERRUPT_CLEAR, 0x01); // Clear Range interrupt
+    this->start_range_();
+  } else if (this->als_sensor_ != nullptr) {
+    this->start_als_();
+  }
+}
 
-        if (!timed_out) {
-          uint8_t range = this->read_byte_(RESULT__RANGE_VAL);
-          uint8_t error_status = this->read_byte_(RESULT__RANGE_STATUS);
-          uint8_t error_code = error_status >> 4;
-          if (error_code == VL6180X_ERROR_NONE) {
-            float range_mm = (float)range * this->scaling_;
-            ESP_LOGD(TAG, "Distance: %.0f mm", range_mm);
-            this->distance_sensor_->publish_state(range_mm);
-            // Clear warning only if ALS is also OK (or not enabled)
-            if (this->als_sensor_ == nullptr) this->status_clear_warning();
-          } else {
-            // --- Call handle_error instead of just logging code ---
-            this->handle_error(error_code);
-            this->distance_sensor_->publish_state(NAN);
-            this->status_set_warning();
-          }
-        } else {
-          ESP_LOGW(TAG, "Update: Timeout waiting for Range measurement.");
-          this->distance_sensor_->publish_state(NAN);
-          this->status_set_warning();
+// --- Range Measurement ---
+void VL6180XSensor::start_range_() {
+  if (!this->write_byte(SYSRANGE__START, 0x01)) {
+    ESP_LOGW(TAG, "Update: Failed to write SYSRANGE__START");
+    this->status_set_warning(); this->distance_sensor_->publish_state(NAN);
+    this->finish_range_();
+    return;
+  }
+  this->measuring_ = Measurement::RANGE;
+  this->measurement_start_ = millis();
+  this->set_timeout(RANGE_POLL_TIMER, RANGE_FIRST_POLL_MS, [this]() { this->poll_range_(); });
+}
+
+void VL6180XSensor::poll_range_() {
+  uint8_t status = 0;
+  if (!this->read_byte(RESULT__INTERRUPT_STATUS_GPIO, &status)) {
+    ESP_LOGW(TAG, "Update: Failed to read RESULT__INTERRUPT_STATUS_GPIO for Range");
+    this->status_set_warning(); this->distance_sensor_->publish_state(NAN);
+    this->write_byte(SYSTEM__INTERRUPT_CLEAR, 0x07);
+    this->finish_range_();
+    return;
+  }
+  if ((status & 0x04) == 0) { // Range not ready yet
+    if (millis() - this->measurement_start_ <= RANGE_TIMEOUT_MS) {
+      this->set_timeout(RANGE_POLL_TIMER, POLL_INTERVAL_MS, [this]() { this->poll_range_(); });
+      return;
+    }
+    this->write_byte(SYSTEM__INTERRUPT_CLEAR, 0x01); // Clear Range interrupt
+    ESP_LOGW(TAG, "Update: Timeout waiting for Range measurement.");
+    this->distance_sensor_->publish_state(NAN);
+    this->status_set_warning();
+    this->finish_range_();
+    return;
+  }
+  this->write_byte(SYSTEM__INTERRUPT_CLEAR, 0x01); // Clear Range interrupt
+
+  uint8_t range = this->read_byte_(RESULT__RANGE_VAL);
+  uint8_t error_status = this->read_byte_(RESULT__RANGE_STATUS);
+  uint8_t error_code = error_status >> 4;
+  if (error_code == VL6180X_ERROR_NONE) {
+    float range_mm = (float)range * this->scaling_;
+    ESP_LOGD(TAG, "Distance: %.0f mm", range_mm);
+    this->distance_sensor_->publish_state(range_mm);
+    // Clear warning only if ALS is also OK (or not enabled)
+    if (this->als_sensor_ == nullptr) this->status_clear_warning();
+  } else if (this->is_no_valid_distance_(error_code)) {
+    // No valid distance this time, e.g. nothing in range: a normal result, so unknown without a warning
+    this->handle_error(error_code);
+    this->distance_sensor_->publish_state(NAN);
+    if (this->als_sensor_ == nullptr) this->status_clear_warning();
+  } else {
+    this->handle_error(error_code);
+    this->distance_sensor_->publish_state(NAN);
+    this->status_set_warning();
+  }
+  this->finish_range_();
+}
+
+void VL6180XSensor::finish_range_() {
+  // The ambient light measurement follows the range measurement
+  if (this->als_sensor_ != nullptr) {
+    this->start_als_();
+  } else {
+    this->measuring_ = Measurement::IDLE;
+  }
+}
+
+// --- Ambient Light Measurement ---
+void VL6180XSensor::start_als_() {
+  if (!this->write_byte(SYSALS__ANALOGUE_GAIN, 0x40 | this->als_gain_)) {
+    ESP_LOGW(TAG, "Update: Failed to write SYSALS__ANALOGUE_GAIN");
+    this->status_set_warning(); this->als_sensor_->publish_state(NAN);
+    this->measuring_ = Measurement::IDLE;
+    return;
+  }
+  if (!this->write_byte(SYSALS__START, 0x01)) {
+    ESP_LOGW(TAG, "Update: Failed to write SYSALS__START");
+    this->status_set_warning(); this->als_sensor_->publish_state(NAN);
+    this->measuring_ = Measurement::IDLE;
+    return;
+  }
+  this->measuring_ = Measurement::ALS;
+  this->measurement_start_ = millis();
+  // The result cannot be ready before the integration period has passed
+  this->set_timeout(ALS_POLL_TIMER, (uint32_t)ALS_INTEGRATION_PERIOD_MS, [this]() { this->poll_als_(); });
+}
+
+void VL6180XSensor::poll_als_() {
+  uint8_t status = 0;
+  if (!this->read_byte(RESULT__INTERRUPT_STATUS_GPIO, &status)) {
+    ESP_LOGW(TAG, "Update: Failed to read RESULT__INTERRUPT_STATUS_GPIO for ALS");
+    this->status_set_warning(); this->als_sensor_->publish_state(NAN);
+    this->write_byte(SYSTEM__INTERRUPT_CLEAR, 0x07);
+    this->measuring_ = Measurement::IDLE;
+    return;
+  }
+  bool timed_out = false;
+  if ((status & 0x20) == 0) { // ALS not ready yet (bit 5)
+    if (millis() - this->measurement_start_ <= (uint32_t)ALS_INTEGRATION_PERIOD_MS + 50) {
+      this->set_timeout(ALS_POLL_TIMER, POLL_INTERVAL_MS, [this]() { this->poll_als_(); });
+      return;
+    }
+    timed_out = true;
+  }
+
+  this->write_byte(SYSTEM__INTERRUPT_CLEAR, 0x02); // Clear ALS interrupt (bit 1)
+
+  if (!timed_out) {
+    uint8_t als_bytes[2];
+    if (!this->read_register16(RESULT__ALS_VAL, als_bytes, 2)) {
+        ESP_LOGW(TAG, "Update: Failed to read RESULT__ALS_VAL");
+        this->status_set_warning(); this->als_sensor_->publish_state(NAN);
+    } else {
+        uint16_t als_count = ((uint16_t)als_bytes[0] << 8) | als_bytes[1];
+        ESP_LOGV(TAG, "Update: Raw ALS value read: %d", als_count);
+
+        float gain_multiplier = this->get_als_gain_multiplier();
+        float lux = ALS_LUX_RESOLUTION_FACTOR * ((float)als_count / gain_multiplier) * (100.0f / ALS_INTEGRATION_PERIOD_MS);
+        ESP_LOGD(TAG, "ALS: %.2f lx (Raw: %d, Gain: %.2fx)", lux, als_count, gain_multiplier);
+        this->als_sensor_->publish_state(lux);
+        // Clear warning only if distance sensor is not enabled or was OK
+        if (this->distance_sensor_ == nullptr || !this->status_has_warning()) {
+            this->status_clear_warning();
+        }
+
+        VL6180XAlsGain next_gain = this->als_gain_;
+        if (als_count == 65535 && this->als_gain_ != GAIN_1) {
+            ESP_LOGD(TAG, "ALS saturated, decreasing gain for next measurement.");
+            switch (this->als_gain_) {
+                case GAIN_40:   next_gain = GAIN_20;   break;
+                case GAIN_20:   next_gain = GAIN_10;   break;
+                case GAIN_10:   next_gain = GAIN_5;    break;
+                case GAIN_5:    next_gain = GAIN_2_5;  break;
+                case GAIN_2_5:  next_gain = GAIN_1_67; break;
+                case GAIN_1_67: next_gain = GAIN_1_25; break;
+                case GAIN_1_25: next_gain = GAIN_1;    break;
+                case GAIN_1:    break;
+            }
+        } else if (als_count < 10000 && this->als_gain_ != GAIN_40) {
+            ESP_LOGD(TAG, "ALS signal low, increasing gain for next measurement.");
+            switch (this->als_gain_) {
+                case GAIN_1:    next_gain = GAIN_1_25; break;
+                case GAIN_1_25: next_gain = GAIN_1_67; break;
+                case GAIN_1_67: next_gain = GAIN_2_5;  break;
+                case GAIN_2_5:  next_gain = GAIN_5;    break;
+                case GAIN_5:    next_gain = GAIN_10;   break;
+                case GAIN_10:   next_gain = GAIN_20;   break;
+                case GAIN_20:   next_gain = GAIN_40;   break;
+                case GAIN_40:   break;
+            }
+        }
+
+        if (next_gain != this->als_gain_) {
+            float old_mult = this->get_als_gain_multiplier(); // Get multiplier before changing state
+            this->als_gain_ = next_gain; // Update gain state for the next cycle
+            float new_mult = this->get_als_gain_multiplier(); // Get multiplier after changing state
+            ESP_LOGI(TAG, "ALS Gain changing from %.2fx to %.2fx", old_mult, new_mult);
         }
     }
-  } // End Range Measurement
-
-  // --- Ambient Light Measurement ---
-  if (this->als_sensor_ != nullptr) {
-    if (!this->write_byte(SYSALS__ANALOGUE_GAIN, 0x40 | this->als_gain_)) {
-        ESP_LOGW(TAG, "Update: Failed to write SYSALS__ANALOGUE_GAIN");
-        this->status_set_warning(); this->als_sensor_->publish_state(NAN);
-        return;
-    }
-    if (!this->write_byte(SYSALS__START, 0x01)) {
-        ESP_LOGW(TAG, "Update: Failed to write SYSALS__START");
-        this->status_set_warning(); this->als_sensor_->publish_state(NAN);
-        return;
-    }
-
-    uint8_t status = 0; uint16_t timeout = 0; const uint16_t max_timeout = (uint16_t)ALS_INTEGRATION_PERIOD_MS + 50;
-    bool timed_out = false;
-    do {
-      if (!this->read_byte(RESULT__INTERRUPT_STATUS_GPIO, &status)) {
-        ESP_LOGW(TAG, "Update: Failed to read RESULT__INTERRUPT_STATUS_GPIO for ALS");
-        this->status_set_warning(); this->als_sensor_->publish_state(NAN);
-        this->write_byte(SYSTEM__INTERRUPT_CLEAR, 0x07); timed_out = true; break;
-      }
-      if ((status & 0x20) != 0) break; // ALS ready (bit 5)
-      delay(5); timeout += 5;
-      if (timeout > max_timeout) { timed_out = true; break; }
-    } while (true);
-
-    this->write_byte(SYSTEM__INTERRUPT_CLEAR, 0x02); // Clear ALS interrupt (bit 1)
-
-    if (!timed_out) {
-      uint8_t als_bytes[2];
-      if (!this->read_register16(RESULT__ALS_VAL, als_bytes, 2)) {
-          ESP_LOGW(TAG, "Update: Failed to read RESULT__ALS_VAL");
-          this->status_set_warning(); this->als_sensor_->publish_state(NAN);
-      } else {
-          uint16_t als_count = ((uint16_t)als_bytes[0] << 8) | als_bytes[1];
-          ESP_LOGV(TAG, "Update: Raw ALS value read: %d", als_count);
-
-          float gain_multiplier = this->get_als_gain_multiplier();
-          float lux = ALS_LUX_RESOLUTION_FACTOR * ((float)als_count / gain_multiplier) * (100.0f / ALS_INTEGRATION_PERIOD_MS);
-          ESP_LOGD(TAG, "ALS: %.2f lx (Raw: %d, Gain: %.2fx)", lux, als_count, gain_multiplier);
-          this->als_sensor_->publish_state(lux);
-          // Clear warning only if distance sensor is not enabled or was OK
-          if (this->distance_sensor_ == nullptr || !this->status_has_warning()) {
-              this->status_clear_warning();
-          }
-
-          VL6180XAlsGain next_gain = this->als_gain_;
-          if (als_count == 65535 && this->als_gain_ != GAIN_1) {
-              ESP_LOGD(TAG, "ALS saturated, decreasing gain for next measurement.");
-              switch (this->als_gain_) {
-                  case GAIN_40:   next_gain = GAIN_20;   break;
-                  case GAIN_20:   next_gain = GAIN_10;   break;
-                  case GAIN_10:   next_gain = GAIN_5;    break;
-                  case GAIN_5:    next_gain = GAIN_2_5;  break;
-                  case GAIN_2_5:  next_gain = GAIN_1_67; break;
-                  case GAIN_1_67: next_gain = GAIN_1_25; break;
-                  case GAIN_1_25: next_gain = GAIN_1;    break;
-                  case GAIN_1:    break;
-              }
-          } else if (als_count < 10000 && this->als_gain_ != GAIN_40) {
-              ESP_LOGD(TAG, "ALS signal low, increasing gain for next measurement.");
-              switch (this->als_gain_) {
-                  case GAIN_1:    next_gain = GAIN_1_25; break;
-                  case GAIN_1_25: next_gain = GAIN_1_67; break;
-                  case GAIN_1_67: next_gain = GAIN_2_5;  break;
-                  case GAIN_2_5:  next_gain = GAIN_5;    break;
-                  case GAIN_5:    next_gain = GAIN_10;   break;
-                  case GAIN_10:   next_gain = GAIN_20;   break;
-                  case GAIN_20:   next_gain = GAIN_40;   break;
-                  case GAIN_40:   break;
-              }
-          }
-
-          if (next_gain != this->als_gain_) {
-              float old_mult = this->get_als_gain_multiplier(); // Get multiplier before changing state
-              this->als_gain_ = next_gain; // Update gain state for the next cycle
-              float new_mult = this->get_als_gain_multiplier(); // Get multiplier after changing state
-              ESP_LOGI(TAG, "ALS Gain changing from %.2fx to %.2fx", old_mult, new_mult);
-          }
-      }
-    } else {
-      ESP_LOGW(TAG, "Update: Timeout waiting for ALS measurement.");
-      this->als_sensor_->publish_state(NAN);
-      this->status_set_warning();
-    }
-  } // End ALS Measurement
+  } else {
+    ESP_LOGW(TAG, "Update: Timeout waiting for ALS measurement.");
+    this->als_sensor_->publish_state(NAN);
+    this->status_set_warning();
+  }
+  this->measuring_ = Measurement::IDLE;
 }
 
 void VL6180XSensor::dump_config() {
