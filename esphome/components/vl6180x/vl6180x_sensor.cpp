@@ -296,13 +296,17 @@ void VL6180XSensor::poll_range_() {
   uint8_t error_code = error_status >> 4;
   if (error_code == VL6180X_ERROR_NONE) {
     float range_mm = (float)range * this->scaling_;
-    ESP_LOGD(TAG, "'%s' distance: %.0f mm", this->log_name_(), range_mm);
+    if (this->log_distance_) {
+      ESP_LOGD(TAG, "'%s' distance: %.0f mm", this->log_name_(), range_mm);
+    }
     this->distance_sensor_->publish_state(range_mm);
     // Clear warning only if ALS is also OK (or not enabled)
     if (this->als_sensor_ == nullptr) this->status_clear_warning();
   } else if (this->is_no_valid_distance_(error_code)) {
     // No valid distance this time, e.g. nothing in range: a normal result, so unknown without a warning
-    ESP_LOGD(TAG, "'%s' distance: unknown", this->log_name_());
+    if (this->log_distance_) {
+      ESP_LOGD(TAG, "'%s' distance: unknown", this->log_name_());
+    }
     this->handle_error(error_code);
     this->distance_sensor_->publish_state(NAN);
     if (this->als_sensor_ == nullptr) this->status_clear_warning();
@@ -430,6 +434,7 @@ void VL6180XSensor::dump_config() {
     ESP_LOGE(TAG, "'%s' Communication with VL6180X failed!", this->log_name_());
   }
   ESP_LOGCONFIG(TAG, "  Desired Range Scaling Factor: %dx", this->scaling_);
+  ESP_LOGCONFIG(TAG, "  Log Distance: %s", this->log_distance_ ? "YES" : "NO");
   ESP_LOGCONFIG(TAG, "  Calculated 1x PTP Offset: %d", this->ptp_offset_);
   ESP_LOGCONFIG(TAG, "  Initial ALS Gain: %.2fx", this->get_als_gain_multiplier());
   LOG_UPDATE_INTERVAL(this);

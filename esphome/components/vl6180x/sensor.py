@@ -17,6 +17,7 @@ DEPENDENCIES = ['i2c']
 CONF_ALS = "als"
 CONF_DISTANCE = "distance"
 CONF_SCALER = "scaler"
+CONF_LOG_DISTANCE = "log_distance"
 
 vl6180x_ns = cg.esphome_ns.namespace('vl6180x')
 VL6180XSensor = vl6180x_ns.class_('VL6180XSensor', cg.Component, i2c.I2CDevice)
@@ -35,6 +36,8 @@ CONFIG_SCHEMA = (
     cv.Schema({
         cv.GenerateID(): cv.declare_id(VL6180XSensor),
         cv.Optional(CONF_UPDATE_INTERVAL, default="60s"): cv.update_interval,
+        # false hides this sensor's "distance: ..." debug lines; warnings and errors stay
+        cv.Optional(CONF_LOG_DISTANCE, default=True): cv.boolean,
         cv.Optional(CONF_DISTANCE): DISTANCE_SCHEMA,
         cv.Optional(CONF_ALS): sensor.sensor_schema(
             unit_of_measurement=UNIT_LUX,
@@ -51,6 +54,7 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
+    cg.add(var.set_log_distance(config[CONF_LOG_DISTANCE]))
 
     if CONF_DISTANCE in config:
         distance_config = config[CONF_DISTANCE]

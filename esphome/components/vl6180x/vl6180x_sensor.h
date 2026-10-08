@@ -52,6 +52,7 @@ class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
   void set_distance_sensor(sensor::Sensor *distance) { distance_sensor_ = distance; }
   void set_als_sensor(sensor::Sensor *als) { als_sensor_ = als; }
   void set_scaling(uint8_t new_scaling);
+  void set_log_distance(bool log_distance) { log_distance_ = log_distance; }
 
  protected:
   // Register addresses
@@ -128,6 +129,7 @@ class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
   sensor::Sensor *distance_sensor_{nullptr};
   sensor::Sensor *als_sensor_{nullptr};
   uint8_t scaling_{1};
+  bool log_distance_{true};
   int8_t ptp_offset_{0};
   VL6180XAlsGain als_gain_{GAIN_1};
   Measurement measuring_{Measurement::IDLE};
