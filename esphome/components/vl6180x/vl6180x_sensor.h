@@ -104,6 +104,7 @@ class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
   // --- Error Handling Helper DECLARATION ---
   void handle_error(uint8_t error_code);
   bool is_no_valid_distance_(uint8_t error_code) const;
+  const char *log_name_() const;
 
   // --- Non-blocking measurement DECLARATIONS ---
   enum class Measurement : uint8_t { IDLE, RANGE, ALS };
