@@ -3,6 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/i2c/i2c.h"
+#include "esphome/core/gpio.h"
 
 namespace esphome {
 namespace vl6180x {
@@ -31,16 +32,15 @@ enum VL6180XError {
 
 // ALS Gain Enum
 enum VL6180XAlsGain {
-  GAIN_20   = 0,
-  GAIN_10   = 1,
-  GAIN_5    = 2,
-  GAIN_2_5  = 3,
+  GAIN_20 = 0,
+  GAIN_10 = 1,
+  GAIN_5 = 2,
+  GAIN_2_5 = 3,
   GAIN_1_67 = 4,
   GAIN_1_25 = 5,
-  GAIN_1    = 6,
-  GAIN_40   = 7
+  GAIN_1 = 6,
+  GAIN_40 = 7
 };
-
 
 class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
  public:
@@ -53,49 +53,55 @@ class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
   void set_als_sensor(sensor::Sensor *als) { als_sensor_ = als; }
   void set_scaling(uint8_t new_scaling);
   void set_log_distance(bool log_distance) { log_distance_ = log_distance; }
+  void set_enable_pin(GPIOPin *pin) { enable_pin_ = pin; }
+  void set_interrupt_pin(InternalGPIOPin *pin) { interrupt_pin_ = pin; }
+  void set_recovery_enabled(bool enabled) { recovery_enabled_ = enabled; }
+  void set_failure_threshold(uint8_t threshold) { failure_threshold_ = threshold; }
+  void set_retry_interval(uint32_t interval_ms) { retry_interval_ms_ = interval_ms; }
+  void set_max_retries(uint8_t retries) { max_retries_ = retries; }
 
  protected:
   // Register addresses
   enum regAddr {
-    IDENTIFICATION__MODEL_ID              = 0x000,
-    SYSTEM__MODE_GPIO0                    = 0x010,
-    SYSTEM__MODE_GPIO1                    = 0x011,
-    SYSTEM__HISTORY_CTRL                  = 0x012,
-    SYSTEM__INTERRUPT_CONFIG_GPIO         = 0x014,
-    SYSTEM__INTERRUPT_CLEAR               = 0x015,
-    SYSTEM__FRESH_OUT_OF_RESET            = 0x016,
-    SYSTEM__GROUPED_PARAMETER_HOLD        = 0x017,
-    SYSRANGE__START                       = 0x018,
-    SYSRANGE__THRESH_HIGH                 = 0x019,
-    SYSRANGE__THRESH_LOW                  = 0x01A,
-    SYSRANGE__INTERMEASUREMENT_PERIOD     = 0x01B,
-    SYSRANGE__MAX_CONVERGENCE_TIME        = 0x01C,
-    SYSRANGE__CROSSTALK_COMPENSATION_RATE = 0x01E, // 16-bit
-    SYSRANGE__CROSSTALK_VALID_HEIGHT      = 0x021,
-    SYSRANGE__EARLY_CONVERGENCE_ESTIMATE  = 0x022, // 16-bit
-    SYSRANGE__PART_TO_PART_RANGE_OFFSET   = 0x024,
-    SYSRANGE__RANGE_IGNORE_VALID_HEIGHT   = 0x025,
-    SYSRANGE__RANGE_IGNORE_THRESHOLD      = 0x026, // 16-bit
-    SYSRANGE__MAX_AMBIENT_LEVEL_MULT      = 0x02C,
-    SYSRANGE__RANGE_CHECK_ENABLES         = 0x02D,
-    SYSRANGE__VHV_RECALIBRATE             = 0x02E,
-    SYSRANGE__VHV_REPEAT_RATE             = 0x031,
-    SYSALS__START                         = 0x038,
-    SYSALS__THRESH_HIGH                   = 0x03A,
-    SYSALS__THRESH_LOW                    = 0x03C,
-    SYSALS__INTERMEASUREMENT_PERIOD       = 0x03E,
-    SYSALS__ANALOGUE_GAIN                 = 0x03F,
-    SYSALS__INTEGRATION_PERIOD            = 0x040, // 16-bit
-    RESULT__RANGE_STATUS                  = 0x04D,
-    RESULT__ALS_STATUS                    = 0x04E,
-    RESULT__INTERRUPT_STATUS_GPIO         = 0x04F,
-    RESULT__ALS_VAL                       = 0x050, // 16-bit
-    RESULT__RANGE_VAL                     = 0x062,
-    RESULT__RANGE_RAW                     = 0x064,
-    RANGE_SCALING                         = 0x096, // 16-bit
-    READOUT__AVERAGING_SAMPLE_PERIOD      = 0x10A,
-    I2C_SLAVE__DEVICE_ADDRESS             = 0x212,
-    INTERLEAVED_MODE__ENABLE              = 0x2A3,
+    IDENTIFICATION__MODEL_ID = 0x000,
+    SYSTEM__MODE_GPIO0 = 0x010,
+    SYSTEM__MODE_GPIO1 = 0x011,
+    SYSTEM__HISTORY_CTRL = 0x012,
+    SYSTEM__INTERRUPT_CONFIG_GPIO = 0x014,
+    SYSTEM__INTERRUPT_CLEAR = 0x015,
+    SYSTEM__FRESH_OUT_OF_RESET = 0x016,
+    SYSTEM__GROUPED_PARAMETER_HOLD = 0x017,
+    SYSRANGE__START = 0x018,
+    SYSRANGE__THRESH_HIGH = 0x019,
+    SYSRANGE__THRESH_LOW = 0x01A,
+    SYSRANGE__INTERMEASUREMENT_PERIOD = 0x01B,
+    SYSRANGE__MAX_CONVERGENCE_TIME = 0x01C,
+    SYSRANGE__CROSSTALK_COMPENSATION_RATE = 0x01E,  // 16-bit
+    SYSRANGE__CROSSTALK_VALID_HEIGHT = 0x021,
+    SYSRANGE__EARLY_CONVERGENCE_ESTIMATE = 0x022,  // 16-bit
+    SYSRANGE__PART_TO_PART_RANGE_OFFSET = 0x024,
+    SYSRANGE__RANGE_IGNORE_VALID_HEIGHT = 0x025,
+    SYSRANGE__RANGE_IGNORE_THRESHOLD = 0x026,  // 16-bit
+    SYSRANGE__MAX_AMBIENT_LEVEL_MULT = 0x02C,
+    SYSRANGE__RANGE_CHECK_ENABLES = 0x02D,
+    SYSRANGE__VHV_RECALIBRATE = 0x02E,
+    SYSRANGE__VHV_REPEAT_RATE = 0x031,
+    SYSALS__START = 0x038,
+    SYSALS__THRESH_HIGH = 0x03A,
+    SYSALS__THRESH_LOW = 0x03C,
+    SYSALS__INTERMEASUREMENT_PERIOD = 0x03E,
+    SYSALS__ANALOGUE_GAIN = 0x03F,
+    SYSALS__INTEGRATION_PERIOD = 0x040,  // 16-bit
+    RESULT__RANGE_STATUS = 0x04D,
+    RESULT__ALS_STATUS = 0x04E,
+    RESULT__INTERRUPT_STATUS_GPIO = 0x04F,
+    RESULT__ALS_VAL = 0x050,  // 16-bit
+    RESULT__RANGE_VAL = 0x062,
+    RESULT__RANGE_RAW = 0x064,
+    RANGE_SCALING = 0x096,  // 16-bit
+    READOUT__AVERAGING_SAMPLE_PERIOD = 0x10A,
+    I2C_SLAVE__DEVICE_ADDRESS = 0x212,
+    INTERLEAVED_MODE__ENABLE = 0x2A3,
   };
 
   bool init_();
@@ -108,12 +114,18 @@ class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
   const char *log_name_() const;
 
   // --- Non-blocking measurement DECLARATIONS ---
-  enum class Measurement : uint8_t { IDLE, RANGE, ALS };
+  enum class Measurement : uint8_t { IDLE, RANGE, ALS, RECOVERY };
   void start_range_();
   void poll_range_();
   void finish_range_();
   void start_als_();
   void poll_als_();
+  bool initialize_();
+  void record_failure_();
+  void record_success_();
+  void begin_recovery_();
+  void attempt_recovery_();
+  void schedule_recovery_retry_();
 
   // --- I2C Helper DECLARATIONS ---
   bool write_byte(uint16_t reg, uint8_t value);
@@ -130,13 +142,21 @@ class VL6180XSensor : public PollingComponent, public i2c::I2CDevice {
   sensor::Sensor *als_sensor_{nullptr};
   uint8_t scaling_{1};
   bool log_distance_{true};
+  GPIOPin *enable_pin_{nullptr};
+  InternalGPIOPin *interrupt_pin_{nullptr};
+  bool recovery_enabled_{false};
+  uint8_t failure_threshold_{3};
+  uint32_t retry_interval_ms_{30000};
+  uint8_t max_retries_{10};
+  uint8_t consecutive_failures_{0};
+  uint8_t recovery_attempts_{0};
   int8_t ptp_offset_{0};
   VL6180XAlsGain als_gain_{GAIN_1};
   Measurement measuring_{Measurement::IDLE};
   uint32_t measurement_start_{0};
 
  private:
-   // --- Static Member DECLARATION ---
+  // --- Static Member DECLARATION ---
   static const char *const TAG;
 };
 
