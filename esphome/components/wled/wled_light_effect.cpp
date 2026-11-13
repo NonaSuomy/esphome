@@ -1,52 +1,58 @@
-#ifdef USE_ARDUINO
-
 #include "wled_light_effect.h"
-#include "esphome/core/log.h"
+#ifdef USE_NETWORK
+
+#include "esphome/core/application.h"
 #include "esphome/core/helpers.h"
+#include "esphome/core/log.h"
 
-#ifdef USE_ESP32
-#include <WiFi.h>
-#endif
-
-#ifdef USE_ESP8266
-#include <ESP8266WiFi.h>
-#include <WiFiUdp.h>
-#endif
-
-#ifdef USE_BK72XX
-#include <WiFiUdp.h>
-#endif
-
-namespace esphome {
-namespace wled {
+namespace esphome::wled {
 
 // Description of protocols:
 // https://github.com/Aircoookie/WLED/wiki/UDP-Realtime-Control
 enum Protocol { WLED_NOTIFIER = 0, WARLS = 1, DRGB = 2, DRGBW = 3, DNRGB = 4 };
 
-const int DEFAULT_BLANK_TIME = 1000;
+constexpr uint32_t DEFAULT_BLANK_TIME = 1000;
+// The largest UDP payload in one Ethernet frame, enough for a full 490 LED DRGB frame
+constexpr size_t MAX_FRAME_SIZE = 1472;
 
-static const char *const TAG = "wled_light_effect";
+ESPHOME_LOG_TAG(TAG, "wled_light_effect");
 
-WLEDLightEffect::WLEDLightEffect(const std::string &name) : AddressableLightEffect(name) {}
+WLEDLightEffect::WLEDLightEffect(const char *name) : AddressableLightEffect(name) {}
 
 void WLEDLightEffect::start() {
   AddressableLightEffect::start();
 
   if (this->blank_on_start_) {
-    this->blank_at_ = 0;
+    this->blank_start_ = millis();
+    this->blank_timeout_ = 0;
   } else {
-    this->blank_at_ = UINT32_MAX;
+    this->blank_start_.reset();
+  }
+  this->socket_failed_ = false;
+}
+
+void WLEDLightEffect::open_socket_() {
+  this->socket_ = socket::socket_ip_udp(IPPROTO_IP);
+  if (this->socket_ == nullptr) {
+    ESP_LOGW(TAG, "Could not create socket: errno %d", errno);
+    this->socket_failed_ = true;
+    return;
+  }
+  // No SO_REUSEADDR: a second effect on the same port would take its frames, so let its bind fail instead
+  struct sockaddr_storage server{};
+  socklen_t server_len = socket::set_sockaddr_any((struct sockaddr *) &server, sizeof(server), this->port_);
+  if (this->socket_->setblocking(false) != 0 || server_len == 0 ||
+      this->socket_->bind((struct sockaddr *) &server, server_len) != 0) {
+    ESP_LOGW(TAG, "Cannot bind to port %u: errno %d", static_cast<unsigned>(this->port_), errno);
+    this->socket_.reset();
+    this->socket_failed_ = true;
   }
 }
 
 void WLEDLightEffect::stop() {
   AddressableLightEffect::stop();
 
-  if (udp_) {
-    udp_->stop();
-    udp_.reset();
-  }
+  this->socket_.reset();
 }
 
 void WLEDLightEffect::blank_all_leds_(light::AddressableLight &it) {
@@ -57,34 +63,23 @@ void WLEDLightEffect::blank_all_leds_(light::AddressableLight &it) {
 }
 
 void WLEDLightEffect::apply(light::AddressableLight &it, const Color &current_color) {
-  // Init UDP lazily
-  if (!udp_) {
-    udp_ = make_unique<WiFiUDP>();
-
-    if (!udp_->begin(port_)) {
-      ESP_LOGW(TAG, "Cannot bind WLEDLightEffect to %d.", port_);
-      return;
+  // Not before setup completes: a restored effect starts, and setup can run loops, before the network stack is up
+  if (this->socket_ == nullptr && !this->socket_failed_ && App.is_setup_complete())
+    this->open_socket_();
+  if (this->socket_ != nullptr) {
+    uint8_t payload[MAX_FRAME_SIZE];
+    ssize_t len;
+    while ((len = this->socket_->read(payload, sizeof(payload))) > 0) {
+      if (!this->parse_frame_(it, payload, static_cast<uint16_t>(len))) {
+        ESP_LOGD(TAG, "Frame: Invalid (size=%d, first=0x%02X).", static_cast<int>(len), payload[0]);
+      }
     }
   }
 
-  std::vector<uint8_t> payload;
-  while (uint16_t packet_size = udp_->parsePacket()) {
-    payload.resize(packet_size);
-
-    if (!udp_->read(&payload[0], payload.size())) {
-      continue;
-    }
-
-    if (!this->parse_frame_(it, &payload[0], payload.size())) {
-      ESP_LOGD(TAG, "Frame: Invalid (size=%zu, first=0x%02X).", payload.size(), payload[0]);
-      continue;
-    }
-  }
-
-  // FIXME: Use roll-over safe arithmetic
-  if (blank_at_ < millis()) {
+  if (this->blank_start_.has_value() && millis() - *this->blank_start_ >= this->blank_timeout_) {
     blank_all_leds_(it);
-    blank_at_ = millis() + DEFAULT_BLANK_TIME;
+    this->blank_start_ = millis();
+    this->blank_timeout_ = DEFAULT_BLANK_TIME;
   }
 }
 
@@ -142,11 +137,13 @@ bool WLEDLightEffect::parse_frame_(light::AddressableLight &it, const uint8_t *p
   }
 
   if (timeout == UINT8_MAX) {
-    blank_at_ = UINT32_MAX;
+    this->blank_start_.reset();
   } else if (timeout > 0) {
-    blank_at_ = millis() + timeout * 1000;
+    this->blank_start_ = millis();
+    this->blank_timeout_ = timeout * 1000;
   } else {
-    blank_at_ = millis() + DEFAULT_BLANK_TIME;
+    this->blank_start_ = millis();
+    this->blank_timeout_ = DEFAULT_BLANK_TIME;
   }
 
   it.schedule_show();
@@ -158,7 +155,7 @@ bool WLEDLightEffect::parse_notifier_frame_(light::AddressableLight &it, const u
   // https://kno.wled.ge/interfaces/udp-notifier/
   // https://github.com/Aircoookie/WLED/blob/main/wled00/udp.cpp
 
-  if (size < 34) {
+  if (size <= 34) {
     return false;
   }
 
@@ -281,7 +278,6 @@ bool WLEDLightEffect::parse_dnrgb_frame_(light::AddressableLight &it, const uint
   return true;
 }
 
-}  // namespace wled
-}  // namespace esphome
+}  // namespace esphome::wled
 
-#endif  // USE_ARDUINO
+#endif  // USE_NETWORK

@@ -8,9 +8,9 @@
 
 #include "LwRx.h"
 #include <cstring>
+#include "esphome/core/helpers.h"
 
-namespace esphome {
-namespace lightwaverf {
+namespace esphome::lightwaverf {
 
 /**
   Pin change interrupt routine that identifies 1 and 0 LightwaveRF bits
@@ -185,13 +185,20 @@ bool LwRx::lwrx_getmessage(uint8_t *buf, uint8_t len) {
   bool ret = true;
   int16_t j = 0;  // int
   if (this->rx_msgcomplete && len <= RX_MSGLEN) {
+    // Copy message under interrupt lock to prevent ISR overwriting rx_msg mid-read
+    uint8_t msg_copy[RX_MSGLEN];
+    {
+      InterruptLock lock;
+      memcpy(msg_copy, this->rx_msg, RX_MSGLEN);
+      this->rx_msgcomplete = false;
+    }
     for (uint8_t i = 0; ret && i < RX_MSGLEN; i++) {
       if (this->rx_translate || (len != RX_MSGLEN)) {
-        j = this->rx_find_nibble_(this->rx_msg[i]);
+        j = this->rx_find_nibble_(msg_copy[i]);
         if (j < 0)
           ret = false;
       } else {
-        j = this->rx_msg[i];
+        j = msg_copy[i];
       }
       switch (len) {
         case 4:
@@ -199,6 +206,7 @@ bool LwRx::lwrx_getmessage(uint8_t *buf, uint8_t len) {
             buf[2] = j;
           if (i == 2)
             buf[3] = j;
+          [[fallthrough]];
         case 2:
           if (i == 3)
             buf[0] = j;
@@ -210,9 +218,10 @@ bool LwRx::lwrx_getmessage(uint8_t *buf, uint8_t len) {
         case 10:
           buf[i] = j;
           break;
+        default:
+          break;
       }
     }
-    this->rx_msgcomplete = false;
   } else {
     ret = false;
   }
@@ -328,7 +337,7 @@ bool LwRx::rx_report_message_() {
     return false;
   } else {
     bool all_devices;
-    // True if mood to device 15 or Off cmd with Allof paramater
+    // True if mood to device 15 or Off cmd with Allof parameter
     all_devices = ((this->rx_msg[3] == RX_CMD_MOOD && this->rx_msg[2] == RX_DEV_15) ||
                    (this->rx_msg[3] == RX_CMD_OFF && this->rx_msg[0] == RX_PAR0_ALLOFF));
     return (rx_check_pairs_(&this->rx_msg[2], all_devices) != -1);
@@ -422,6 +431,5 @@ void LwRx::rx_remove_pair_(uint8_t *buf) {
   }
 }
 
-}  // namespace lightwaverf
-}  // namespace esphome
+}  // namespace esphome::lightwaverf
 #endif

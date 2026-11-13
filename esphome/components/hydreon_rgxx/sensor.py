@@ -2,19 +2,20 @@ import esphome.codegen as cg
 from esphome.components import sensor, uart
 import esphome.config_validation as cv
 from esphome.const import (
-    CONF_ID,
     CONF_MODEL,
     CONF_MOISTURE,
     CONF_RESOLUTION,
     CONF_TEMPERATURE,
     DEVICE_CLASS_PRECIPITATION,
     DEVICE_CLASS_PRECIPITATION_INTENSITY,
+    DEVICE_CLASS_TEMPERATURE,
     ICON_THERMOMETER,
     STATE_CLASS_MEASUREMENT,
     STATE_CLASS_TOTAL_INCREASING,
     UNIT_CELSIUS,
     UNIT_MILLIMETER,
 )
+from esphome.types import ConfigType
 
 from . import HydreonRGxxComponent, RG15Resolution, RGModel
 
@@ -39,10 +40,7 @@ RG_MODELS = {
     # 1.200 - https://rainsensors.com/wp-content/uploads/sites/3/2022/03/2022.02.17-rev-1.200-rg-9_instructions.pdf
 }
 
-RG15_RESOLUTION = {
-    "low": RG15Resolution.FORCE_LOW,
-    "high": RG15Resolution.FORCE_HIGH,
-}
+RG15_RESOLUTION = RG15Resolution.options("low", "high", prefix="FORCE_")
 
 SUPPORTED_OPTIONS = {
     CONF_ACC: ["RG_15"],
@@ -64,13 +62,12 @@ PROTOCOL_NAMES = {
 }
 
 
-def _validate(config):
+def _validate(config: ConfigType) -> ConfigType:
     for conf, models in SUPPORTED_OPTIONS.items():
-        if conf in config:
-            if config[CONF_MODEL] not in models:
-                raise cv.Invalid(
-                    f"{conf} is only available on {' and '.join(models)}, not {config[CONF_MODEL]}"
-                )
+        if conf in config and config[CONF_MODEL] not in models:
+            raise cv.Invalid(
+                f"{conf} is only available on {' and '.join(models)}, not {config[CONF_MODEL]}"
+            )
     return config
 
 
@@ -111,13 +108,14 @@ CONFIG_SCHEMA = cv.All(
             cv.Optional(CONF_MOISTURE): sensor.sensor_schema(
                 unit_of_measurement=UNIT_INTENSITY,
                 accuracy_decimals=0,
-                device_class=DEVICE_CLASS_PRECIPITATION_INTENSITY,
                 state_class=STATE_CLASS_MEASUREMENT,
+                icon="mdi:weather-rainy",
             ),
             cv.Optional(CONF_TEMPERATURE): sensor.sensor_schema(
                 unit_of_measurement=UNIT_CELSIUS,
                 accuracy_decimals=0,
                 icon=ICON_THERMOMETER,
+                device_class=DEVICE_CLASS_TEMPERATURE,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
             cv.Optional(CONF_DISABLE_LED): cv.boolean,
@@ -128,11 +126,18 @@ CONFIG_SCHEMA = cv.All(
     _validate,
 )
 
+FINAL_VALIDATE_SCHEMA = uart.final_validate_device_schema(
+    "hydreon_rgxx",
+    baud_rate=9600,
+    data_bits=8,
+    parity="NONE",
+    stop_bits=1,
+)
 
-async def to_code(config):
-    var = cg.new_Pvariable(config[CONF_ID])
-    await cg.register_component(var, config)
-    await uart.register_uart_device(var, config)
+
+async def to_code(config: ConfigType) -> None:
+    cg.add_define("USE_LINE_READER")
+    var = await uart.new_uart_component(config)
 
     cg.add_define(
         "HYDREON_RGXX_PROTOCOL_LIST(F, sep)",
@@ -148,10 +153,8 @@ async def to_code(config):
             cg.add(var.set_sensor(sens, i))
 
     cg.add(var.set_model(config[CONF_MODEL]))
-    if CONF_RESOLUTION in config:
-        cg.add(var.set_resolution(config[CONF_RESOLUTION]))
+    cg.add_optional(var.set_resolution, config.get(CONF_RESOLUTION))
 
     cg.add(var.set_request_temperature(CONF_TEMPERATURE in config))
 
-    if CONF_DISABLE_LED in config:
-        cg.add(var.set_disable_led(config[CONF_DISABLE_LED]))
+    cg.add_optional(var.set_disable_led, config.get(CONF_DISABLE_LED))

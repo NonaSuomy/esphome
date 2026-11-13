@@ -5,8 +5,7 @@
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/uart/uart.h"
 
-namespace esphome {
-namespace t6615 {
+namespace esphome::t6615 {
 
 enum class T6615Command : uint8_t {
   NONE = 0,
@@ -20,15 +19,13 @@ enum class T6615Command : uint8_t {
   SET_ELEVATION,
 };
 
-class T6615Component : public PollingComponent, public uart::UARTDevice {
- public:
-  float get_setup_priority() const override;
+class T6615Component final : public PollingComponent, public uart::UARTDevice {
+  SUB_SENSOR(co2)
 
+ public:
   void loop() override;
   void update() override;
   void dump_config() override;
-
-  void set_co2_sensor(sensor::Sensor *co2_sensor) { this->co2_sensor_ = co2_sensor; }
 
  protected:
   void query_ppm_();
@@ -36,9 +33,6 @@ class T6615Component : public PollingComponent, public uart::UARTDevice {
 
   T6615Command command_ = T6615Command::NONE;
   uint32_t command_time_ = 0;
-
-  sensor::Sensor *co2_sensor_{nullptr};
 };
 
-}  // namespace t6615
-}  // namespace esphome
+}  // namespace esphome::t6615

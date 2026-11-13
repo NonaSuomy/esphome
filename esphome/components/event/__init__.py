@@ -1,6 +1,5 @@
 from esphome import automation
 import esphome.codegen as cg
-from esphome.components import mqtt, web_server
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_DEVICE_CLASS,
@@ -10,18 +9,24 @@ from esphome.const import (
     CONF_ID,
     CONF_MQTT_ID,
     CONF_ON_EVENT,
-    CONF_TRIGGER_ID,
-    CONF_WEB_SERVER,
     DEVICE_CLASS_BUTTON,
     DEVICE_CLASS_DOORBELL,
     DEVICE_CLASS_EMPTY,
     DEVICE_CLASS_MOTION,
 )
-from esphome.core import CORE, coroutine_with_priority
-from esphome.cpp_generator import MockObjClass
-from esphome.cpp_helpers import setup_entity
+from esphome.core import CORE, CoroPriority, coroutine_with_priority, entity_helpers
+from esphome.core.entity_helpers import (
+    entity_duplicate_validator,
+    mqtt_component_class,
+    queue_entity_register,
+    setup_device_class,
+    setup_entity,
+)
+from esphome.cpp_generator import MockObj, MockObjClass
+from esphome.types import ConfigType
 
 CODEOWNERS = ["@nohat"]
+DOMAIN = "event"
 IS_PLATFORM_COMPONENT = True
 
 DEVICE_CLASSES = [
@@ -35,42 +40,39 @@ event_ns = cg.esphome_ns.namespace("event")
 Event = event_ns.class_("Event", cg.EntityBase)
 EventPtr = Event.operator("ptr")
 
-TriggerEventAction = event_ns.class_("TriggerEventAction", automation.Action)
-
-EventTrigger = event_ns.class_("EventTrigger", automation.Trigger.template())
-
 validate_device_class = cv.one_of(*DEVICE_CLASSES, lower=True, space="_")
 
-EVENT_SCHEMA = (
-    cv.ENTITY_BASE_SCHEMA.extend(web_server.WEBSERVER_SORTING_SCHEMA)
+_EVENT_SCHEMA = (
+    cv.ENTITY_BASE_SCHEMA.extend(entity_helpers.WEBSERVER_SORTING_SCHEMA)
     .extend(cv.MQTT_COMPONENT_SCHEMA)
     .extend(
         {
-            cv.OnlyWith(CONF_MQTT_ID, "mqtt"): cv.declare_id(mqtt.MQTTEventComponent),
-            cv.GenerateID(): cv.declare_id(Event),
-            cv.Optional(CONF_DEVICE_CLASS): validate_device_class,
-            cv.Optional(CONF_ON_EVENT): automation.validate_automation(
-                {
-                    cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(EventTrigger),
-                }
+            cv.OnlyWith(CONF_MQTT_ID, "mqtt"): cv.declare_id(
+                mqtt_component_class("MQTTEventComponent")
             ),
+            cv.GenerateID(): cv.declare_id(Event),
+            cv.Optional(
+                CONF_DEVICE_CLASS, visibility=cv.Visibility.ADVANCED
+            ): validate_device_class,
+            cv.Optional(CONF_ON_EVENT): automation.validate_automation({}),
         }
     )
 )
 
-_UNDEF = object()
+
+_EVENT_SCHEMA.add_extra(entity_duplicate_validator("event"))
 
 
 def event_schema(
-    class_: MockObjClass = _UNDEF,
+    class_: MockObjClass = cv.UNDEFINED,
     *,
-    icon: str = _UNDEF,
-    entity_category: str = _UNDEF,
-    device_class: str = _UNDEF,
+    icon: str = cv.UNDEFINED,
+    entity_category: str = cv.UNDEFINED,
+    device_class: str = cv.UNDEFINED,
 ) -> cv.Schema:
     schema = {}
 
-    if class_ is not _UNDEF:
+    if class_ is not cv.UNDEFINED:
         schema[cv.GenerateID()] = cv.declare_id(class_)
 
     for key, default, validator in [
@@ -78,42 +80,45 @@ def event_schema(
         (CONF_ENTITY_CATEGORY, entity_category, cv.entity_category),
         (CONF_DEVICE_CLASS, device_class, validate_device_class),
     ]:
-        if default is not _UNDEF:
+        if default is not cv.UNDEFINED:
             schema[cv.Optional(key, default=default)] = validator
 
-    return EVENT_SCHEMA.extend(schema)
+    return _EVENT_SCHEMA.extend(schema)
 
 
-async def setup_event_core_(var, config, *, event_types: list[str]):
-    await setup_entity(var, config)
-
-    for conf in config.get(CONF_ON_EVENT, []):
-        trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID], var)
-        await automation.build_automation(
-            trigger, [(cg.std_string, "event_type")], conf
-        )
-
-    cg.add(var.set_event_types(event_types))
-
-    if (device_class := config.get(CONF_DEVICE_CLASS)) is not None:
-        cg.add(var.set_device_class(device_class))
-
-    if mqtt_id := config.get(CONF_MQTT_ID):
-        mqtt_ = cg.new_Pvariable(mqtt_id, var)
-        await mqtt.register_mqtt_component(mqtt_, config)
-
-    if web_server_config := config.get(CONF_WEB_SERVER):
-        await web_server.add_entity_config(var, web_server_config)
+_CALLBACK_AUTOMATIONS = (
+    automation.CallbackAutomation(
+        CONF_ON_EVENT, "add_on_event_callback", [(cg.StringRef, "event_type")]
+    ),
+)
 
 
-async def register_event(var, config, *, event_types: list[str]):
+@setup_entity("event")
+async def setup_event_core_(
+    var: MockObj, config: ConfigType, *, event_types: list[str]
+) -> None:
+    await automation.build_callback_automations(var, config, _CALLBACK_AUTOMATIONS)
+
+    if event_types:
+        table = cg.shared_progmem_array("event_types", cg.const_char_ptr, event_types)
+        cg.add(var.set_event_types_static(table, len(event_types)))
+
+    setup_device_class(config)
+
+    await entity_helpers.setup_entity_integrations(var, config)
+
+
+async def register_event(
+    var: MockObj, config: ConfigType, *, event_types: list[str]
+) -> None:
     if not CORE.has_id(config[CONF_ID]):
         var = cg.Pvariable(config[CONF_ID], var)
-    cg.add(cg.App.register_event(var))
+    queue_entity_register("event", config)
+    CORE.register_platform_component("event", var)
     await setup_event_core_(var, config, event_types=event_types)
 
 
-async def new_event(config, *, event_types: list[str]):
+async def new_event(config: ConfigType, *, event_types: list[str]) -> MockObj:
     var = cg.new_Pvariable(config[CONF_ID])
     await register_event(var, config, event_types=event_types)
     return var
@@ -127,16 +132,20 @@ TRIGGER_EVENT_SCHEMA = cv.Schema(
 )
 
 
-@automation.register_action("event.trigger", TriggerEventAction, TRIGGER_EVENT_SCHEMA)
-async def event_fire_to_code(config, action_id, template_arg, args):
-    var = cg.new_Pvariable(action_id, template_arg)
-    await cg.register_parented(var, config[CONF_ID])
-    templ = await cg.templatable(config[CONF_EVENT_TYPE], args, cg.std_string)
-    cg.add(var.set_event_type(templ))
-    return var
+def _event_type_literal(config: ConfigType, value: str) -> str:
+    """A constant event type is a plain literal; trigger() only compares it, so no copy is needed."""
+    return str(cg.safe_exp(value))
 
 
-@coroutine_with_priority(100.0)
-async def to_code(config):
-    cg.add_define("USE_EVENT")
+automation.register_apply_action(
+    "event.trigger",
+    TRIGGER_EVENT_SCHEMA,
+    automation.ApplyField(
+        CONF_EVENT_TYPE, "trigger", cg.std_string, _event_type_literal
+    ),
+)
+
+
+@coroutine_with_priority(CoroPriority.CORE)
+async def to_code(config: ConfigType) -> None:
     cg.add_global(event_ns.using)

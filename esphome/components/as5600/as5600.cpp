@@ -1,10 +1,9 @@
 #include "as5600.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace as5600 {
+namespace esphome::as5600 {
 
-static const char *const TAG = "as5600";
+ESPHOME_LOG_TAG(TAG, "as5600");
 
 // Configuration registers
 static const uint8_t REGISTER_ZMCO = 0x00;  // 8 bytes  / R
@@ -23,12 +22,8 @@ static const uint8_t REGISTER_AGC = 0x1A;        // 8 bytes  / R
 static const uint8_t REGISTER_MAGNITUDE = 0x1B;  // 16 bytes / R
 
 void AS5600Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up AS5600...");
-
-  if (!this->read_byte(REGISTER_STATUS).has_value()) {
-    this->mark_failed();
+  if (!this->setup_check(this->read_byte(REGISTER_STATUS).has_value()))
     return;
-  }
 
   // configuration direction pin, if given
   // the dir pin on the chip should be low for clockwise
@@ -56,10 +51,8 @@ void AS5600Component::setup() {
   // clang-format on
 
   // write config to config register
-  if (!this->write_byte_16(REGISTER_CONF, config)) {
-    this->mark_failed();
+  if (!this->setup_check(this->write_byte_16(REGISTER_CONF, config)))
     return;
-  }
 
   // configure the start position
   this->write_byte_16(REGISTER_ZPOS, this->start_position_);
@@ -90,16 +83,16 @@ void AS5600Component::dump_config() {
   ESP_LOGCONFIG(TAG, "AS5600:");
   LOG_I2C_DEVICE(this);
 
-  if (this->is_failed()) {
-    ESP_LOGE(TAG, "Communication with AS5600 failed!");
+  if (this->is_failed())
     return;
-  }
 
-  ESP_LOGCONFIG(TAG, "  Watchdog: %d", this->watchdog_);
-  ESP_LOGCONFIG(TAG, "  Fast Filter: %d", this->fast_filter_);
-  ESP_LOGCONFIG(TAG, "  Slow Filter: %d", this->slow_filter_);
-  ESP_LOGCONFIG(TAG, "  Hysteresis: %d", this->hysteresis_);
-  ESP_LOGCONFIG(TAG, "  Start Position: %d", this->start_position_);
+  ESP_LOGCONFIG(TAG,
+                "  Watchdog: %d\n"
+                "  Fast Filter: %d\n"
+                "  Slow Filter: %d\n"
+                "  Hysteresis: %d\n"
+                "  Start Position: %d",
+                this->watchdog_, this->fast_filter_, this->slow_filter_, this->hysteresis_, this->start_position_);
   if (this->end_mode_ == END_MODE_POSITION) {
     ESP_LOGCONFIG(TAG, "  End Position: %d", this->end_position_);
   } else {
@@ -134,5 +127,4 @@ optional<uint16_t> AS5600Component::read_raw_position() {
   return pos;
 }
 
-}  // namespace as5600
-}  // namespace esphome
+}  // namespace esphome::as5600

@@ -4,16 +4,15 @@
 #include "esphome/components/uart/uart.h"
 #include "esphome/components/sensor/sensor.h"
 
-namespace esphome {
-namespace pzem004t {
+namespace esphome::pzem004t {
 
-class PZEM004T : public PollingComponent, public uart::UARTDevice {
+class PZEM004T final : public PollingComponent, public uart::UARTDevice {
+  SUB_SENSOR(voltage)
+  SUB_SENSOR(current)
+  SUB_SENSOR(power)
+  SUB_SENSOR(energy)
+
  public:
-  void set_voltage_sensor(sensor::Sensor *voltage_sensor) { voltage_sensor_ = voltage_sensor; }
-  void set_current_sensor(sensor::Sensor *current_sensor) { current_sensor_ = current_sensor; }
-  void set_power_sensor(sensor::Sensor *power_sensor) { power_sensor_ = power_sensor; }
-  void set_energy_sensor(sensor::Sensor *energy_sensor) { energy_sensor_ = energy_sensor; }
-
   void setup() override;
 
   void loop() override;
@@ -23,11 +22,6 @@ class PZEM004T : public PollingComponent, public uart::UARTDevice {
   void dump_config() override;
 
  protected:
-  sensor::Sensor *voltage_sensor_{nullptr};
-  sensor::Sensor *current_sensor_{nullptr};
-  sensor::Sensor *power_sensor_{nullptr};
-  sensor::Sensor *energy_sensor_{nullptr};
-
   enum PZEM004TReadState {
     SET_ADDRESS = 0xB4,
     READ_VOLTAGE = 0xB0,
@@ -42,5 +36,4 @@ class PZEM004T : public PollingComponent, public uart::UARTDevice {
   uint32_t last_read_{0};
 };
 
-}  // namespace pzem004t
-}  // namespace esphome
+}  // namespace esphome::pzem004t

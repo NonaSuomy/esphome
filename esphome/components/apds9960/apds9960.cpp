@@ -2,110 +2,93 @@
 #include "esphome/core/log.h"
 #include "esphome/core/hal.h"
 
-namespace esphome {
-namespace apds9960 {
+namespace esphome::apds9960 {
 
-static const char *const TAG = "apds9960";
+ESPHOME_LOG_TAG(TAG, "apds9960");
 
 #define APDS9960_ERROR_CHECK(func) \
   if (!(func)) { \
-    this->mark_failed(); \
+    this->mark_failed(LOG_STR("Setting up APDS9960 registers failed")); \
     return; \
   }
-#define APDS9960_WRITE_BYTE(reg, value) APDS9960_ERROR_CHECK(this->write_byte(reg, value));
+
+static constexpr i2c::I2CRegValue APDS9960_TIMING[] PROGMEM = {
+    // ATime (ADC integration time, 2.78ms increments, 0x81) -> 0xDB (103ms)
+    {0x81, 0xDB},
+    // WTime (Wait time, 0x83) -> 0xF6 (27ms)
+    {0x83, 0xF6},
+    // PPulse (0x8E) -> 0x87 (16us, 8 pulses)
+    {0x8E, 0x87},
+    // POffset UR (0x9D) -> 0 (no offset)
+    {0x9D, 0x00},
+    // POffset DL (0x9E) -> 0 (no offset)
+    {0x9E, 0x00},
+    // Config 1 (0x8D) -> 0x60 (no wtime factor)
+    {0x8D, 0x60},
+};
+
+static constexpr i2c::I2CRegValue APDS9960_INTERRUPT_GESTURE[] PROGMEM = {
+    // Pers (0x8C) -> 0x11 (2 consecutive proximity or ALS for interrupt)
+    {0x8C, 0x11},
+    // Config 2 (0x90) -> 0x01 (no saturation interrupts or LED boost)
+    {0x90, 0x01},
+    // Config 3 (0x9F) -> 0x00 (enable all photodiodes, no SAI)
+    {0x9F, 0x00},
+    // GPenTh (0xA0, gesture enter threshold) -> 0x28 (also 0x32)
+    {0xA0, 0x28},
+    // GPexTh (0xA1, gesture exit threshold) -> 0x1E
+    {0xA1, 0x1E},
+    // GConf 1 (0xA2, gesture config 1) -> 0x40 (4 gesture events for interrupt (GFIFO 3), 1 for exit)
+    {0xA2, 0x40},
+};
+
+static constexpr i2c::I2CRegValue APDS9960_GESTURE_OFFSETS[] PROGMEM = {
+    // GOffsetU (0xA4) -> 0x00 (no offset)
+    {0xA4, 0x00},
+    // GOffsetD (0xA5) -> 0x00 (no offset)
+    {0xA5, 0x00},
+    // GOffsetL (0xA7) -> 0x00 (no offset)
+    {0xA7, 0x00},
+    // GOffsetR (0xA9) -> 0x00 (no offset)
+    {0xA9, 0x00},
+    // GPulse (0xA6) -> 0xC9 (32 µs, 10 pulses)
+    {0xA6, 0xC9},
+    // GConf 3 (0xAA, gesture config 3) -> 0x00 (all photodiodes active during gesture, all gesture dimensions enabled)
+    // 0x00 -> all dimensions, 0x01 -> up down, 0x02 -> left right
+    {0xAA, 0x00},
+};
 
 void APDS9960::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up APDS9960...");
   uint8_t id;
-  if (!this->read_byte(0x92, &id)) {  // ID register
-    this->error_code_ = COMMUNICATION_FAILED;
-    this->mark_failed();
+  if (!this->setup_check(this->read_byte(0x92, &id)))  // ID register
+    return;
+
+  if (id != 0xAB && id != 0x9C && id != 0xA8 && id != 0x9E) {  // APDS9960 all should have one of these IDs
+    this->mark_failed(LOG_STR("APDS9960 has invalid id"));
     return;
   }
 
-  if (id != 0xAB && id != 0x9C && id != 0xA8) {  // APDS9960 all should have one of these IDs
-    this->error_code_ = WRONG_ID;
-    this->mark_failed();
-    return;
-  }
+  APDS9960_ERROR_CHECK(this->write_registers(APDS9960_TIMING));
 
-  // ATime (ADC integration time, 2.78ms increments, 0x81) -> 0xDB (103ms)
-  APDS9960_WRITE_BYTE(0x81, 0xDB);
-  // WTime (Wait time, 0x83) -> 0xF6 (27ms)
-  APDS9960_WRITE_BYTE(0x83, 0xF6);
-  // PPulse (0x8E) -> 0x87 (16us, 8 pulses)
-  APDS9960_WRITE_BYTE(0x8E, 0x87);
-  // POffset UR (0x9D) -> 0 (no offset)
-  APDS9960_WRITE_BYTE(0x9D, 0x00);
-  // POffset DL (0x9E) -> 0 (no offset)
-  APDS9960_WRITE_BYTE(0x9E, 0x00);
-  // Config 1 (0x8D) -> 0x60 (no wtime factor)
-  APDS9960_WRITE_BYTE(0x8D, 0x60);
+  // Control (0x8F): led drive (0 -> 100mA, 1 -> 50mA, 2 -> 25mA, 3 -> 12.5mA),
+  // proximity gain (0 -> 1x, 1 -> 2X, 2 -> 4X, 3 -> 8X), ambient light gain (0 -> 1x, 1 -> 4x, 2 -> 16x, 3 -> 64x)
+  APDS9960_ERROR_CHECK(this->update_register(
+      0x8F, 0b11001111,
+      (this->led_drive_ & 0b11) << 6 | (this->proximity_gain_ & 0b11) << 2 | (this->ambient_gain_ & 0b11)));
 
-  // Control (0x8F) ->
-  uint8_t val = 0;
-  APDS9960_ERROR_CHECK(this->read_byte(0x8F, &val));
-  val &= 0b00111111;
-  // led drive, 0 -> 100mA, 1 -> 50mA, 2 -> 25mA, 3 -> 12.5mA
-  val |= (this->led_drive_ & 0b11) << 6;
+  APDS9960_ERROR_CHECK(this->write_registers(APDS9960_INTERRUPT_GESTURE));
 
-  val &= 0b11110011;
-  // proximity gain, 0 -> 1x, 1 -> 2X, 2 -> 4X, 3 -> 8X
-  val |= (this->proximity_gain_ & 0b11) << 2;
+  // GConf 2 (0xA3): gesture gain (0 -> 1x, 1 -> 2x, 2 -> 4x, 3 -> 8x),
+  // gesture led drive (0 -> 100mA, 1 -> 50mA, 2 -> 25mA, 3 -> 12.5mA), gesture wait time
+  // (0 -> 0ms, 1 -> 2.8ms, 2 -> 5.6ms, 3 -> 8.4ms, 4 -> 14.0ms, 5 -> 22.4 ms, 6 -> 30.8ms, 7 -> 39.2 ms)
+  APDS9960_ERROR_CHECK(this->update_register(
+      0xA3, 0b01111111,
+      (this->gesture_gain_ & 0b11) << 5 | (this->gesture_led_drive_ & 0b11) << 3 | (this->gesture_wait_time_ & 0b111)));
 
-  val &= 0b11111100;
-  // ambient light gain, 0 -> 1x, 1 -> 4x, 2 -> 16x, 3 -> 64x
-  val |= (this->ambient_gain_ & 0b11) << 0;
-  APDS9960_WRITE_BYTE(0x8F, val);
-
-  // Pers (0x8C) -> 0x11 (2 consecutive proximity or ALS for interrupt)
-  APDS9960_WRITE_BYTE(0x8C, 0x11);
-  // Config 2 (0x90) -> 0x01 (no saturation interrupts or LED boost)
-  APDS9960_WRITE_BYTE(0x90, 0x01);
-  // Config 3 (0x9F) -> 0x00 (enable all photodiodes, no SAI)
-  APDS9960_WRITE_BYTE(0x9F, 0x00);
-  // GPenTh (0xA0, gesture enter threshold) -> 0x28 (also 0x32)
-  APDS9960_WRITE_BYTE(0xA0, 0x28);
-  // GPexTh (0xA1, gesture exit threshold) -> 0x1E
-  APDS9960_WRITE_BYTE(0xA1, 0x1E);
-
-  // GConf 1 (0xA2, gesture config 1) -> 0x40 (4 gesture events for interrupt (GFIFO 3), 1 for exit)
-  APDS9960_WRITE_BYTE(0xA2, 0x40);
-
-  // GConf 2 (0xA3, gesture config 2) ->
-  APDS9960_ERROR_CHECK(this->read_byte(0xA3, &val));
-  val &= 0b10011111;
-  // gesture gain, 0 -> 1x, 1 -> 2x, 2 -> 4x, 3 -> 8x
-  val |= (this->gesture_gain_ & 0b11) << 5;
-
-  val &= 0b11100111;
-  // gesture led drive, 0 -> 100mA, 1 -> 50mA, 2 -> 25mA, 3 -> 12.5mA
-  val |= (this->gesture_led_drive_ & 0b11) << 3;
-
-  val &= 0b11111000;
-  // gesture wait time
-  // 0 -> 0ms, 1 -> 2.8ms, 2 -> 5.6ms, 3 -> 8.4ms
-  // 4 -> 14.0ms, 5 -> 22.4 ms, 6 -> 30.8ms, 7 -> 39.2 ms
-  val |= (this->gesture_wait_time_ & 0b111) << 0;
-  APDS9960_WRITE_BYTE(0xA3, val);
-
-  // GOffsetU (0xA4) -> 0x00 (no offset)
-  APDS9960_WRITE_BYTE(0xA4, 0x00);
-  // GOffsetD (0xA5) -> 0x00 (no offset)
-  APDS9960_WRITE_BYTE(0xA5, 0x00);
-  // GOffsetL (0xA7) -> 0x00 (no offset)
-  APDS9960_WRITE_BYTE(0xA7, 0x00);
-  // GOffsetR (0xA9) -> 0x00 (no offset)
-  APDS9960_WRITE_BYTE(0xA9, 0x00);
-  // GPulse (0xA6) -> 0xC9 (32 µs, 10 pulses)
-  APDS9960_WRITE_BYTE(0xA6, 0xC9);
-
-  // GConf 3 (0xAA, gesture config 3) -> 0x00 (all photodiodes active during gesture, all gesture dimensions enabled)
-  // 0x00 -> all dimensions, 0x01 -> up down, 0x02 -> left right
-  APDS9960_WRITE_BYTE(0xAA, 0x00);
+  APDS9960_ERROR_CHECK(this->write_registers(APDS9960_GESTURE_OFFSETS));
 
   // Enable (0x80) ->
-  val = 0;
+  uint8_t val = 0;
   val |= (0b1) << 0;  // power on
   val |= (this->is_color_enabled_() & 0b1) << 1;
   val |= (this->is_proximity_enabled_() & 0b1) << 2;
@@ -113,7 +96,7 @@ void APDS9960::setup() {
   val |= 0b0 << 4;                                  // color interrupt disabled
   val |= 0b0 << 5;                                  // proximity interrupt disabled
   val |= (this->is_gesture_enabled_() & 0b1) << 6;  // proximity is required for gestures
-  APDS9960_WRITE_BYTE(0x80, val);
+  APDS9960_ERROR_CHECK(this->write_byte(0x80, val));
 }
 bool APDS9960::is_color_enabled_() const {
 #ifdef USE_SENSOR
@@ -137,20 +120,6 @@ void APDS9960::dump_config() {
   LOG_SENSOR("  ", "Clear channel", this->clear_sensor_);
   LOG_SENSOR("  ", "Proximity", this->proximity_sensor_);
 #endif
-
-  if (this->is_failed()) {
-    switch (this->error_code_) {
-      case COMMUNICATION_FAILED:
-        ESP_LOGE(TAG, "Communication with APDS9960 failed!");
-        break;
-      case WRONG_ID:
-        ESP_LOGE(TAG, "APDS9960 has invalid id!");
-        break;
-      default:
-        ESP_LOGE(TAG, "Setting up APDS9960 registers failed!");
-        break;
-    }
-  }
 }
 
 #define APDS9960_WARNING_CHECK(func, warning) \
@@ -180,13 +149,13 @@ void APDS9960::read_color_data_(uint8_t status) {
     return;
   }
 
-  uint8_t raw[8];
-  APDS9960_WARNING_CHECK(this->read_bytes(0x94, raw, 8), "Reading color values failed.");
+  uint16_t raw[4];
+  APDS9960_WARNING_CHECK(this->read_bytes_16_le(0x94, raw, 4), "Reading color values failed.");
 
-  uint16_t uint_clear = (uint16_t(raw[1]) << 8) | raw[0];
-  uint16_t uint_red = (uint16_t(raw[3]) << 8) | raw[2];
-  uint16_t uint_green = (uint16_t(raw[5]) << 8) | raw[4];
-  uint16_t uint_blue = (uint16_t(raw[7]) << 8) | raw[6];
+  uint16_t uint_clear = raw[0];
+  uint16_t uint_red = raw[1];
+  uint16_t uint_green = raw[2];
+  uint16_t uint_blue = raw[3];
 
   float clear_perc = (uint_clear / float(UINT16_MAX)) * 100.0f;
   float red_perc = (uint_red / float(UINT16_MAX)) * 100.0f;
@@ -195,14 +164,10 @@ void APDS9960::read_color_data_(uint8_t status) {
 
   ESP_LOGD(TAG, "Got clear=%.1f%% red=%.1f%% green=%.1f%% blue=%.1f%%", clear_perc, red_perc, green_perc, blue_perc);
 #ifdef USE_SENSOR
-  if (this->clear_sensor_ != nullptr)
-    this->clear_sensor_->publish_state(clear_perc);
-  if (this->red_sensor_ != nullptr)
-    this->red_sensor_->publish_state(red_perc);
-  if (this->green_sensor_ != nullptr)
-    this->green_sensor_->publish_state(green_perc);
-  if (this->blue_sensor_ != nullptr)
-    this->blue_sensor_->publish_state(blue_perc);
+  PUBLISH_STATE(this->clear_sensor_, clear_perc);
+  PUBLISH_STATE(this->red_sensor_, red_perc);
+  PUBLISH_STATE(this->green_sensor_, green_perc);
+  PUBLISH_STATE(this->blue_sensor_, blue_perc);
 #endif
 }
 void APDS9960::read_proximity_data_(uint8_t status) {
@@ -252,11 +217,11 @@ void APDS9960::read_gesture_data_() {
 
   uint8_t buf[128];
   for (uint8_t pos = 0; pos < fifo_level * 4; pos += 32) {
-    // The ESP's i2c driver has a limited buffer size.
-    // This way of retrieving the data should be wrong according to the datasheet
-    // but it seems to work.
+    // Read in 32-byte chunks due to ESP8266 I2C buffer limit.
+    // Always read from 0xFC — the FIFO auto-increments through 0xFC-0xFF
+    // and advances its internal pointer after every 4th byte.
     uint8_t read = std::min(32, fifo_level * 4 - pos);
-    APDS9960_WARNING_CHECK(this->read_bytes(0xFC + pos, buf + pos, read), "Reading FIFO buffer failed.");
+    APDS9960_WARNING_CHECK(this->read_bytes(0xFC, buf + pos, read), "Reading FIFO buffer failed.");
   }
 
   if (millis() - this->gesture_start_ > 500) {
@@ -385,7 +350,6 @@ void APDS9960::process_dataset_(int up, int down, int left, int right) {
     }
   }
 }
-float APDS9960::get_setup_priority() const { return setup_priority::DATA; }
 bool APDS9960::is_proximity_enabled_() const {
   return
 #ifdef USE_SENSOR
@@ -404,5 +368,4 @@ bool APDS9960::is_gesture_enabled_() const {
 #endif
 }
 
-}  // namespace apds9960
-}  // namespace esphome
+}  // namespace esphome::apds9960

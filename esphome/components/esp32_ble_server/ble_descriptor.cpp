@@ -7,24 +7,22 @@
 
 #ifdef USE_ESP32
 
-namespace esphome {
-namespace esp32_ble_server {
+namespace esphome::esp32_ble_server {
 
-static const char *const TAG = "esp32_ble_server.descriptor";
+ESPHOME_LOG_TAG(TAG, "esp32_ble_server.descriptor");
 
 static RAMAllocator<uint8_t> descriptor_allocator{};  // NOLINT
 
-BLEDescriptor::BLEDescriptor(ESPBTUUID uuid, uint16_t max_len, bool read, bool write) {
-  this->uuid_ = uuid;
+BLEDescriptor::BLEDescriptor(ESPBTUUID uuid, uint16_t max_len, bool read, bool write)
+    : BLEDescriptor(uuid, max_len,
+                    static_cast<esp_gatt_perm_t>((read ? ESP_GATT_PERM_READ : 0) | (write ? ESP_GATT_PERM_WRITE : 0))) {
+}
+
+BLEDescriptor::BLEDescriptor(ESPBTUUID uuid, uint16_t max_len, esp_gatt_perm_t permissions)
+    : uuid_(uuid), permissions_(permissions) {
   this->value_.attr_len = 0;
   this->value_.attr_max_len = max_len;
   this->value_.attr_value = descriptor_allocator.allocate(max_len);
-  if (read) {
-    this->permissions_ |= ESP_GATT_PERM_READ;
-  }
-  if (write) {
-    this->permissions_ |= ESP_GATT_PERM_WRITE;
-  }
 }
 
 BLEDescriptor::~BLEDescriptor() { free(this->value_.attr_value); }  // NOLINT
@@ -34,7 +32,11 @@ void BLEDescriptor::do_create(BLECharacteristic *characteristic) {
   esp_attr_control_t control;
   control.auto_rsp = ESP_GATT_AUTO_RSP;
 
-  ESP_LOGV(TAG, "Creating descriptor - %s", this->uuid_.to_string().c_str());
+#if ESPHOME_LOG_LEVEL >= ESPHOME_LOG_LEVEL_VERBOSE
+  char uuid_buf[esp32_ble::UUID_STR_LEN];
+  this->uuid_.to_str(uuid_buf);
+  ESP_LOGV(TAG, "Creating descriptor - %s", uuid_buf);
+#endif
   esp_bt_uuid_t uuid = this->uuid_.get_uuid();
   esp_err_t err = esp_ble_gatts_add_char_descr(this->characteristic_->get_service()->get_handle(), &uuid,
                                                this->permissions_, &this->value_, &control);
@@ -46,15 +48,18 @@ void BLEDescriptor::do_create(BLECharacteristic *characteristic) {
   this->state_ = CREATING;
 }
 
-void BLEDescriptor::set_value(std::vector<uint8_t> buffer) {
-  size_t length = buffer.size();
+void BLEDescriptor::set_value(std::vector<uint8_t> &&buffer) { this->set_value(buffer.data(), buffer.size()); }
 
+void BLEDescriptor::set_value(std::initializer_list<uint8_t> data) { this->set_value(data.begin(), data.size()); }
+
+void BLEDescriptor::set_value(const uint8_t *data, size_t length) {
   if (length > this->value_.attr_max_len) {
     ESP_LOGE(TAG, "Size %d too large, must be no bigger than %d", length, this->value_.attr_max_len);
     return;
   }
   this->value_.attr_len = length;
-  memcpy(this->value_.attr_value, buffer.data(), length);
+  if (length != 0)  // An empty constant is a nullptr table
+    memcpy(this->value_.attr_value, data, length);
 }
 
 void BLEDescriptor::gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if,
@@ -72,11 +77,16 @@ void BLEDescriptor::gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
     case ESP_GATTS_WRITE_EVT: {
       if (this->handle_ != param->write.handle)
         break;
+      if (param->write.len > this->value_.attr_max_len) {
+        ESP_LOGE(TAG, "Size %d too large, must be no bigger than %d", param->write.len, this->value_.attr_max_len);
+        break;
+      }
       this->value_.attr_len = param->write.len;
       memcpy(this->value_.attr_value, param->write.value, param->write.len);
-      this->emit_(BLEDescriptorEvt::VectorEvt::ON_WRITE,
-                  std::vector<uint8_t>(param->write.value, param->write.value + param->write.len),
-                  param->write.conn_id);
+      if (this->on_write_callback_) {
+        (*this->on_write_callback_)(std::span<const uint8_t>(param->write.value, param->write.len),
+                                    param->write.conn_id);
+      }
       break;
     }
     default:
@@ -84,7 +94,6 @@ void BLEDescriptor::gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
   }
 }
 
-}  // namespace esp32_ble_server
-}  // namespace esphome
+}  // namespace esphome::esp32_ble_server
 
 #endif

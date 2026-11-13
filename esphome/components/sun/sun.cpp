@@ -1,5 +1,7 @@
 #include "sun.h"
+#include "esphome/core/application.h"
 #include "esphome/core/log.h"
+#include <numbers>
 
 /*
 The formulas/algorithms in this module are based on the book
@@ -11,21 +13,18 @@ like exact nutation are not included. But in some testing the accuracy appears t
 for random spots around the globe.
 */
 
-namespace esphome {
-namespace sun {
+namespace esphome::sun {
 
 using namespace esphome::sun::internal;
 
-static const char *const TAG = "sun";
+ESPHOME_LOG_TAG(TAG, "sun");
 
-#undef PI
 #undef degrees
 #undef radians
 #undef sq
 
-static const num_t PI = 3.141592653589793;
-inline num_t degrees(num_t rad) { return rad * 180 / PI; }
-inline num_t radians(num_t deg) { return deg * PI / 180; }
+inline num_t degrees(num_t rad) { return rad * 180 / std::numbers::pi; }
+inline num_t radians(num_t deg) { return deg * std::numbers::pi / 180; }
 inline num_t arcdeg(num_t deg, num_t minutes, num_t seconds) { return deg + minutes / 60 + seconds / 3600; }
 inline num_t sq(num_t x) { return x * x; }
 inline num_t cb(num_t x) { return x * x * x; }
@@ -173,21 +172,26 @@ struct SunAtTime {
 
   void debug() const {
     // debug output like in example 25.a, p. 165
-    ESP_LOGV(TAG, "jde: %f", jde);
-    ESP_LOGV(TAG, "T: %f", t);
-    ESP_LOGV(TAG, "L_0: %f", mean_longitude());
-    ESP_LOGV(TAG, "M: %f", mean_anomaly());
-    ESP_LOGV(TAG, "e: %f", eccentricity());
-    ESP_LOGV(TAG, "C: %f", equation_of_center());
-    ESP_LOGV(TAG, "Odot: %f", true_longitude());
-    ESP_LOGV(TAG, "Omega: %f", omega());
-    ESP_LOGV(TAG, "lambda: %f", apparent_longitude());
-    ESP_LOGV(TAG, "epsilon_0: %f", mean_obliquity());
-    ESP_LOGV(TAG, "epsilon: %f", true_obliquity());
-    ESP_LOGV(TAG, "v: %f", true_anomaly());
     auto eq = equatorial_coordinate();
-    ESP_LOGV(TAG, "right_ascension: %f", eq.right_ascension);
-    ESP_LOGV(TAG, "declination: %f", eq.declination);
+    ESP_LOGV(TAG,
+             "Sun position:\n"
+             "  jde: %f\n"
+             "  T: %f\n"
+             "  L_0: %f\n"
+             "  M: %f\n"
+             "  e: %f\n"
+             "  C: %f\n"
+             "  Odot: %f\n"
+             "  Omega: %f\n"
+             "  lambda: %f\n"
+             "  epsilon_0: %f\n"
+             "  epsilon: %f\n"
+             "  v: %f\n"
+             "  right_ascension: %f\n"
+             "  declination: %f",
+             jde, t, mean_longitude(), mean_anomaly(), eccentricity(), equation_of_center(), true_longitude(), omega(),
+             apparent_longitude(), mean_obliquity(), true_obliquity(), true_anomaly(), eq.right_ascension,
+             eq.declination);
   }
 };
 
@@ -296,15 +300,17 @@ optional<ESPTime> Sun::calc_event_(ESPTime date, bool rising, double zenith) {
   today.hour = today.minute = today.second = 0;
   today.recalc_timestamp_utc();
 
-  auto it = sun.event(rising, today, zenith);
-  if (it.has_value() && it->timestamp < date.timestamp) {
-    // We're calculating *next* sunrise/sunset, but calculated event
-    // is today, so try again tomorrow
-    time_t new_timestamp = today.timestamp + 24 * 60 * 60;
-    today = ESPTime::from_epoch_utc(new_timestamp);
-    it = sun.event(rising, today, zenith);
+  // The event of a UTC date can fall up to half a day before it or one and a half days after it,
+  // depending on the longitude, so walk the dates in order and take the first event that has
+  // not passed yet.
+  static constexpr time_t DAY = 24 * 60 * 60;
+  for (int offset = -1; offset <= 2; offset++) {
+    auto day = ESPTime::from_epoch_utc(today.timestamp + offset * DAY);
+    auto it = sun.event(rising, day, zenith);
+    if (it.has_value() && it->timestamp >= date.timestamp)
+      return it;
   }
-  return it;
+  return {};
 }
 optional<ESPTime> Sun::calc_event_(bool rising, double zenith) {
   auto it = Sun::calc_event_(this->time_->utcnow(), rising, zenith);
@@ -318,5 +324,33 @@ optional<ESPTime> Sun::sunset(ESPTime date, double elevation) { return this->cal
 double Sun::elevation() { return this->calc_coords_().elevation; }
 double Sun::azimuth() { return this->calc_coords_().azimuth; }
 
-}  // namespace sun
-}  // namespace esphome
+#ifdef USE_SUN_ELEVATION_POLL
+void Sun::start_elevation_poll() {
+  App.scheduler.set_interval(this, 60000, [this]() { this->poll_elevation(); });
+}
+
+void Sun::poll_elevation() {
+  double current = this->elevation();
+  if (std::isnan(current))
+    return;
+  const double last = this->last_elevation_;
+  // A NaN previous elevation (first poll) fails every crossing check.
+#ifdef SUN_SUNRISE_AUTOMATION_COUNT
+  for (uint8_t i = 0; i < this->sunrise_count_; i++) {
+    const auto &entry = this->sunrise_automations_[i];
+    if (rose_past(last, current, entry.elevation))
+      entry.automation->trigger();
+  }
+#endif
+#ifdef SUN_SUNSET_AUTOMATION_COUNT
+  for (uint8_t i = 0; i < this->sunset_count_; i++) {
+    const auto &entry = this->sunset_automations_[i];
+    if (set_past(last, current, entry.elevation))
+      entry.automation->trigger();
+  }
+#endif
+  this->last_elevation_ = current;
+}
+#endif
+
+}  // namespace esphome::sun

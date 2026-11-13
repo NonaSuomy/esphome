@@ -3,18 +3,15 @@
 
 #ifdef USE_ESP32
 
-#include <cstring>
+#include <esp_gatt_defs.h>
 
-namespace esphome {
-namespace esp32_ble_server {
+namespace esphome::esp32_ble_server {
 
-BLE2902::BLE2902() : BLEDescriptor(esp32_ble::ESPBTUUID::from_uint16(0x2902)) {
-  this->value_.attr_len = 2;
-  uint8_t data[2] = {0, 0};
-  memcpy(this->value_.attr_value, data, 2);
+// The client configuration value is always 2 bytes
+BLE2902::BLE2902() : BLEDescriptor(esp32_ble::ESPBTUUID::from_uint16(ESP_GATT_UUID_CHAR_CLIENT_CONFIG), 2) {
+  this->set_value({0, 0});
 }
 
-}  // namespace esp32_ble_server
-}  // namespace esphome
+}  // namespace esphome::esp32_ble_server
 
 #endif

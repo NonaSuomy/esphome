@@ -1,28 +1,31 @@
 #pragma once
 
+#include <utility>
+
 #include "esphome/core/automation.h"
 #include "esphome/core/component.h"
 #include "esphome/core/defines.h"
 #include "esphome/core/hal.h"
+#include "esphome/core/helpers.h"
 #include "esphome/core/time.h"
+#include "esphome/components/display/display.h"
 
-#include <vector>
+namespace esphome::tm1638 {
 
-namespace esphome {
-namespace tm1638 {
-
-class KeyListener {
- public:
-  virtual void keys_update(uint8_t keys){};
-};
+// A template on the sensor type keeps binary_sensor.h out of this hub header
+template<typename T> inline void publish_key(T *sensor, uint8_t keys, uint8_t key) {
+  bool pressed = keys & (1 << key);
+  if (pressed != sensor->state)
+    sensor->publish_state(pressed);
+}
 
 class TM1638Component;
 
-using tm1638_writer_t = std::function<void(TM1638Component &)>;
+using tm1638_writer_t = display::DisplayWriter<TM1638Component>;
 
-class TM1638Component : public PollingComponent {
+class TM1638Component final : public PollingComponent {
  public:
-  void set_writer(tm1638_writer_t &&writer) { this->writer_ = writer; }
+  void set_writer(tm1638_writer_t &&writer) { this->writer_ = std::move(writer); }
   void setup() override;
   void dump_config() override;
   void update() override;
@@ -34,7 +37,9 @@ class TM1638Component : public PollingComponent {
   void set_dio_pin(GPIOPin *pin) { this->dio_pin_ = pin; }
   void set_stb_pin(GPIOPin *pin) { this->stb_pin_ = pin; }
 
-  void register_listener(KeyListener *listener) { this->listeners_.push_back(listener); }
+#ifdef USE_TM1638_KEYS_PUBLISHER
+  HUB_PUBLISHER(keys, uint8_t)
+#endif
 
   /// Evaluate the printf-format and print the result at the given position.
   uint8_t printf(uint8_t pos, const char *format, ...) __attribute__((format(printf, 3, 4)));
@@ -69,10 +74,8 @@ class TM1638Component : public PollingComponent {
   GPIOPin *clk_pin_;
   GPIOPin *stb_pin_;
   GPIOPin *dio_pin_;
-  uint8_t *buffer_ = new uint8_t[8];
-  optional<tm1638_writer_t> writer_{};
-  std::vector<KeyListener *> listeners_{};
+  uint8_t buffer_[8]{};
+  tm1638_writer_t writer_{};
 };
 
-}  // namespace tm1638
-}  // namespace esphome
+}  // namespace esphome::tm1638

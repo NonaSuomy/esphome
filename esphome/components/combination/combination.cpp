@@ -3,14 +3,15 @@
 #include "esphome/core/log.h"
 #include "esphome/core/hal.h"
 
+#include <algorithm>
 #include <cmath>
-#include <functional>
-#include <vector>
+#include <limits>
 
-namespace esphome {
-namespace combination {
+namespace esphome::combination {
 
-static const char *const TAG = "combination";
+ESPHOME_LOG_TAG(TAG, "combination");
+
+static constexpr uint32_t NEW_VALUE_DEFER_ID = 0;
 
 void CombinationComponent::log_config_(const LogString *combo_type) {
   LOG_SENSOR("", "Combination Sensor:", this);
@@ -18,28 +19,38 @@ void CombinationComponent::log_config_(const LogString *combo_type) {
   this->log_source_sensors();
 }
 
-void CombinationNoParameterComponent::add_source(Sensor *sensor) { this->sensors_.emplace_back(sensor); }
+void CombinationNoParameterComponent::add_source(Sensor *sensor) { this->sensors_.push_back(sensor); }
 
-void CombinationOneParameterComponent::add_source(Sensor *sensor, std::function<float(float)> const &stddev) {
-  this->sensor_pairs_.emplace_back(sensor, stddev);
+void CombinationOneParameterComponent::add_source(Sensor *sensor, std::function<float(float)> const &compute) {
+  this->sensor_sources_.push_back({sensor, compute, this});
 }
 
-void CombinationOneParameterComponent::add_source(Sensor *sensor, float stddev) {
-  this->add_source(sensor, std::function<float(float)>{[stddev](float x) -> float { return stddev; }});
+void CombinationOneParameterComponent::add_source(Sensor *sensor, float value) {
+  this->add_source(sensor, std::function<float(float)>{[value](float x) -> float { return value; }});
+}
+
+void CombinationNoParameterComponent::finite_min_max_(float &min_value, float &max_value) const {
+  min_value = std::numeric_limits<float>::infinity();
+  max_value = -std::numeric_limits<float>::infinity();
+  for (const auto &sensor : this->sensors_) {
+    if (std::isfinite(sensor->state)) {
+      min_value = std::min(min_value, sensor->state);
+      max_value = std::max(max_value, sensor->state);
+    }
+  }
 }
 
 void CombinationNoParameterComponent::log_source_sensors() {
   ESP_LOGCONFIG(TAG, "  Source Sensors:");
   for (const auto &sensor : this->sensors_) {
-    ESP_LOGCONFIG(TAG, "    - %s", sensor->get_name().c_str());
+    ESP_LOGCONFIG(TAG, "    - %s", LOG_STR_ARG(sensor->get_log_name()));
   }
 }
 
 void CombinationOneParameterComponent::log_source_sensors() {
   ESP_LOGCONFIG(TAG, "  Source Sensors:");
-  for (const auto &sensor : this->sensor_pairs_) {
-    auto &entity = *sensor.first;
-    ESP_LOGCONFIG(TAG, "    - %s", entity.get_name().c_str());
+  for (const auto &source : this->sensor_sources_) {
+    ESP_LOGCONFIG(TAG, "    - %s", LOG_STR_ARG(source.sensor->get_log_name()));
   }
 }
 
@@ -47,8 +58,9 @@ void CombinationNoParameterComponent::setup() {
   for (const auto &sensor : this->sensors_) {
     // All sensor updates are deferred until the next loop. This avoids publishing the combined sensor's result
     // repeatedly in the same loop if multiple source senors update.
-    sensor->add_on_state_callback(
-        [this](float value) -> void { this->defer("update", [this, value]() { this->handle_new_value(value); }); });
+    sensor->add_on_state_callback([this](float value) -> void {
+      this->defer(NEW_VALUE_DEFER_ID, [this, value]() { this->handle_new_value(value); });
+    });
   }
 }
 
@@ -62,9 +74,12 @@ void KalmanCombinationComponent::dump_config() {
 }
 
 void KalmanCombinationComponent::setup() {
-  for (const auto &sensor : this->sensor_pairs_) {
-    const auto stddev = sensor.second;
-    sensor.first->add_on_state_callback([this, stddev](float x) -> void { this->correct_(x, stddev(x)); });
+  for (auto &source : this->sensor_sources_) {
+    // [&source] is safe: source refers to a FixedVector element that never reallocates,
+    // so the reference remains valid for the component's lifetime.
+    source.sensor->add_on_state_callback([&source](float x) -> void {
+      static_cast<KalmanCombinationComponent *>(source.parent)->correct_(x, source.compute(x));
+    });
   }
 }
 
@@ -86,9 +101,7 @@ void KalmanCombinationComponent::correct_(float value, float stddev) {
   if (std::isnan(this->state_) || std::isinf(this->variance_)) {
     this->state_ = value;
     this->variance_ = stddev * stddev;
-    if (this->std_dev_sensor_ != nullptr) {
-      this->std_dev_sensor_->publish_state(stddev);
-    }
+    PUBLISH_STATE(this->std_dev_sensor_, stddev);
     return;
   }
 
@@ -111,32 +124,31 @@ void KalmanCombinationComponent::correct_(float value, float stddev) {
   this->variance_ = var;
 
   this->publish_state(mu);
-  if (this->std_dev_sensor_ != nullptr) {
-    this->std_dev_sensor_->publish_state(std::sqrt(var));
-  }
+  PUBLISH_STATE(this->std_dev_sensor_, std::sqrt(var));
 }
 
 void LinearCombinationComponent::setup() {
-  for (const auto &sensor : this->sensor_pairs_) {
+  for (auto &source : this->sensor_sources_) {
     // All sensor updates are deferred until the next loop. This avoids publishing the combined sensor's result
     // repeatedly in the same loop if multiple source senors update.
-    sensor.first->add_on_state_callback(
-        [this](float value) -> void { this->defer("update", [this, value]() { this->handle_new_value(value); }); });
+    source.sensor->add_on_state_callback([this](float value) -> void {
+      this->defer(NEW_VALUE_DEFER_ID, [this, value]() { this->handle_new_value(value); });
+    });
   }
 }
 
 void LinearCombinationComponent::handle_new_value(float value) {
-  // Multiplies each sensor state by a configured coeffecient and then sums
+  // Multiplies each sensor state by a configured coefficient and then sums
 
   if (!std::isfinite(value))
     return;
 
   float sum = 0.0;
 
-  for (const auto &sensor : this->sensor_pairs_) {
-    const float sensor_state = sensor.first->state;
+  for (const auto &source : this->sensor_sources_) {
+    const float sensor_state = source.sensor->state;
     if (std::isfinite(sensor_state)) {
-      sum += sensor_state * sensor.second(sensor_state);
+      sum += sensor_state * source.compute(sensor_state);
     }
   }
 
@@ -147,14 +159,9 @@ void MaximumCombinationComponent::handle_new_value(float value) {
   if (!std::isfinite(value))
     return;
 
-  float max_value = (-1) * std::numeric_limits<float>::infinity();  // note x = max(x, -infinity)
-
-  for (const auto &sensor : this->sensors_) {
-    if (std::isfinite(sensor->state)) {
-      max_value = std::max(max_value, sensor->state);
-    }
-  }
-
+  float min_value = NAN;
+  float max_value = NAN;
+  this->finite_min_max_(min_value, max_value);
   this->publish_state(max_value);
 }
 
@@ -163,7 +170,7 @@ void MeanCombinationComponent::handle_new_value(float value) {
     return;
 
   float sum = 0.0;
-  size_t count = 0.0;
+  size_t count = 0;
 
   for (const auto &sensor : this->sensors_) {
     if (std::isfinite(sensor->state)) {
@@ -172,6 +179,10 @@ void MeanCombinationComponent::handle_new_value(float value) {
     }
   }
 
+  if (count == 0) {
+    this->publish_state(NAN);
+    return;
+  }
   float mean = sum / count;
 
   this->publish_state(mean);
@@ -183,15 +194,16 @@ void MedianCombinationComponent::handle_new_value(float value) {
   if (!std::isfinite(value))
     return;
 
-  std::vector<float> sensor_states;
+  SmallBufferWithHeapFallback<8, float> buffer(this->sensors_.size());
+  float *sensor_states = buffer.get();
+  size_t sensor_states_size = 0;
   for (const auto &sensor : this->sensors_) {
     if (std::isfinite(sensor->state)) {
-      sensor_states.push_back(sensor->state);
+      sensor_states[sensor_states_size++] = sensor->state;
     }
   }
 
-  sort(sensor_states.begin(), sensor_states.end());
-  size_t sensor_states_size = sensor_states.size();
+  std::sort(sensor_states, sensor_states + sensor_states_size);
 
   float median = NAN;
 
@@ -201,7 +213,7 @@ void MedianCombinationComponent::handle_new_value(float value) {
       median = sensor_states[sensor_states_size / 2];
     } else {
       // Even number of measurements, use the average of the two middle measurements
-      median = (sensor_states[sensor_states_size / 2] + sensor_states[sensor_states_size / 2 - 1]) / 2.0;
+      median = (sensor_states[sensor_states_size / 2] + sensor_states[sensor_states_size / 2 - 1]) / 2.0f;
     }
   }
 
@@ -212,36 +224,23 @@ void MinimumCombinationComponent::handle_new_value(float value) {
   if (!std::isfinite(value))
     return;
 
-  float min_value = std::numeric_limits<float>::infinity();  // note x = min(x, infinity)
-
-  for (const auto &sensor : this->sensors_) {
-    if (std::isfinite(sensor->state)) {
-      min_value = std::min(min_value, sensor->state);
-    }
-  }
-
+  float min_value = NAN;
+  float max_value = NAN;
+  this->finite_min_max_(min_value, max_value);
   this->publish_state(min_value);
 }
 
 void MostRecentCombinationComponent::handle_new_value(float value) { this->publish_state(value); }
 
 void RangeCombinationComponent::handle_new_value(float value) {
-  // Sorts sensor states then takes difference between largest and smallest states
-
+  // Difference between the largest and smallest states
   if (!std::isfinite(value))
     return;
 
-  std::vector<float> sensor_states;
-  for (const auto &sensor : this->sensors_) {
-    if (std::isfinite(sensor->state)) {
-      sensor_states.push_back(sensor->state);
-    }
-  }
-
-  sort(sensor_states.begin(), sensor_states.end());
-
-  float range = sensor_states.back() - sensor_states.front();
-  this->publish_state(range);
+  float min_value = NAN;
+  float max_value = NAN;
+  this->finite_min_max_(min_value, max_value);
+  this->publish_state(min_value <= max_value ? max_value - min_value : NAN);
 }
 
 void SumCombinationComponent::handle_new_value(float value) {
@@ -258,5 +257,4 @@ void SumCombinationComponent::handle_new_value(float value) {
   this->publish_state(sum);
 }
 
-}  // namespace combination
-}  // namespace esphome
+}  // namespace esphome::combination

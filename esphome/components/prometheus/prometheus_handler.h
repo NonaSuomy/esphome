@@ -1,18 +1,21 @@
 #pragma once
 #include "esphome/core/defines.h"
-#ifdef USE_NETWORK
+#if defined(USE_NETWORK) && !defined(USE_ZEPHYR) && !defined(USE_HOST)
 #include <map>
 #include <utility>
 
 #include "esphome/components/web_server_base/web_server_base.h"
 #include "esphome/core/component.h"
-#include "esphome/core/controller.h"
 #include "esphome/core/entity_base.h"
+#include "esphome/core/entity_includes.h"
+#include "esphome/core/progmem.h"
+#ifdef USE_CLIMATE
+#include "esphome/core/log.h"
+#endif
 
-namespace esphome {
-namespace prometheus {
+namespace esphome::prometheus {
 
-class PrometheusHandler : public AsyncWebHandler, public Component {
+class PrometheusHandler final : public AsyncWebHandler, public Component {
  public:
   PrometheusHandler(web_server_base::WebServerBase *base) : base_(base) {}
 
@@ -37,13 +40,15 @@ class PrometheusHandler : public AsyncWebHandler, public Component {
    */
   void add_label_name(EntityBase *obj, const std::string &value) { relabel_map_name_.insert({obj, value}); }
 
-  bool canHandle(AsyncWebServerRequest *request) override {
-    if (request->method() == HTTP_GET) {
-      if (request->url() == "/metrics")
-        return true;
-    }
-
-    return false;
+  bool canHandle(AsyncWebServerRequest *request) const override {
+    if (request->method() != HTTP_GET)
+      return false;
+#ifdef USE_ESP32
+    char url_buf[AsyncWebServerRequest::URL_BUF_SIZE];
+    return request->url_to(url_buf) == "/metrics";
+#else
+    return request->url() == ESPHOME_F("/metrics");
+#endif
   }
 
   void handleRequest(AsyncWebServerRequest *req) override;
@@ -58,11 +63,14 @@ class PrometheusHandler : public AsyncWebHandler, public Component {
   }
 
  protected:
-  std::string relabel_id_(EntityBase *obj);
-  std::string relabel_name_(EntityBase *obj);
+  void print_relabel_id_(AsyncResponseStream *stream, EntityBase *obj);
+  void print_relabel_name_(AsyncResponseStream *stream, EntityBase *obj);
   void add_area_label_(AsyncResponseStream *stream, std::string &area);
   void add_node_label_(AsyncResponseStream *stream, std::string &node);
   void add_friendly_name_label_(AsyncResponseStream *stream, std::string &friendly_name);
+  /// Print metric name and common labels (id, area, node, friendly_name, name)
+  void print_metric_labels_(AsyncResponseStream *stream, ProgmemStr metric_name, EntityBase *obj, std::string &area,
+                            std::string &node, std::string &friendly_name);
 
 #ifdef USE_SENSOR
   /// Return the type for prometheus
@@ -120,6 +128,22 @@ class PrometheusHandler : public AsyncWebHandler, public Component {
                  std::string &friendly_name);
 #endif
 
+#ifdef USE_EVENT
+  /// Return the type for prometheus
+  void event_type_(AsyncResponseStream *stream);
+  /// Return the event values state as prometheus data point
+  void event_row_(AsyncResponseStream *stream, event::Event *obj, std::string &area, std::string &node,
+                  std::string &friendly_name);
+#endif
+
+#ifdef USE_TEXT
+  /// Return the type for prometheus
+  void text_type_(AsyncResponseStream *stream);
+  /// Return the text values state as prometheus data point
+  void text_row_(AsyncResponseStream *stream, text::Text *obj, std::string &area, std::string &node,
+                 std::string &friendly_name);
+#endif
+
 #ifdef USE_TEXT_SENSOR
   /// Return the type for prometheus
   void text_sensor_type_(AsyncResponseStream *stream);
@@ -169,12 +193,56 @@ class PrometheusHandler : public AsyncWebHandler, public Component {
                   std::string &friendly_name);
 #endif
 
+#if defined(USE_DATETIME_DATE) || defined(USE_DATETIME_DATETIME) || defined(USE_DATETIME_TIME)
+  /// Print the failed row and, when the entity has a state, the value row in milliseconds
+  void date_time_rows_(AsyncResponseStream *stream, ProgmemStr failed_metric, ProgmemStr value_metric, EntityBase *obj,
+                       int64_t value_ms, std::string &area, std::string &node, std::string &friendly_name);
+#endif
+
+#ifdef USE_DATETIME_DATE
+  /// Return the type for prometheus
+  void date_type_(AsyncResponseStream *stream);
+  /// Return the date state as prometheus data point
+  void date_row_(AsyncResponseStream *stream, datetime::DateEntity *obj, std::string &area, std::string &node,
+                 std::string &friendly_name);
+#endif
+
+#ifdef USE_DATETIME_TIME
+  /// Return the type for prometheus
+  void time_type_(AsyncResponseStream *stream);
+  /// Return the time state as prometheus data point
+  void time_row_(AsyncResponseStream *stream, datetime::TimeEntity *obj, std::string &area, std::string &node,
+                 std::string &friendly_name);
+#endif
+
+#ifdef USE_DATETIME_DATETIME
+  /// Return the type for prometheus
+  void datetime_type_(AsyncResponseStream *stream);
+  /// Return the datetime state as prometheus data point
+  void datetime_row_(AsyncResponseStream *stream, datetime::DateTimeEntity *obj, std::string &area, std::string &node,
+                     std::string &friendly_name);
+#endif
+
+#ifdef USE_CLIMATE
+  /// Return the type for prometheus
+  void climate_type_(AsyncResponseStream *stream);
+  /// Return the climate state as prometheus data point
+  void climate_row_(AsyncResponseStream *stream, climate::Climate *obj, std::string &area, std::string &node,
+                    std::string &friendly_name);
+  void climate_failed_row_(AsyncResponseStream *stream, climate::Climate *obj, std::string &area, std::string &node,
+                           std::string &friendly_name, std::string &category, bool is_failed_value);
+  void climate_setting_row_(AsyncResponseStream *stream, climate::Climate *obj, std::string &area, std::string &node,
+                            std::string &friendly_name, std::string &setting, const LogString *setting_value);
+  void climate_value_row_(AsyncResponseStream *stream, climate::Climate *obj, std::string &area, std::string &node,
+                          std::string &friendly_name, std::string &category, const char *climate_value);
+#endif
+
   web_server_base::WebServerBase *base_;
   bool include_internal_{false};
   std::map<EntityBase *, std::string> relabel_map_id_;
   std::map<EntityBase *, std::string> relabel_map_name_;
 };
 
-}  // namespace prometheus
-}  // namespace esphome
-#endif
+}  // namespace esphome::prometheus
+
+#endif  // USE_NETWORK && !USE_ZEPHYR

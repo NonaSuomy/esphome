@@ -4,17 +4,19 @@
 #include "esphome/core/hal.h"
 #include "esphome/components/output/binary_output.h"
 
-namespace esphome {
-namespace gpio {
+namespace esphome::gpio {
 
-class GPIOBinaryOutput : public output::BinaryOutput, public Component {
+class GPIOBinaryOutput final : public output::BinaryOutput, public Component {
  public:
-  void set_pin(GPIOPin *pin) { pin_ = pin; }
+  void set_pin(GPIOPin *pin) { this->pin_ = pin; }
 
   void setup() override {
-    this->turn_off();
+    const bool held = this->pin_->is_held();
+    if (!held)
+      this->turn_off();
     this->pin_->setup();
-    this->turn_off();
+    if (!held)
+      this->turn_off();
   }
   void dump_config() override;
   float get_setup_priority() const override { return setup_priority::HARDWARE; }
@@ -22,8 +24,7 @@ class GPIOBinaryOutput : public output::BinaryOutput, public Component {
  protected:
   void write_state(bool state) override { this->pin_->digital_write(state); }
 
-  GPIOPin *pin_;
+  GPIOPin *pin_{nullptr};
 };
 
-}  // namespace gpio
-}  // namespace esphome
+}  // namespace esphome::gpio

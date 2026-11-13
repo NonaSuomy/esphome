@@ -1,7 +1,8 @@
 # Commands
-from esphome.const import CONF_INVERT_COLORS, CONF_SWAP_XY
+from typing import Any
 
-from . import CONF_DRAW_ROUNDING
+from esphome.components.const import CONF_DRAW_ROUNDING
+from esphome.const import CONF_INVERT_COLORS, CONF_SWAP_XY
 
 SW_RESET_CMD = 0x01
 SLEEP_IN = 0x10
@@ -27,16 +28,16 @@ PAGESEL = 0xFE
 
 
 class DriverChip:
-    chips = {}
+    chips: dict[str, "DriverChip"] = {}
 
-    def __init__(self, name: str, defaults=None):
+    def __init__(self, name: str, defaults: dict[str, Any] | None = None) -> None:
         name = name.upper()
         self.name = name
         self.chips[name] = self
         self.initsequence = []
         self.defaults = defaults or {}
 
-    def cmd(self, c, *args):
+    def cmd(self, c: int, *args: int) -> None:
         """
         Add a command sequence to the init sequence
         :param c: The command (8 bit)
@@ -44,7 +45,7 @@ class DriverChip:
         """
         self.initsequence.extend([c, len(args)] + list(args))
 
-    def delay(self, ms):
+    def delay(self, ms: int) -> None:
         self.initsequence.extend([ms, 0xFF])
 
 

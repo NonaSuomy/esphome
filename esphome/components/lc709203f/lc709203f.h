@@ -1,0 +1,48 @@
+#pragma once
+
+#include "esphome/components/i2c/i2c.h"
+#include "esphome/components/sensor/sensor.h"
+#include "esphome/core/component.h"
+
+namespace esphome::lc709203f {
+
+enum LC709203FState {
+  STATE_INIT,
+  STATE_RSOC,
+  STATE_TEMP_SETUP,
+  STATE_NORMAL,
+};
+
+/// Enum listing allowable voltage settings for the LC709203F.
+enum LC709203FBatteryVoltage {
+  LC709203F_BATTERY_VOLTAGE_3_8 = 0x0000,
+  LC709203F_BATTERY_VOLTAGE_3_7 = 0x0001,
+};
+
+class Lc709203f final : public sensor::Sensor, public PollingComponent, public i2c::I2CDevice {
+  SUB_SENSOR(voltage)
+  SUB_SENSOR(battery_remaining)
+  SUB_SENSOR(temperature)
+
+ public:
+  void setup() override;
+  void update() override;
+  void dump_config() override;
+
+  void set_pack_size(uint16_t pack_size);
+  void set_thermistor_b_constant(uint16_t b_constant) { this->b_constant_ = b_constant; }
+  void set_pack_voltage(LC709203FBatteryVoltage pack_voltage) { this->pack_voltage_ = pack_voltage; }
+
+ private:
+  uint8_t get_register_(uint8_t register_to_read, uint16_t *register_value);
+  uint8_t set_register_(uint8_t register_to_set, uint16_t value_to_set);
+
+ protected:
+  uint16_t pack_size_;
+  uint16_t apa_;
+  uint16_t b_constant_;
+  LC709203FState state_ = STATE_INIT;
+  uint16_t pack_voltage_;
+};
+
+}  // namespace esphome::lc709203f

@@ -6,42 +6,30 @@
 #include "esphome/components/wifi/wifi_component.h"
 #endif
 #include "haier_base.h"
+#include "esphome/core/progmem.h"
 
 using namespace esphome::climate;
 using namespace esphome::uart;
 
-namespace esphome {
-namespace haier {
+namespace esphome::haier {
 
-static const char *const TAG = "haier.climate";
+ESPHOME_LOG_TAG(TAG, "haier.climate");
 constexpr size_t COMMUNICATION_TIMEOUT_MS = 60000;
 constexpr size_t STATUS_REQUEST_INTERVAL_MS = 5000;
 constexpr size_t PROTOCOL_INITIALIZATION_INTERVAL = 10000;
 constexpr size_t DEFAULT_MESSAGES_INTERVAL_MS = 2000;
 constexpr size_t CONTROL_MESSAGES_INTERVAL_MS = 400;
 
-const char *HaierClimateBase::phase_to_string_(ProtocolPhases phase) {
-  static const char *phase_names[] = {
-      "SENDING_INIT_1",
-      "SENDING_INIT_2",
-      "SENDING_FIRST_STATUS_REQUEST",
-      "SENDING_FIRST_ALARM_STATUS_REQUEST",
-      "IDLE",
-      "SENDING_STATUS_REQUEST",
-      "SENDING_UPDATE_SIGNAL_REQUEST",
-      "SENDING_SIGNAL_LEVEL",
-      "SENDING_CONTROL",
-      "SENDING_ACTION_COMMAND",
-      "SENDING_ALARM_STATUS_REQUEST",
-      "UNKNOWN"  // Should be the last!
-  };
-  static_assert(
-      (sizeof(phase_names) / sizeof(char *)) == (((int) ProtocolPhases::NUM_PROTOCOL_PHASES) + 1),
-      "Wrong phase_names array size. Please, make sure that this array is aligned with the enum ProtocolPhases");
-  int phase_index = (int) phase;
-  if ((phase_index > (int) ProtocolPhases::NUM_PROTOCOL_PHASES) || (phase_index < 0))
-    phase_index = (int) ProtocolPhases::NUM_PROTOCOL_PHASES;
-  return phase_names[phase_index];
+PROGMEM_STRING_TABLE(ProtocolPhaseStrings, "SENDING_INIT_1", "SENDING_INIT_2", "SENDING_FIRST_STATUS_REQUEST",
+                     "SENDING_FIRST_ALARM_STATUS_REQUEST", "IDLE", "SENDING_STATUS_REQUEST",
+                     "SENDING_UPDATE_SIGNAL_REQUEST", "SENDING_SIGNAL_LEVEL", "SENDING_CONTROL",
+                     "SENDING_ACTION_COMMAND", "SENDING_ALARM_STATUS_REQUEST", "UNKNOWN");
+
+const LogString *HaierClimateBase::phase_to_string_(ProtocolPhases phase) {
+  static_assert(ProtocolPhaseStrings::COUNT == ((int) ProtocolPhases::NUM_PROTOCOL_PHASES) + 1,
+                "ProtocolPhaseStrings must match the enum ProtocolPhases, with UNKNOWN last");
+  // UNKNOWN (-1) wraps past the table and reads as the last entry, "UNKNOWN"
+  return ProtocolPhaseStrings::get_log_str(static_cast<uint8_t>(phase), ProtocolPhaseStrings::LAST_INDEX);
 }
 
 bool check_timeout(std::chrono::steady_clock::time_point now, std::chrono::steady_clock::time_point tpoint,
@@ -65,14 +53,15 @@ HaierClimateBase::HaierClimateBase()
       {climate::CLIMATE_FAN_AUTO, climate::CLIMATE_FAN_LOW, climate::CLIMATE_FAN_MEDIUM, climate::CLIMATE_FAN_HIGH});
   this->traits_.set_supported_swing_modes({climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_BOTH,
                                            climate::CLIMATE_SWING_VERTICAL, climate::CLIMATE_SWING_HORIZONTAL});
-  this->traits_.set_supports_current_temperature(true);
+  this->traits_.add_feature_flags(climate::CLIMATE_SUPPORTS_CURRENT_TEMPERATURE);
 }
 
 HaierClimateBase::~HaierClimateBase() {}
 
 void HaierClimateBase::set_phase(ProtocolPhases phase) {
   if (this->protocol_phase_ != phase) {
-    ESP_LOGV(TAG, "Phase transition: %s => %s", phase_to_string_(this->protocol_phase_), phase_to_string_(phase));
+    ESP_LOGV(TAG, "Phase transition: %s => %s", LOG_STR_ARG(phase_to_string_(this->protocol_phase_)),
+             LOG_STR_ARG(phase_to_string_(phase)));
     this->protocol_phase_ = phase;
   }
 }
@@ -133,7 +122,7 @@ void HaierClimateBase::save_settings() {
 }
 
 bool HaierClimateBase::get_display_state() const {
-  return (this->display_status_ == SwitchState::ON) || (this->display_status_ == SwitchState::PENDING_ON);
+  return (this->display_status_ == SwitchState::SWITCH_ON) || (this->display_status_ == SwitchState::PENDING_ON);
 }
 
 void HaierClimateBase::set_display_state(bool state) {
@@ -145,7 +134,7 @@ void HaierClimateBase::set_display_state(bool state) {
 }
 
 bool HaierClimateBase::get_health_mode() const {
-  return (this->health_mode_ == SwitchState::ON) || (this->health_mode_ == SwitchState::PENDING_ON);
+  return (this->health_mode_ == SwitchState::SWITCH_ON) || (this->health_mode_ == SwitchState::PENDING_ON);
 }
 
 void HaierClimateBase::set_health_mode(bool state) {
@@ -171,7 +160,7 @@ void HaierClimateBase::toggle_power() {
       PendingAction({ActionRequest::TOGGLE_POWER, esphome::optional<haier_protocol::HaierMessage>()});
 }
 
-void HaierClimateBase::set_supported_swing_modes(const std::set<climate::ClimateSwingMode> &modes) {
+void HaierClimateBase::set_supported_swing_modes(climate::ClimateSwingModeMask modes) {
   this->traits_.set_supported_swing_modes(modes);
   if (!modes.empty())
     this->traits_.add_supported_swing_mode(climate::CLIMATE_SWING_OFF);
@@ -179,26 +168,20 @@ void HaierClimateBase::set_supported_swing_modes(const std::set<climate::Climate
 
 void HaierClimateBase::set_answer_timeout(uint32_t timeout) { this->haier_protocol_.set_answer_timeout(timeout); }
 
-void HaierClimateBase::set_supported_modes(const std::set<climate::ClimateMode> &modes) {
+void HaierClimateBase::set_supported_modes(climate::ClimateModeMask modes) {
   this->traits_.set_supported_modes(modes);
   this->traits_.add_supported_mode(climate::CLIMATE_MODE_OFF);        // Always available
   this->traits_.add_supported_mode(climate::CLIMATE_MODE_HEAT_COOL);  // Always available
 }
 
-void HaierClimateBase::set_supported_presets(const std::set<climate::ClimatePreset> &presets) {
+void HaierClimateBase::set_supported_presets(climate::ClimatePresetMask presets) {
   this->traits_.set_supported_presets(presets);
   if (!presets.empty())
     this->traits_.add_supported_preset(climate::CLIMATE_PRESET_NONE);
 }
 
-void HaierClimateBase::set_send_wifi(bool send_wifi) { this->send_wifi_signal_ = send_wifi; }
-
 void HaierClimateBase::send_custom_command(const haier_protocol::HaierMessage &message) {
   this->action_request_ = PendingAction({ActionRequest::SEND_CUSTOM_COMMAND, message});
-}
-
-void HaierClimateBase::add_status_message_callback(std::function<void(const char *, size_t)> &&callback) {
-  this->status_message_callback_.add(std::move(callback));
 }
 
 haier_protocol::HandlerError HaierClimateBase::answer_preprocess_(
@@ -232,7 +215,7 @@ haier_protocol::HandlerError HaierClimateBase::report_network_status_answer_hand
 
 haier_protocol::HandlerError HaierClimateBase::timeout_default_handler_(haier_protocol::FrameType request_type) {
   ESP_LOGW(TAG, "Answer timeout for command %02X, phase %s", (uint8_t) request_type,
-           phase_to_string_(this->protocol_phase_));
+           LOG_STR_ARG(phase_to_string_(this->protocol_phase_)));
   if (this->protocol_phase_ > ProtocolPhases::IDLE) {
     this->set_phase(ProtocolPhases::IDLE);
   } else {
@@ -242,19 +225,19 @@ haier_protocol::HandlerError HaierClimateBase::timeout_default_handler_(haier_pr
 }
 
 void HaierClimateBase::setup() {
-  ESP_LOGI(TAG, "Haier initialization...");
   // Set timestamp here to give AC time to boot
   this->last_request_timestamp_ = std::chrono::steady_clock::now();
   this->set_phase(ProtocolPhases::SENDING_INIT_1);
   this->haier_protocol_.set_default_timeout_handler(
-      std::bind(&esphome::haier::HaierClimateBase::timeout_default_handler_, this, std::placeholders::_1));
+      [this](haier_protocol::FrameType type) { return this->timeout_default_handler_(type); });
   this->set_handlers();
   this->initialization();
 }
 
 void HaierClimateBase::dump_config() {
   LOG_CLIMATE("", "Haier Climate", this);
-  ESP_LOGCONFIG(TAG, "  Device communication status: %s", this->valid_connection() ? "established" : "none");
+  ESP_LOGCONFIG(TAG, "  Device communication status: %s",
+                this->valid_connection() ? LOG_STR_LITERAL("established") : LOG_STR_LITERAL("none"));
 }
 
 void HaierClimateBase::loop() {
@@ -264,13 +247,13 @@ void HaierClimateBase::loop() {
       (this->reset_protocol_request_ && (!this->haier_protocol_.is_waiting_for_answer()))) {
     this->last_valid_status_timestamp_ = now;
     if (this->protocol_phase_ >= ProtocolPhases::IDLE) {
-      // No status too long, reseting protocol
+      // No status too long, resetting protocol
       // No need to reset protocol if we didn't pass initialization phase
       if (this->reset_protocol_request_) {
         this->reset_protocol_request_ = false;
         ESP_LOGW(TAG, "Protocol reset requested");
       } else {
-        ESP_LOGW(TAG, "Communication timeout, reseting protocol");
+        ESP_LOGW(TAG, "Communication timeout, resetting protocol");
       }
       this->process_protocol_reset();
       return;
@@ -286,7 +269,7 @@ void HaierClimateBase::loop() {
     if (this->action_request_.has_value() && this->prepare_pending_action()) {
       this->set_phase(ProtocolPhases::SENDING_ACTION_COMMAND);
     } else if (this->next_hvac_settings_.valid || this->force_send_control_) {
-      ESP_LOGV(TAG, "Control packet is pending...");
+      ESP_LOGV(TAG, "Control packet is pending");
       this->set_phase(ProtocolPhases::SENDING_CONTROL);
       if (this->next_hvac_settings_.valid) {
         this->current_hvac_settings_ = this->next_hvac_settings_;
@@ -325,20 +308,21 @@ void HaierClimateBase::process_protocol_reset() {
 
 bool HaierClimateBase::prepare_pending_action() {
   if (this->action_request_.has_value()) {
-    switch (this->action_request_.value().action) {
+    PendingAction &request = this->action_request_.value();
+    switch (request.action) {
       case ActionRequest::SEND_CUSTOM_COMMAND:
         return true;
       case ActionRequest::TURN_POWER_ON:
-        this->action_request_.value().message = this->get_power_message(true);
+        request.message = this->get_power_message(true);
         return true;
       case ActionRequest::TURN_POWER_OFF:
-        this->action_request_.value().message = this->get_power_message(false);
+        request.message = this->get_power_message(false);
         return true;
       case ActionRequest::TOGGLE_POWER:
-        this->action_request_.value().message = this->get_power_message(this->mode == ClimateMode::CLIMATE_MODE_OFF);
+        request.message = this->get_power_message(this->mode == ClimateMode::CLIMATE_MODE_OFF);
         return true;
       default:
-        ESP_LOGW(TAG, "Unsupported action: %d", (uint8_t) this->action_request_.value().action);
+        ESP_LOGW(TAG, "Unsupported action: %d", (uint8_t) request.action);
         this->action_request_.reset();
         return false;
     }
@@ -351,8 +335,7 @@ ClimateTraits HaierClimateBase::traits() { return traits_; }
 
 void HaierClimateBase::initialization() {
   constexpr uint32_t restore_settings_version = 0xA77D21EF;
-  this->base_rtc_ =
-      global_preferences->make_preference<HaierBaseSettings>(this->get_object_id_hash() ^ restore_settings_version);
+  this->base_rtc_ = this->make_entity_preference<HaierBaseSettings>(restore_settings_version);
   HaierBaseSettings recovered;
   if (!this->base_rtc_.load(&recovered)) {
     recovered = {false, true};
@@ -360,12 +343,8 @@ void HaierClimateBase::initialization() {
   this->display_status_ = recovered.display_state ? SwitchState::PENDING_ON : SwitchState::PENDING_OFF;
   this->health_mode_ = recovered.health_mode ? SwitchState::PENDING_ON : SwitchState::PENDING_OFF;
 #ifdef USE_SWITCH
-  if (this->display_switch_ != nullptr) {
-    this->display_switch_->publish_state(this->get_display_state());
-  }
-  if (this->health_mode_switch_ != nullptr) {
-    this->health_mode_switch_->publish_state(this->get_health_mode());
-  }
+  PUBLISH_STATE(this->display_switch_, this->get_display_state());
+  PUBLISH_STATE(this->health_mode_switch_, this->get_health_mode());
 #endif
 }
 
@@ -373,7 +352,7 @@ void HaierClimateBase::control(const ClimateCall &call) {
   ESP_LOGD("Control", "Control call");
   if (!this->valid_connection()) {
     ESP_LOGW(TAG, "Can't send control packet, first poll answer not received");
-    return;  // cancel the control, we cant do it without a poll answer.
+    return;  // cancel the control, we can't do it without a poll answer.
   }
   if (this->current_hvac_settings_.valid) {
     ESP_LOGW(TAG, "New settings come faster then processed!");
@@ -424,5 +403,4 @@ void HaierClimateBase::send_message_(const haier_protocol::HaierMessage &command
   this->last_request_timestamp_ = std::chrono::steady_clock::now();
 }
 
-}  // namespace haier
-}  // namespace esphome
+}  // namespace esphome::haier

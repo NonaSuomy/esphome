@@ -1,17 +1,17 @@
 #include "wiegand.h"
-#include "esphome/core/log.h"
+#include <cinttypes>
 #include "esphome/core/helpers.h"
+#include "esphome/core/log.h"
 
-namespace esphome {
-namespace wiegand {
+namespace esphome::wiegand {
 
-static const char *const TAG = "wiegand";
+ESPHOME_LOG_TAG(TAG, "wiegand");
 static const char *const KEYS = "0123456789*#";
 
 void IRAM_ATTR HOT WiegandStore::d0_gpio_intr(WiegandStore *arg) {
   if (arg->d0.digital_read())
     return;
-  arg->count++;
+  arg->count += 1;
   arg->value <<= 1;
   arg->last_bit_time = millis();
   arg->done = false;
@@ -20,7 +20,7 @@ void IRAM_ATTR HOT WiegandStore::d0_gpio_intr(WiegandStore *arg) {
 void IRAM_ATTR HOT WiegandStore::d1_gpio_intr(WiegandStore *arg) {
   if (arg->d1.digital_read())
     return;
-  arg->count++;
+  arg->count += 1;
   arg->value = (arg->value << 1) | 1;
   arg->last_bit_time = millis();
   arg->done = false;
@@ -66,38 +66,46 @@ void Wiegand::loop() {
   this->store_.value = 0;
   this->store_.done = true;
   ESP_LOGV(TAG, "received %d-bit value: %llx", count, value);
-  for (auto *trigger : this->raw_triggers_)
-    trigger->trigger(count, value);
+#ifdef WIEGAND_ON_RAW_COUNT
+  this->raw_automations_.trigger(count, value);
+#endif
   if (count == 26) {
-    std::string tag = to_string((value >> 1) & 0xffffff);
-    ESP_LOGD(TAG, "received 26-bit tag: %s", tag.c_str());
+    char tag_buf[12];  // max 8 digits for 24-bit value + null
+    buf_append_printf(tag_buf, sizeof(tag_buf), 0, "%" PRIu32, static_cast<uint32_t>((value >> 1) & 0xffffff));
+    ESP_LOGD(TAG, "received 26-bit tag: %s", tag_buf);
     if (!check_eparity(value, 13, 13) || !check_oparity(value, 0, 13)) {
       ESP_LOGW(TAG, "invalid parity");
       return;
     }
-    for (auto *trigger : this->tag_triggers_)
-      trigger->trigger(tag);
+#ifdef WIEGAND_ON_TAG_COUNT
+    this->tag_automations_.trigger(tag_buf);
+#endif
   } else if (count == 34) {
-    std::string tag = to_string((value >> 1) & 0xffffffff);
-    ESP_LOGD(TAG, "received 34-bit tag: %s", tag.c_str());
+    char tag_buf[12];  // max 10 digits for 32-bit value + null
+    buf_append_printf(tag_buf, sizeof(tag_buf), 0, "%" PRIu32, static_cast<uint32_t>((value >> 1) & 0xffffffff));
+    ESP_LOGD(TAG, "received 34-bit tag: %s", tag_buf);
     if (!check_eparity(value, 17, 17) || !check_oparity(value, 0, 17)) {
       ESP_LOGW(TAG, "invalid parity");
       return;
     }
-    for (auto *trigger : this->tag_triggers_)
-      trigger->trigger(tag);
+#ifdef WIEGAND_ON_TAG_COUNT
+    this->tag_automations_.trigger(tag_buf);
+#endif
   } else if (count == 37) {
-    std::string tag = to_string((value >> 1) & 0x7ffffffff);
-    ESP_LOGD(TAG, "received 37-bit tag: %s", tag.c_str());
+    char tag_buf[12];  // max 11 digits for 35-bit value + null
+    buf_append_printf(tag_buf, sizeof(tag_buf), 0, "%" PRIu64, static_cast<uint64_t>((value >> 1) & 0x7ffffffff));
+    ESP_LOGD(TAG, "received 37-bit tag: %s", tag_buf);
     if (!check_eparity(value, 18, 19) || !check_oparity(value, 0, 19)) {
       ESP_LOGW(TAG, "invalid parity");
       return;
     }
-    for (auto *trigger : this->tag_triggers_)
-      trigger->trigger(tag);
+#ifdef WIEGAND_ON_TAG_COUNT
+    this->tag_automations_.trigger(tag_buf);
+#endif
   } else if (count == 4) {
-    for (auto *trigger : this->key_triggers_)
-      trigger->trigger(value);
+#ifdef WIEGAND_ON_KEY_COUNT
+    this->key_automations_.trigger(value);
+#endif
     if (value < 12) {
       uint8_t key = KEYS[value];
       this->send_key_(key);
@@ -105,8 +113,9 @@ void Wiegand::loop() {
   } else if (count == 8) {
     if ((value ^ 0xf0) >> 4 == (value & 0xf)) {
       value &= 0xf;
-      for (auto *trigger : this->key_triggers_)
-        trigger->trigger(value);
+#ifdef WIEGAND_ON_KEY_COUNT
+      this->key_automations_.trigger(value);
+#endif
       if (value < 12) {
         uint8_t key = KEYS[value];
         this->send_key_(key);
@@ -123,5 +132,4 @@ void Wiegand::dump_config() {
   LOG_PIN("  D1 pin: ", this->d1_pin_);
 }
 
-}  // namespace wiegand
-}  // namespace esphome
+}  // namespace esphome::wiegand

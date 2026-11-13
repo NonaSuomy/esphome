@@ -1,10 +1,9 @@
 #include "pm1006.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace pm1006 {
+namespace esphome::pm1006 {
 
-static const char *const TAG = "pm1006";
+ESPHOME_LOG_TAG(TAG, "pm1006");
 
 static const uint8_t PM1006_RESPONSE_HEADER[] = {0x16, 0x11, 0x0B};
 static const uint8_t PM1006_REQUEST[] = {0x11, 0x02, 0x0B, 0x01, 0xE1};
@@ -17,7 +16,6 @@ void PM1006Component::dump_config() {
   ESP_LOGCONFIG(TAG, "PM1006:");
   LOG_SENSOR("  ", "PM2.5", this->pm_2_5_sensor_);
   LOG_UPDATE_INTERVAL(this);
-  this->check_uart_settings(9600);
 }
 
 void PM1006Component::update() {
@@ -26,8 +24,8 @@ void PM1006Component::update() {
 }
 
 void PM1006Component::loop() {
-  while (this->available() != 0) {
-    this->read_byte(&this->data_[this->data_index_]);
+  this->read_available([this](uint8_t byte) {
+    this->data_[this->data_index_] = byte;
     auto check = this->check_byte_();
     if (!check.has_value()) {
       // finished
@@ -41,22 +39,16 @@ void PM1006Component::loop() {
       // next byte
       this->data_index_++;
     }
-  }
+  });
 }
 
-float PM1006Component::get_setup_priority() const { return setup_priority::DATA; }
-
 uint8_t PM1006Component::pm1006_checksum_(const uint8_t *command_data, uint8_t length) const {
-  uint8_t sum = 0;
-  for (uint8_t i = 0; i < length; i++) {
-    sum += command_data[i];
-  }
-  return sum;
+  return sum_bytes(command_data, length);
 }
 
 optional<bool> PM1006Component::check_byte_() const {
-  uint8_t index = this->data_index_;
-  uint8_t byte = this->data_[index];
+  const uint8_t index = this->data_index_;
+  const uint8_t byte = this->data_[index];
 
   // index 0..2 are the fixed header
   if (index < sizeof(PM1006_RESPONSE_HEADER)) {
@@ -86,18 +78,11 @@ optional<bool> PM1006Component::check_byte_() const {
 }
 
 void PM1006Component::parse_data_() {
-  const int pm_2_5_concentration = this->get_16_bit_uint_(5);
+  const uint16_t pm_2_5_concentration = this->get_16_bit_uint_(5);
 
   ESP_LOGD(TAG, "Got PM2.5 Concentration: %d µg/m³", pm_2_5_concentration);
 
-  if (this->pm_2_5_sensor_ != nullptr) {
-    this->pm_2_5_sensor_->publish_state(pm_2_5_concentration);
-  }
+  PUBLISH_STATE(this->pm_2_5_sensor_, pm_2_5_concentration);
 }
 
-uint16_t PM1006Component::get_16_bit_uint_(uint8_t start_index) const {
-  return encode_uint16(this->data_[start_index], this->data_[start_index + 1]);
-}
-
-}  // namespace pm1006
-}  // namespace esphome
+}  // namespace esphome::pm1006

@@ -3,30 +3,23 @@
 #include "esphome/core/automation.h"
 #include "microphone.h"
 
+#include <cstdint>
 #include <vector>
 
-namespace esphome {
-namespace microphone {
+namespace esphome::microphone {
 
-template<typename... Ts> class CaptureAction : public Action<Ts...>, public Parented<Microphone> {
-  void play(Ts... x) override { this->parent_->start(); }
-};
-
-template<typename... Ts> class StopCaptureAction : public Action<Ts...>, public Parented<Microphone> {
-  void play(Ts... x) override { this->parent_->stop(); }
-};
-
-class DataTrigger : public Trigger<const std::vector<int16_t> &> {
+/// Reuses one vector so `x` stays valid in automations with a delay.
+class DataTrigger final : public Trigger<const std::vector<uint8_t> &> {
  public:
-  explicit DataTrigger(Microphone *mic) {
-    mic->add_data_callback([this](const std::vector<int16_t> &data) { this->trigger(data); });
+  explicit DataTrigger(Microphone *parent) {
+    parent->add_data_callback([this](const AudioCapture &capture) {
+      this->data_.assign(capture.data.begin(), capture.data.end());
+      this->trigger(this->data_);
+    });
   }
+
+ protected:
+  std::vector<uint8_t> data_;
 };
 
-template<typename... Ts> class IsCapturingCondition : public Condition<Ts...>, public Parented<Microphone> {
- public:
-  bool check(Ts... x) override { return this->parent_->is_running(); }
-};
-
-}  // namespace microphone
-}  // namespace esphome
+}  // namespace esphome::microphone

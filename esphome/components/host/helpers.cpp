@@ -1,0 +1,52 @@
+#include "esphome/core/helpers.h"
+
+#ifdef USE_HOST
+
+#ifndef _WIN32
+#include <net/if.h>
+#include <netinet/in.h>
+#include <sys/ioctl.h>
+#endif
+#include <unistd.h>
+
+#include "esphome/core/defines.h"
+#include "esphome/core/log.h"
+
+namespace esphome {
+
+ESPHOME_LOG_TAG(TAG, "helpers.host");
+
+bool random_bytes(uint8_t *data, size_t len) {
+  FILE *fp = fopen("/dev/urandom", "r");
+  if (fp == nullptr) {
+    ESP_LOGW(TAG, "Could not open /dev/urandom, errno=%d", errno);
+    exit(1);
+  }
+  size_t read = fread(data, 1, len, fp);
+  if (read != len) {
+    ESP_LOGW(TAG, "Not enough data from /dev/urandom");
+    exit(1);
+  }
+  fclose(fp);
+  return true;
+}
+
+// The host has no interrupts to mask
+InterruptLock::InterruptLock() {}
+InterruptLock::~InterruptLock() {}
+
+// Host platform uses std::mutex for proper thread synchronization
+Mutex::Mutex() { handle_ = new std::mutex(); }
+Mutex::~Mutex() { delete static_cast<std::mutex *>(handle_); }
+void Mutex::lock() { static_cast<std::mutex *>(handle_)->lock(); }
+bool Mutex::try_lock() { return static_cast<std::mutex *>(handle_)->try_lock(); }
+void Mutex::unlock() { static_cast<std::mutex *>(handle_)->unlock(); }
+
+void get_mac_address_raw(uint8_t *mac) {  // NOLINT(readability-non-const-parameter)
+  static constexpr uint8_t HOST_MAC_ADDRESS[MAC_ADDRESS_SIZE] = USE_ESPHOME_HOST_MAC_ADDRESS;
+  memcpy(mac, HOST_MAC_ADDRESS, sizeof(HOST_MAC_ADDRESS));
+}
+
+}  // namespace esphome
+
+#endif  // USE_HOST

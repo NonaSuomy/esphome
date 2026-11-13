@@ -1,5 +1,6 @@
 touchscreen:
   - platform: ft63x6
+    i2c_id: i2c_bus
     id: tft_touch
     display: tft_display
     update_interval: 50ms
@@ -24,32 +25,46 @@ sensor:
     widget: lv_arc
   - platform: lvgl
     widget: slider_id
-    name: LVGL Slider
+    name: LVGL Slider Sensor
   - platform: lvgl
     widget: bar_id
     id: lvgl_bar_sensor
-    name: LVGL Bar
+    name: LVGL Bar Sensor
   - platform: lvgl
     widget: spinbox_id
-    name: LVGL Spinbox
+    name: LVGL Spinbox Sensor
 
 number:
   - platform: lvgl
     widget: slider_id
-    name: LVGL Slider
-    update_on_release: true
+    name: LVGL Slider Number
+    trigger: on_release
+    restore_value: true
   - platform: lvgl
     widget: lv_arc
     id: lvgl_arc_number
-    name: LVGL Arc
+    name: LVGL Arc Number
   - platform: lvgl
     widget: bar_id
     id: lvgl_bar_number
-    name: LVGL Bar
+    name: LVGL Bar Number
   - platform: lvgl
     widget: spinbox_id
     id: lvgl_spinbox_number
-    name: LVGL Spinbox
+    name: LVGL Spinbox Number
+  - platform: template
+    id: test_brightness
+    name: "Test Brightness"
+    min_value: 0
+    max_value: 255
+    step: 1
+    optimistic: true
+    # Test lambda in automation accessing x parameter directly
+    # This is a real-world pattern from user configs
+    on_value:
+      - lambda: !lambda |-
+          // Direct use of x parameter in automation
+          ESP_LOGD("test", "Brightness: %.0f", x);
 
 light:
   - platform: lvgl
@@ -62,7 +77,7 @@ binary_sensor:
     id: lvgl_pressbutton
     name: Pressbutton
     widget: spin_up
-    publish_initial_state: true
+    trigger_on_initial_state: true
   - platform: lvgl
     name: ButtonMatrix button
     widget: button_a
@@ -75,9 +90,58 @@ binary_sensor:
         - lvgl.page.previous:
             animation: move_right
             time: 600ms
+        - lvgl.page.show: page1
+        - lvgl.page.show:
+            id: page1
+            animation: fade_in
+            time: 300ms
+        - lvgl.animimg.start: anim_img
+        - lvgl.tileview.select:
+            id: tileview_id
+            tile_id: tile_1
+            animated: true
+        - lvgl.tileview.select:
+            id: tileview_id
+            row: 0
+            column: 0
+        - lvgl.switch.update:
+            id: wifi_switch
+            state:
+              checked: true
+        - lvgl.roller.update:
+            id: lv_roller
+            selected_index: 1
+        - lvgl.led.update:
+            id: lv_led
+            brightness: 50%
+        - lvgl.buttonmatrix.update:
+            id: b_matrix
+            hidden: false
+        - lvgl.obj.update:
+            id: anim_box
+            hidden: false
+        - lvgl.page.update:
+            id: page1
+        - lvgl.tabview.update:
+            id: tabview_id
+            hidden: false
+        - lvgl.tileview.update:
+            id: tileview_id
+            hidden: false
+        - lvgl.menu.update:
+            id: settings_menu
+            hidden: false
+        - lvgl.canvas.update:
+            id: canvas_id
+            hidden: false
+        - if:
+            condition:
+              lvgl.is_paused:
+            then:
+              - logger.log: LVGL is paused
   - platform: lvgl
-    id: button_checker
-    name: LVGL button
+    id: common_button_checker
+    name: Common button
     widget: spin_up
     on_state:
       then:
@@ -95,16 +159,34 @@ binary_sensor:
             id: lv_image
             src: !lambda if (x) return id(cat_image); else return id(dog_image);
 
-wifi:
-  ssid: SSID
-  password: PASSWORD123
-
-time:
-  platform: sntp
-  id: time_id
-
 text:
   - id: lvgl_text
     platform: lvgl
     widget: hello_label
     mode: text
+
+text_sensor:
+  - platform: lvgl
+    widget: hello_label
+    name: LVGL Label Text
+  - platform: template
+    id: test_text_sensor
+    name: "Test Text Sensor"
+    # Test nested lambdas in LVGL actions can access automation parameters
+    on_value:
+      - lvgl.label.update:
+          id: hello_label
+          text: !lambda return x.c_str();
+      - lvgl.label.update:
+          id: hello_label
+          text: !lambda |-
+            // Test complex lambda with conditionals accessing x parameter
+            if (x == "*") {
+              return "WILDCARD";
+            }
+            return x.c_str();
+
+switch:
+  - platform: lvgl
+    widget: checkbox_id
+    name: LVGL Checkbox Switch

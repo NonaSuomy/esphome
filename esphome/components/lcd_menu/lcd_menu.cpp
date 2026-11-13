@@ -2,14 +2,13 @@
 #include "esphome/core/log.h"
 #include <algorithm>
 
-namespace esphome {
-namespace lcd_menu {
+namespace esphome::lcd_menu {
 
-static const char *const TAG = "lcd_menu";
+ESPHOME_LOG_TAG(TAG, "lcd_menu");
 
 void LCDCharacterMenuComponent::setup() {
   if (this->display_->is_failed()) {
-    this->mark_failed();
+    this->mark_failed(LOG_STR("The connected display failed, the menu is disabled"));
     return;
   }
 
@@ -19,13 +18,12 @@ void LCDCharacterMenuComponent::setup() {
 float LCDCharacterMenuComponent::get_setup_priority() const { return setup_priority::PROCESSOR - 1.0f; }
 
 void LCDCharacterMenuComponent::dump_config() {
-  ESP_LOGCONFIG(TAG, "LCD Menu");
-  ESP_LOGCONFIG(TAG, "  Columns: %u, Rows: %u", this->columns_, this->rows_);
-  ESP_LOGCONFIG(TAG, "  Mark characters: %02x, %02x, %02x, %02x", this->mark_selected_, this->mark_editing_,
-                this->mark_submenu_, this->mark_back_);
-  if (this->is_failed()) {
-    ESP_LOGE(TAG, "The connected display failed, the menu is disabled!");
-  }
+  ESP_LOGCONFIG(TAG,
+                "LCD Menu\n"
+                "  Columns: %u, Rows: %u\n"
+                "  Mark characters: %02x, %02x, %02x, %02x",
+                this->columns_, this->rows_, this->mark_selected_, this->mark_editing_, this->mark_submenu_,
+                this->mark_back_);
 }
 
 void LCDCharacterMenuComponent::draw_item(const display_menu_base::MenuItem *item, uint8_t row, bool selected) {
@@ -70,5 +68,4 @@ void LCDCharacterMenuComponent::draw_item(const display_menu_base::MenuItem *ite
   this->display_->print(0, row, data);
 }
 
-}  // namespace lcd_menu
-}  // namespace esphome
+}  // namespace esphome::lcd_menu

@@ -1,5 +1,7 @@
+from esphome import pins
 import esphome.codegen as cg
 from esphome.components import uart
+from esphome.components.const import CONF_DATA_BITS, CONF_PARITY, CONF_STOP_BITS
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_BAUD_RATE,
@@ -11,13 +13,14 @@ from esphome.const import (
     CONF_NUMBER,
     CONF_OUTPUT,
 )
+from esphome.cpp_generator import MockObj
+from esphome.types import ConfigType
 
 CODEOWNERS = ["@DrCoolZic"]
 AUTO_LOAD = ["uart"]
+DOMAIN = "weikai"
 
 MULTI_CONF = True
-CONF_STOP_BITS = "stop_bits"
-CONF_PARITY = "parity"
 CONF_CRYSTAL = "crystal"
 CONF_UART = "uart"
 CONF_TEST_MODE = "test_mode"
@@ -27,7 +30,7 @@ WeikaiComponent = weikai_ns.class_("WeikaiComponent", cg.Component)
 WeikaiChannel = weikai_ns.class_("WeikaiChannel", uart.UARTComponent)
 
 
-def check_channel_max(value, max):
+def check_channel_max(value: ConfigType, max: int) -> ConfigType:
     channel_uniq = []
     channel_dup = []
     for x in value[CONF_UART]:
@@ -42,11 +45,11 @@ def check_channel_max(value, max):
     return value
 
 
-def check_channel_max_4(value):
+def check_channel_max_4(value: ConfigType) -> ConfigType:
     return check_channel_max(value, 4)
 
 
-def check_channel_max_2(value):
+def check_channel_max_2(value: ConfigType) -> ConfigType:
     return check_channel_max(value, 2)
 
 
@@ -60,6 +63,7 @@ WKBASE_SCHEMA = cv.Schema(
                 cv.Required(CONF_ID): cv.declare_id(WeikaiChannel),
                 cv.Optional(CONF_CHANNEL, default=0): cv.int_range(min=0, max=3),
                 cv.Required(CONF_BAUD_RATE): cv.int_range(min=1),
+                cv.Optional(CONF_DATA_BITS, default=8): cv.one_of(8, int=True),
                 cv.Optional(CONF_STOP_BITS, default=1): cv.one_of(1, 2, int=True),
                 cv.Optional(CONF_PARITY, default="NONE"): cv.enum(
                     uart.UART_PARITY_OPTIONS, upper=True
@@ -70,7 +74,7 @@ WKBASE_SCHEMA = cv.Schema(
 ).extend(cv.COMPONENT_SCHEMA)
 
 
-async def register_weikai(var, config):
+async def register_weikai(var: MockObj, config: ConfigType) -> None:
     """Register an weikai device with the given config."""
     cg.add(var.set_crystal(config[CONF_CRYSTAL]))
     cg.add(var.set_test_mode(config[CONF_TEST_MODE]))
@@ -85,12 +89,9 @@ async def register_weikai(var, config):
         cg.add(chan.set_parity(uart_elem[CONF_PARITY]))
 
 
-def validate_pin_mode(value):
+def validate_pin_mode(value: ConfigType) -> ConfigType:
     """Checks input/output mode inconsistency"""
-    if not (value[CONF_MODE][CONF_INPUT] or value[CONF_MODE][CONF_OUTPUT]):
-        raise cv.Invalid("Mode must be either input or output")
-    if value[CONF_MODE][CONF_INPUT] and value[CONF_MODE][CONF_OUTPUT]:
-        raise cv.Invalid("Mode must be either input or output")
+    pins.gpio_validate_input_xor_output(value[CONF_MODE])
     return value
 
 

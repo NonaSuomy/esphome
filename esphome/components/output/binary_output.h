@@ -7,8 +7,7 @@
 #include "esphome/components/power_supply/power_supply.h"
 #endif
 
-namespace esphome {
-namespace output {
+namespace esphome::output {
 
 #define LOG_BINARY_OUTPUT(this) \
   if (this->inverted_) { \
@@ -69,5 +68,16 @@ class BinaryOutput {
 #endif
 };
 
-}  // namespace output
-}  // namespace esphome
+/// Calls the codegen-generated Fn(this, index, state) on a state write; the hub is baked into Fn.
+/// The index (a hub's channel) is data, so all channels of a hub share one instantiation.
+template<auto Fn> class ApplyBinaryOutput final : public BinaryOutput {
+ public:
+  explicit ApplyBinaryOutput(uint16_t index = 0) : index_(index) {}
+
+ protected:
+  void write_state(bool state) override { Fn(this, this->index_, state); }
+
+  uint16_t index_;  // Fits in the base's tail padding
+};
+
+}  // namespace esphome::output

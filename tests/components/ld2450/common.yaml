@@ -1,18 +1,13 @@
-uart:
-  - id: ld2450_uart
-    tx_pin: ${tx_pin}
-    rx_pin: ${rx_pin}
-    baud_rate: 256000
-    parity: NONE
-    stop_bits: 1
-
 ld2450:
   - id: ld2450_radar
-    uart_id: ld2450_uart
-    throttle: 1000ms
+    link_timeout: 10s
+    on_data:
+      then:
+        - logger.log: "LD2450 Radar Data Received"
 
 button:
   - platform: ld2450
+    id: ld2450_button
     ld2450_id: ld2450_radar
     factory_reset:
       name: LD2450 Factory Reset
@@ -20,9 +15,12 @@ button:
     restart:
       name: LD2450 Restart
       entity_category: config
+    xy_unfiltered:
+      name: LD2450 XY Unfiltered
 
 sensor:
   - platform: ld2450
+    id: ld2450_sensor
     ld2450_id: ld2450_radar
     target_count:
       name: Presence Target Count
@@ -93,16 +91,34 @@ sensor:
 
 binary_sensor:
   - platform: ld2450
+    id: ld2450_binary
     ld2450_id: ld2450_radar
+    connected:
+      name: Radar Link
     has_target:
       name: Presence
     has_moving_target:
       name: Moving Target
     has_still_target:
       name: Still Target
+    polygon_zones:
+      - polygon_zone_id: ld2450_couch_zone
+        name: Couch Occupied
+      - polygon_zone_id: ld2450_desk_zone
+        name: Desk Occupied
+
+text:
+  - platform: ld2450
+    ld2450_id: ld2450_radar
+    polygon_zones:
+      - id: ld2450_couch_zone
+        name: Couch Zone Polygon
+      - id: ld2450_desk_zone
+        name: Desk Zone Polygon
 
 switch:
   - platform: ld2450
+    id: ld2450_switch
     ld2450_id: ld2450_radar
     bluetooth:
       name: Bluetooth
@@ -111,6 +127,7 @@ switch:
 
 text_sensor:
   - platform: ld2450
+    id: ld2450_textsensor
     ld2450_id: ld2450_radar
     version:
       name: LD2450 Firmware
@@ -119,15 +136,27 @@ text_sensor:
     target_1:
       direction:
         name: Target-1 Direction
+      xy:
+        name: Target-1 XY
     target_2:
       direction:
         name: Target-2 Direction
+      xy:
+        name: Target-2 XY
+        filters:
+          - throttle_with_priority:
+              timeout: 200ms
+              value: NA
     target_3:
       direction:
         name: Target-3 Direction
+      xy:
+        name: Target-3 XY
+        filters: []
 
 number:
   - platform: ld2450
+    id: ld2450_number
     ld2450_id: ld2450_radar
     presence_timeout:
       name: Timeout
@@ -161,6 +190,7 @@ number:
 
 select:
   - platform: ld2450
+    id: ld2450_select
     ld2450_id: ld2450_radar
     baud_rate:
       name: Baud Rate

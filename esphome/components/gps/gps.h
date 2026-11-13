@@ -1,16 +1,12 @@
 #pragma once
 
-#ifdef USE_ARDUINO
-
-#include "esphome/core/component.h"
-#include "esphome/components/uart/uart.h"
 #include "esphome/components/sensor/sensor.h"
-#include <TinyGPS++.h>
+#include "esphome/components/uart/uart.h"
+#include "esphome/core/component.h"
+#include "esphome/core/helpers.h"
+#include <TinyGPSPlus.h>
 
-#include <vector>
-
-namespace esphome {
-namespace gps {
+namespace esphome::gps {
 
 class GPS;
 
@@ -25,47 +21,41 @@ class GPSListener {
   GPS *parent_;
 };
 
-class GPS : public PollingComponent, public uart::UARTDevice {
- public:
-  void set_latitude_sensor(sensor::Sensor *latitude_sensor) { latitude_sensor_ = latitude_sensor; }
-  void set_longitude_sensor(sensor::Sensor *longitude_sensor) { longitude_sensor_ = longitude_sensor; }
-  void set_speed_sensor(sensor::Sensor *speed_sensor) { speed_sensor_ = speed_sensor; }
-  void set_course_sensor(sensor::Sensor *course_sensor) { course_sensor_ = course_sensor; }
-  void set_altitude_sensor(sensor::Sensor *altitude_sensor) { altitude_sensor_ = altitude_sensor; }
-  void set_satellites_sensor(sensor::Sensor *satellites_sensor) { satellites_sensor_ = satellites_sensor; }
+class GPS final : public PollingComponent, public uart::UARTDevice {
+  SUB_SENSOR(latitude)
+  SUB_SENSOR(longitude)
+  SUB_SENSOR(speed)
+  SUB_SENSOR(course)
+  SUB_SENSOR(altitude)
+  SUB_SENSOR(satellites)
+  SUB_SENSOR(hdop)
 
+ public:
+  SLOT_LIST_REQUIRES(GPS_LISTENER_COUNT)
   void register_listener(GPSListener *listener) {
     listener->parent_ = this;
     this->listeners_.push_back(listener);
   }
   float get_setup_priority() const override { return setup_priority::HARDWARE; }
 
+  void dump_config() override;
   void loop() override;
   void update() override;
 
   TinyGPSPlus &get_tiny_gps() { return this->tiny_gps_; }
 
  protected:
-  float latitude_ = -1;
-  float longitude_ = -1;
-  float speed_ = -1;
-  float course_ = -1;
-  float altitude_ = -1;
-  int satellites_ = -1;
-
-  sensor::Sensor *latitude_sensor_{nullptr};
-  sensor::Sensor *longitude_sensor_{nullptr};
-  sensor::Sensor *speed_sensor_{nullptr};
-  sensor::Sensor *course_sensor_{nullptr};
-  sensor::Sensor *altitude_sensor_{nullptr};
-  sensor::Sensor *satellites_sensor_{nullptr};
-
+  float latitude_{NAN};
+  float longitude_{NAN};
+  float speed_{NAN};
+  float course_{NAN};
+  float altitude_{NAN};
+  float hdop_{NAN};
+  uint16_t satellites_{0};
   bool has_time_{false};
+
   TinyGPSPlus tiny_gps_;
-  std::vector<GPSListener *> listeners_{};
+  [[no_unique_address]] SlotList<GPSListener *, GPS_LISTENER_COUNT> listeners_;
 };
 
-}  // namespace gps
-}  // namespace esphome
-
-#endif  // USE_ARDUINO
+}  // namespace esphome::gps

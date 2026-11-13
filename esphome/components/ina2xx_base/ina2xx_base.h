@@ -3,8 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
 
-namespace esphome {
-namespace ina2xx_base {
+namespace esphome::ina2xx_base {
 
 enum RegisterMap : uint8_t {
   REG_CONFIG = 0x00,
@@ -114,7 +113,6 @@ enum INAModel : uint8_t { INA_UNKNOWN = 0, INA_228, INA_229, INA_238, INA_239, I
 class INA2XX : public PollingComponent {
  public:
   void setup() override;
-  float get_setup_priority() const override;
   void update() override;
   void loop() override;
   void dump_config() override;
@@ -127,16 +125,17 @@ class INA2XX : public PollingComponent {
   void set_adc_time_die_temperature(AdcTime time) { this->adc_time_die_temperature_ = time; }
   void set_adc_avg_samples(AdcAvgSamples samples) { this->adc_avg_samples_ = samples; }
   void set_shunt_tempco(uint16_t coeff) { this->shunt_tempco_ppm_c_ = coeff; }
+  void set_reset_on_boot(bool reset) { this->reset_on_boot_ = reset; }
 
-  void set_shunt_voltage_sensor(sensor::Sensor *sensor) { this->shunt_voltage_sensor_ = sensor; }
-  void set_bus_voltage_sensor(sensor::Sensor *sensor) { this->bus_voltage_sensor_ = sensor; }
-  void set_die_temperature_sensor(sensor::Sensor *sensor) { this->die_temperature_sensor_ = sensor; }
-  void set_current_sensor(sensor::Sensor *sensor) { this->current_sensor_ = sensor; }
-  void set_power_sensor(sensor::Sensor *sensor) { this->power_sensor_ = sensor; }
-  void set_energy_sensor_j(sensor::Sensor *sensor) { this->energy_sensor_j_ = sensor; }
-  void set_energy_sensor_wh(sensor::Sensor *sensor) { this->energy_sensor_wh_ = sensor; }
-  void set_charge_sensor_c(sensor::Sensor *sensor) { this->charge_sensor_c_ = sensor; }
-  void set_charge_sensor_ah(sensor::Sensor *sensor) { this->charge_sensor_ah_ = sensor; }
+  SUB_SENSOR(shunt_voltage)
+  SUB_SENSOR(bus_voltage)
+  SUB_SENSOR(die_temperature)
+  SUB_SENSOR(current)
+  SUB_SENSOR(power)
+  SUB_SENSOR(energy_j)
+  SUB_SENSOR(energy_wh)
+  SUB_SENSOR(charge_c)
+  SUB_SENSOR(charge_ah)
 
   void set_model(INAModel model) { this->ina_model_ = model; }
 
@@ -172,6 +171,7 @@ class INA2XX : public PollingComponent {
   AdcTime adc_time_die_temperature_{AdcTime::ADC_TIME_4120US};
   AdcAvgSamples adc_avg_samples_{AdcAvgSamples::ADC_AVG_SAMPLES_128};
   uint16_t shunt_tempco_ppm_c_{0};
+  bool reset_on_boot_{true};
 
   //
   // Calculated coefficients
@@ -181,19 +181,6 @@ class INA2XX : public PollingComponent {
 
   uint32_t energy_overflows_count_{0};
   uint32_t charge_overflows_count_{0};
-
-  //
-  // Sensor objects
-  //
-  sensor::Sensor *shunt_voltage_sensor_{nullptr};
-  sensor::Sensor *bus_voltage_sensor_{nullptr};
-  sensor::Sensor *die_temperature_sensor_{nullptr};
-  sensor::Sensor *current_sensor_{nullptr};
-  sensor::Sensor *power_sensor_{nullptr};
-  sensor::Sensor *energy_sensor_j_{nullptr};
-  sensor::Sensor *energy_sensor_wh_{nullptr};
-  sensor::Sensor *charge_sensor_c_{nullptr};
-  sensor::Sensor *charge_sensor_ah_{nullptr};
 
   //
   // FSM states
@@ -249,5 +236,4 @@ class INA2XX : public PollingComponent {
   virtual bool read_ina_register(uint8_t a_register, uint8_t *data, size_t len) = 0;
   virtual bool write_ina_register(uint8_t a_register, const uint8_t *data, size_t len) = 0;
 };
-}  // namespace ina2xx_base
-}  // namespace esphome
+}  // namespace esphome::ina2xx_base

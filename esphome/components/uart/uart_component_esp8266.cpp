@@ -1,19 +1,37 @@
 #ifdef USE_ESP8266
 #include "uart_component_esp8266.h"
+#include <esp8266_peri.h>
+#include <optional>
 #include "esphome/core/application.h"
 #include "esphome/core/defines.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
+#ifdef USE_UART_WAKE_LOOP_ON_RX
+#include "esphome/core/wake.h"
+#endif
 
 #ifdef USE_LOGGER
 #include "esphome/components/logger/logger.h"
 #endif
 
-namespace esphome {
-namespace uart {
+namespace esphome::uart {
 
-static const char *const TAG = "uart.arduino_esp8266";
+ESPHOME_LOG_TAG(TAG, "uart");
+// Edge decoder up to this baud rate; at 38400 WiFi interrupt latency corrupts bytes.
+static constexpr uint32_t SW_SERIAL_EDGE_MODE_MAX_BAUD = 19200;
+// TX locks interrupts per bit up to this baud rate and per byte above it. At 38400 byte locks still trip the Wi-Fi
+// watchdog when every byte is below 0x80, while an interrupt between bits leaves the bytes intact; at 115200 it
+// stretches bits enough to corrupt them.
+static constexpr uint32_t SW_SERIAL_TX_BIT_LOCK_MAX_BAUD = 38400;
+// Edge decoder time base: 1/16 us from the 1 MHz system timer, which keeps its rate during a
+// CpuFrequencyBoost; the cycle counter does not.
+static constexpr uint32_t RX_TICKS_PER_SECOND = 16000000;
+// Longest per-bit TX interrupt lock; the Wi-Fi interrupt handler asserts (hardware WDT) when held off about 1 ms
+static constexpr uint32_t MAX_TX_LOCK_CYCLES = F_CPU / 1000000 * 200;
+__attribute__((always_inline)) static inline uint32_t rx_now() { return micros() << 4; }
 bool ESP8266UartComponent::serial0_in_use = false;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+
+bool ESP8266UartComponent::serial0_swapped = false;  // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 uint32_t ESP8266UartComponent::get_config() {
   uint32_t config = 0;
@@ -56,12 +74,27 @@ uint32_t ESP8266UartComponent::get_config() {
 }
 
 void ESP8266UartComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up UART bus...");
+  auto setup_pin_if_needed = [](InternalGPIOPin *pin) {
+    if (!pin) {
+      return;
+    }
+    const auto mask = gpio::Flags::FLAG_OPEN_DRAIN | gpio::Flags::FLAG_PULLUP | gpio::Flags::FLAG_PULLDOWN;
+    if ((pin->get_flags() & mask) != gpio::Flags::FLAG_NONE) {
+      pin->setup();
+    }
+  };
+
+  setup_pin_if_needed(this->rx_pin_);
+  if (this->rx_pin_ != this->tx_pin_) {
+    setup_pin_if_needed(this->tx_pin_);
+  }
+
   // Use Arduino HardwareSerial UARTs if all used pins match the ones
   // preconfigured by the platform. For example if RX disabled but TX pin
   // is 1 we still want to use Serial.
   SerialConfig config = static_cast<SerialConfig>(get_config());
 
+#ifdef USE_ESP8266_UART_SERIAL
   if (!ESP8266UartComponent::serial0_in_use && (tx_pin_ == nullptr || tx_pin_->get_pin() == 1) &&
       (rx_pin_ == nullptr || rx_pin_->get_pin() == 3)
 #ifdef USE_LOGGER
@@ -87,11 +120,17 @@ void ESP8266UartComponent::setup() {
     this->hw_serial_->setRxBufferSize(this->rx_buffer_size_);
     this->hw_serial_->swap();
     ESP8266UartComponent::serial0_in_use = true;
-  } else if ((tx_pin_ == nullptr || tx_pin_->get_pin() == 2) && (rx_pin_ == nullptr || rx_pin_->get_pin() == 8)) {
+    ESP8266UartComponent::serial0_swapped = true;
+  } else
+#endif  // USE_ESP8266_UART_SERIAL
+#ifdef USE_ESP8266_UART_SERIAL1
+      if ((tx_pin_ == nullptr || tx_pin_->get_pin() == 2) && (rx_pin_ == nullptr || rx_pin_->get_pin() == 8)) {
     this->hw_serial_ = &Serial1;
     this->hw_serial_->begin(this->baud_rate_, config);
     this->hw_serial_->setRxBufferSize(this->rx_buffer_size_);
-  } else {
+  } else
+#endif  // USE_ESP8266_UART_SERIAL1
+  {
     this->sw_serial_ = new ESP8266SoftwareSerial();  // NOLINT
     this->sw_serial_->setup(tx_pin_, rx_pin_, this->baud_rate_, this->stop_bits_, this->data_bits_, this->parity_,
                             this->rx_buffer_size_);
@@ -99,11 +138,16 @@ void ESP8266UartComponent::setup() {
 }
 
 void ESP8266UartComponent::load_settings(bool dump_config) {
-  ESP_LOGCONFIG(TAG, "Loading UART bus settings...");
+  ESP_LOGCONFIG(TAG, "Loading UART bus settings");
   if (this->hw_serial_ != nullptr) {
     SerialConfig config = static_cast<SerialConfig>(get_config());
     this->hw_serial_->begin(this->baud_rate_, config);
     this->hw_serial_->setRxBufferSize(this->rx_buffer_size_);
+#ifdef USE_ESP8266_UART_SERIAL
+    // begin() puts UART0 back on GPIO1/GPIO3, so swap it again like setup() did for GPIO15/GPIO13
+    if (this->hw_serial_ == &Serial && ESP8266UartComponent::serial0_swapped)
+      this->hw_serial_->swap();
+#endif  // USE_ESP8266_UART_SERIAL
   } else {
     this->sw_serial_->setup(this->tx_pin_, this->rx_pin_, this->baud_rate_, this->stop_bits_, this->data_bits_,
                             this->parity_, this->rx_buffer_size_);
@@ -121,14 +165,32 @@ void ESP8266UartComponent::dump_config() {
   if (this->rx_pin_ != nullptr) {
     ESP_LOGCONFIG(TAG, "  RX Buffer Size: %u", this->rx_buffer_size_);  // NOLINT
   }
-  ESP_LOGCONFIG(TAG, "  Baud Rate: %u baud", this->baud_rate_);
-  ESP_LOGCONFIG(TAG, "  Data Bits: %u", this->data_bits_);
-  ESP_LOGCONFIG(TAG, "  Parity: %s", LOG_STR_ARG(parity_to_str(this->parity_)));
-  ESP_LOGCONFIG(TAG, "  Stop bits: %u", this->stop_bits_);
+  ESP_LOGCONFIG(TAG,
+                "  Baud Rate: %u baud\n"
+                "  Data Bits: %u\n"
+                "  Parity: %s\n"
+                "  Stop bits: %u",
+                this->baud_rate_, this->data_bits_, LOG_STR_ARG(parity_to_str(this->parity_)), this->stop_bits_);
   if (this->hw_serial_ != nullptr) {
     ESP_LOGCONFIG(TAG, "  Using hardware serial interface.");
   } else {
-    ESP_LOGCONFIG(TAG, "  Using software serial");
+    ESP_LOGCONFIG(TAG, "  Using software serial"
+#ifdef USE_UART_WAKE_LOOP_ON_RX
+                       "\n  Wake on data RX: ENABLED"
+#endif
+    );
+    if (this->rx_pin_ != nullptr) {
+      ESP_LOGCONFIG(TAG, "  RX decoder: %s",
+                    this->baud_rate_ <= SW_SERIAL_EDGE_MODE_MAX_BAUD ? LOG_STR_LITERAL("edge")
+                                                                     : LOG_STR_LITERAL("start bit sampler"));
+    }
+    if (this->tx_pin_ != nullptr && this->baud_rate_ <= SW_SERIAL_TX_BIT_LOCK_MAX_BAUD &&
+        this->sw_serial_->locks_whole_frame()) {
+      ESP_LOGW(TAG,
+               "  TX locks interrupts for whole bytes because a software UART receives above %u baud; Wi-Fi "
+               "watchdog resets are possible under load",
+               (unsigned) SW_SERIAL_EDGE_MODE_MAX_BAUD);
+    }
   }
   this->check_logger_conflict();
 }
@@ -162,11 +224,7 @@ void ESP8266UartComponent::write_array(const uint8_t *data, size_t len) {
 bool ESP8266UartComponent::peek_byte(uint8_t *data) {
   if (!this->check_read_timeout_())
     return false;
-  if (this->hw_serial_ != nullptr) {
-    *data = this->hw_serial_->peek();
-  } else {
-    *data = this->sw_serial_->peek_byte();
-  }
+  *data = this->hw_serial_ != nullptr ? this->hw_serial_->peek() : this->sw_serial_->peek_byte();
   return true;
 }
 bool ESP8266UartComponent::read_array(uint8_t *data, size_t len) {
@@ -185,65 +243,136 @@ bool ESP8266UartComponent::read_array(uint8_t *data, size_t len) {
 #endif
   return true;
 }
-int ESP8266UartComponent::available() {
+size_t ESP8266UartComponent::available() {
   if (this->hw_serial_ != nullptr) {
     return this->hw_serial_->available();
   } else {
     return this->sw_serial_->available();
   }
 }
-void ESP8266UartComponent::flush() {
-  ESP_LOGVV(TAG, "    Flushing...");
+size_t ESP8266UartComponent::available_for_write() {
+  if (this->hw_serial_ != nullptr) {
+    return this->hw_serial_->availableForWrite();
+  }
+  return SIZE_MAX;  // software serial bit-bangs each byte synchronously; there is no buffer to fill
+}
+UARTFlushResult ESP8266UartComponent::flush() {
+  ESP_LOGVV(TAG, "    Flushing");
   if (this->hw_serial_ != nullptr) {
     this->hw_serial_->flush();
   } else {
     this->sw_serial_->flush();
   }
+  return UARTFlushResult::UART_FLUSH_RESULT_ASSUMED_SUCCESS;
 }
 void ESP8266SoftwareSerial::setup(InternalGPIOPin *tx_pin, InternalGPIOPin *rx_pin, uint32_t baud_rate,
                                   uint8_t stop_bits, uint32_t data_bits, UARTParityOptions parity,
                                   size_t rx_buffer_size) {
+  // load_settings() re-enters here
+  if (this->gpio_rx_pin_ != nullptr)
+    this->gpio_rx_pin_->detach_interrupt();
+  // This instance counted itself if its RX ran the whole-byte interrupt
+  if (this->blocking_rx_ && this->gpio_rx_pin_ != nullptr)
+    blocking_rx_count--;
+  // RX disabled: forget the old pin, so a later reload does not remove this instance from the count again
+  if (rx_pin == nullptr)
+    this->gpio_rx_pin_ = nullptr;
   this->bit_time_ = F_CPU / baud_rate;
-  this->rx_buffer_size_ = rx_buffer_size;
   this->stop_bits_ = stop_bits;
   this->data_bits_ = data_bits;
   this->parity_ = parity;
+  const bool edge_mode = baud_rate <= SW_SERIAL_EDGE_MODE_MAX_BAUD;
+  this->blocking_rx_ = !edge_mode;
+  this->lock_frame_ = baud_rate > SW_SERIAL_TX_BIT_LOCK_MAX_BAUD;
+  // to_isr() allocates, so call it only for a new or changed pin
   if (tx_pin != nullptr) {
+    if (tx_pin != this->gpio_tx_pin_)
+      this->tx_pin_ = tx_pin->to_isr();
     gpio_tx_pin_ = tx_pin;
     gpio_tx_pin_->setup();
-    tx_pin_ = gpio_tx_pin_->to_isr();
     tx_pin_.digital_write(true);
   }
   if (rx_pin != nullptr) {
+    if (rx_pin != this->gpio_rx_pin_)
+      this->rx_pin_ = rx_pin->to_isr();
     gpio_rx_pin_ = rx_pin;
     gpio_rx_pin_->setup();
-    rx_pin_ = gpio_rx_pin_->to_isr();
-    rx_buffer_ = new uint8_t[this->rx_buffer_size_];  // NOLINT
-    gpio_rx_pin_->attach_interrupt(ESP8266SoftwareSerial::gpio_intr, this, gpio::INTERRUPT_FALLING_EDGE);
+    uint8_t *buffer = this->rx_.buffer();
+    if (this->rx_.buffer_size() != rx_buffer_size) {
+      delete[] buffer;                       // NOLINT
+      buffer = new uint8_t[rx_buffer_size];  // NOLINT
+    }
+    this->rx_.setup((RX_TICKS_PER_SECOND + baud_rate / 2) / baud_rate, data_bits, parity != UART_CONFIG_PARITY_NONE,
+                    stop_bits, buffer, rx_buffer_size);
+    this->rx_.reset(rx_now(), this->rx_pin_.digital_read());
+    if (edge_mode) {
+      gpio_rx_pin_->attach_interrupt(ESP8266SoftwareSerial::gpio_intr_edge, this, gpio::INTERRUPT_ANY_EDGE);
+    } else {
+      gpio_rx_pin_->attach_interrupt(ESP8266SoftwareSerial::gpio_intr, this, gpio::INTERRUPT_FALLING_EDGE);
+      blocking_rx_count++;
+    }
   }
 }
+// A byte can arrive while a CpuFrequencyBoost has an 80 MHz build at 160 MHz; the clock select bit doubles
+// the bit time then. The whole byte is read inside the ISR, so the clock cannot change partway through.
+__attribute__((always_inline)) static inline uint32_t rx_bit_time(uint32_t bit_time) {
+#if F_CPU != 160000000L
+  // NOLINTNEXTLINE(clang-analyzer-core.FixedAddressDereference) -- CPU2X is MMIO at a fixed address
+  return bit_time << (CPU2X & 1);
+#else
+  return bit_time;
+#endif
+}
+
 void IRAM_ATTR ESP8266SoftwareSerial::gpio_intr(ESP8266SoftwareSerial *arg) {
-  uint32_t wait = arg->bit_time_ + arg->bit_time_ / 3 - 500;
+  const uint32_t bit_time = rx_bit_time(arg->bit_time_);
+  uint32_t wait = bit_time + bit_time / 3 - 500;
   const uint32_t start = arch_get_cpu_cycle_count();
   uint8_t rec = 0;
   // Manually unroll the loop
   for (int i = 0; i < arg->data_bits_; i++)
-    rec |= arg->read_bit_(&wait, start) << i;
+    rec |= arg->read_bit_(&wait, start, bit_time) << i;
 
   /* If parity is enabled, just read it and ignore it. */
   /* TODO: Should we check parity? Or is it too slow for nothing added..*/
   if (arg->parity_ == UART_CONFIG_PARITY_EVEN || arg->parity_ == UART_CONFIG_PARITY_ODD)
-    arg->read_bit_(&wait, start);
+    arg->read_bit_(&wait, start, bit_time);
 
   // Stop bit
-  arg->wait_(&wait, start);
+  arg->wait_(&wait, start, bit_time);
   if (arg->stop_bits_ == 2)
-    arg->wait_(&wait, start);
+    arg->wait_(&wait, start, bit_time);
 
-  arg->rx_buffer_[arg->rx_in_pos_] = rec;
-  arg->rx_in_pos_ = (arg->rx_in_pos_ + 1) % arg->rx_buffer_size_;
+  arg->rx_.push_byte(rec);
   // Clear RX pin so that the interrupt doesn't re-trigger right away again.
   arg->rx_pin_.clear_interrupt();
+#ifdef USE_UART_WAKE_LOOP_ON_RX
+  // Wake the main loop so the consuming component drains the byte promptly
+  // instead of waiting for the next loop_interval_ tick. Important for timing
+  // sensitive setups that poll read() in a tight loop (e.g. fingerprint_grow).
+  wake_loop_isrsafe();
+#endif
+}
+void IRAM_ATTR ESP8266SoftwareSerial::gpio_intr_edge(ESP8266SoftwareSerial *arg) {
+  const uint32_t now = rx_now();
+  const bool level = arg->rx_pin_.digital_read();
+  [[maybe_unused]] const bool wake = arg->rx_.on_edge(now, level);
+#ifdef USE_UART_WAKE_LOOP_ON_RX
+  if (wake)
+    wake_loop_isrsafe();
+#endif
+}
+void ESP8266SoftwareSerial::rx_finalize_pending_() {
+  if (!this->rx_.finalize_due(rx_now())) {
+#ifdef USE_UART_WAKE_LOOP_ON_RX
+    // Tail not elapsed; wake again only once drained
+    if (this->rx_.available() == 0)
+      wake_loop_threadsafe();
+#endif
+    return;
+  }
+  InterruptLock lock;
+  this->rx_.finalize(rx_now());
 }
 void IRAM_ATTR HOT ESP8266SoftwareSerial::write_byte(uint8_t data) {
   if (this->gpio_tx_pin_ == nullptr) {
@@ -260,61 +389,71 @@ void IRAM_ATTR HOT ESP8266SoftwareSerial::write_byte(uint8_t data) {
     need_parity_bit = false;
   }
 
+  // Transmit runs from the main loop and never overlaps a CpuFrequencyBoost
+  const uint32_t bit_time = this->bit_time_;
+  std::optional<InterruptLock> frame_lock;
+  if (this->locks_whole_frame())
+    frame_lock.emplace();
+  uint32_t start;
   {
     InterruptLock lock;
-    uint32_t wait = this->bit_time_;
-    const uint32_t start = arch_get_cpu_cycle_count();
     // Start bit
-    this->write_bit_(false, &wait, start);
-    for (int i = 0; i < this->data_bits_; i++) {
-      bool bit = data & (1 << i);
-      this->write_bit_(bit, &wait, start);
-      if (need_parity_bit)
-        parity_bit ^= bit;
-    }
-    if (need_parity_bit)
-      this->write_bit_(parity_bit, &wait, start);
-    // Stop bit
-    this->write_bit_(true, &wait, start);
-    if (this->stop_bits_ == 2)
-      this->wait_(&wait, start);
+    this->tx_pin_.digital_write(false);
+    start = arch_get_cpu_cycle_count();
   }
+  // Data bits LSB first, then the parity bit
+  uint32_t frame = data & ((1u << this->data_bits_) - 1);
+  uint32_t num_bits = this->data_bits_;
+  if (need_parity_bit) {
+    parity_bit ^= __builtin_parity(frame);
+    frame |= uint32_t(parity_bit) << num_bits++;
+  }
+  // From the edge after the last 0 the line stays high through the stop bits
+  const uint32_t zeros = ~frame & ((1u << num_bits) - 1);
+  const uint32_t high_from = zeros == 0 ? 0 : 32 - __builtin_clz(zeros);
+  uint32_t wait = bit_time;
+  for (uint32_t i = 0; i < high_from; i++)
+    this->write_bit_((frame >> i) & 1, &wait, start, bit_time);
+  this->write_bit_(true, &wait, start, bit_time);
+  // Hold that high run with interrupts on: one that runs past it only delays the next start bit, and back-to-back
+  // byte locks with no gap between them trip the Wi-Fi watchdog
+  frame_lock.reset();
+  for (uint32_t i = high_from; i < num_bits + this->stop_bits_; i++)
+    this->wait_(&wait, start, bit_time);
 }
-void IRAM_ATTR ESP8266SoftwareSerial::wait_(uint32_t *wait, const uint32_t &start) {
+void IRAM_ATTR ESP8266SoftwareSerial::wait_(uint32_t *wait, const uint32_t &start, uint32_t bit_time) {
   while (arch_get_cpu_cycle_count() - start < *wait)
     ;
-  *wait += this->bit_time_;
+  *wait += bit_time;
 }
-bool IRAM_ATTR ESP8266SoftwareSerial::read_bit_(uint32_t *wait, const uint32_t &start) {
-  this->wait_(wait, start);
+bool IRAM_ATTR ESP8266SoftwareSerial::read_bit_(uint32_t *wait, const uint32_t &start, uint32_t bit_time) {
+  this->wait_(wait, start, bit_time);
   return this->rx_pin_.digital_read();
 }
-void IRAM_ATTR ESP8266SoftwareSerial::write_bit_(bool bit, uint32_t *wait, const uint32_t &start) {
+// Locks only from MAX_TX_LOCK_CYCLES before the edge to the edge, so a pending interrupt runs right after it; a bit
+// longer than that (below about 5000 baud) spins with interrupts on first. Nests inside a frame lock.
+void IRAM_ATTR ESP8266SoftwareSerial::write_bit_(bool bit, uint32_t *wait, const uint32_t &start, uint32_t bit_time) {
+  while (arch_get_cpu_cycle_count() - start + MAX_TX_LOCK_CYCLES < *wait)
+    ;
+  InterruptLock lock;
+  this->wait_(wait, start, bit_time);
   this->tx_pin_.digital_write(bit);
-  this->wait_(wait, start);
 }
 uint8_t ESP8266SoftwareSerial::read_byte() {
-  if (this->rx_in_pos_ == this->rx_out_pos_)
-    return 0;
-  uint8_t data = this->rx_buffer_[this->rx_out_pos_];
-  this->rx_out_pos_ = (this->rx_out_pos_ + 1) % this->rx_buffer_size_;
-  return data;
+  this->rx_sync_();
+  return this->rx_.read_byte();
 }
 uint8_t ESP8266SoftwareSerial::peek_byte() {
-  if (this->rx_in_pos_ == this->rx_out_pos_)
-    return 0;
-  return this->rx_buffer_[this->rx_out_pos_];
+  this->rx_sync_();
+  return this->rx_.peek_byte();
 }
 void ESP8266SoftwareSerial::flush() {
   // Flush is a NO-OP with software serial, all bytes are written immediately.
 }
-int ESP8266SoftwareSerial::available() {
-  int avail = int(this->rx_in_pos_) - int(this->rx_out_pos_);
-  if (avail < 0)
-    return avail + this->rx_buffer_size_;
-  return avail;
+size_t ESP8266SoftwareSerial::available() {
+  this->rx_sync_();
+  return this->rx_.available();
 }
 
-}  // namespace uart
-}  // namespace esphome
+}  // namespace esphome::uart
 #endif  // USE_ESP8266

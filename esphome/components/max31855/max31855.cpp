@@ -1,11 +1,13 @@
 #include "max31855.h"
 
+#include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace max31855 {
+namespace esphome::max31855 {
 
-static const char *const TAG = "max31855";
+ESPHOME_LOG_TAG(TAG, "max31855");
+
+static constexpr uint32_t READ_TIMEOUT_ID = 0;
 
 void MAX31855Sensor::update() {
   this->enable();
@@ -14,26 +16,21 @@ void MAX31855Sensor::update() {
   this->disable();
 
   // Conversion time typ: 170ms, max: 220ms
-  auto f = std::bind(&MAX31855Sensor::read_data_, this);
-  this->set_timeout("value", 220, f);
+  this->set_timeout(READ_TIMEOUT_ID, 220, [this]() { this->read_data_(); });
 }
 
-void MAX31855Sensor::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MAX31855Sensor '%s'...", this->name_.c_str());
-  this->spi_setup();
-}
+void MAX31855Sensor::setup() { this->spi_setup(); }
 void MAX31855Sensor::dump_config() {
   ESP_LOGCONFIG(TAG, "MAX31855:");
   LOG_PIN("  CS Pin: ", this->cs_);
   LOG_UPDATE_INTERVAL(this);
   LOG_SENSOR("  ", "Thermocouple", this);
-  if (this->temperature_reference_) {
-    LOG_SENSOR("  ", "Reference", this->temperature_reference_);
+  if (this->reference_sensor_) {
+    LOG_SENSOR("  ", "Reference", this->reference_sensor_);
   } else {
     ESP_LOGCONFIG(TAG, "  Reference temperature disabled.");
   }
 }
-float MAX31855Sensor::get_setup_priority() const { return setup_priority::DATA; }
 void MAX31855Sensor::read_data_() {
   this->enable();
   delay(1);
@@ -49,22 +46,20 @@ void MAX31855Sensor::read_data_() {
   } else {
     ESP_LOGE(TAG, "No data received from MAX31855 (0x%08" PRIX32 "). Check wiring!", mem);
     this->publish_state(NAN);
-    if (this->temperature_reference_) {
-      this->temperature_reference_->publish_state(NAN);
-    }
+    PUBLISH_STATE(this->reference_sensor_, NAN);
     this->status_set_error();
     return;
   }
 
   // Internal reference temperature always works
-  if (this->temperature_reference_) {
+  if (this->reference_sensor_) {
     int16_t val = (mem & 0x0000FFF0) >> 4;
     if (val & 0x0800) {
       val |= 0xF000;  // Pad out 2's complement
     }
     const float t_ref = float(val) * 0.0625f;
     ESP_LOGD(TAG, "Got reference temperature: %.4f°C", t_ref);
-    this->temperature_reference_->publish_state(t_ref);
+    this->reference_sensor_->publish_state(t_ref);
   }
 
   // Check thermocouple faults
@@ -104,5 +99,4 @@ void MAX31855Sensor::read_data_() {
   this->status_clear_warning();
 }
 
-}  // namespace max31855
-}  // namespace esphome
+}  // namespace esphome::max31855

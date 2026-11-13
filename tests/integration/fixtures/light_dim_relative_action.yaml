@@ -1,0 +1,84 @@
+esphome:
+  name: light-dim-relative-action-test
+host:
+api:
+logger:
+  level: DEBUG
+
+output:
+  - platform: template
+    id: test_out
+    type: float
+    write_action:
+      - lambda: ""
+
+light:
+  - platform: monochromatic
+    name: "Test Light"
+    id: test_light
+    output: test_out
+    default_transition_length: 0s
+
+button:
+  # Set up: turn on at 50% brightness
+  - platform: template
+    id: btn_setup
+    name: "Setup"
+    on_press:
+      - light.turn_on:
+          id: test_light
+          brightness: 50%
+
+  # Test 1: dim_relative without transition_length (HasTransitionLength=false)
+  - platform: template
+    id: btn_dim_up
+    name: "Dim Up"
+    on_press:
+      - light.dim_relative:
+          id: test_light
+          relative_brightness: 25%
+
+  # Test 2: dim_relative with transition_length (HasTransitionLength=true)
+  - platform: template
+    id: btn_dim_down
+    name: "Dim Down"
+    on_press:
+      - light.dim_relative:
+          id: test_light
+          relative_brightness: -10%
+          transition_length: 0s
+
+  # Test 3: dim_relative with brightness limits
+  - platform: template
+    id: btn_dim_clamp
+    name: "Dim Clamp"
+    on_press:
+      - light.dim_relative:
+          id: test_light
+          relative_brightness: 50%
+          brightness_limits:
+            max_brightness: 80%
+
+  # Test 4: DO_NOTHING outside the limits skips only this action, not the one after it
+  - platform: template
+    id: btn_dim_skip
+    name: "Dim Skip"
+    on_press:
+      - light.dim_relative:
+          id: test_light
+          relative_brightness: 10%
+          brightness_limits:
+            min_brightness: 90%
+            limit_mode: DO_NOTHING
+      - light.dim_relative:
+          id: test_light
+          relative_brightness: -5%
+
+  # Test 5: a relative dim that clamps to 0 turns the light off
+  - platform: template
+    id: btn_dim_off
+    name: "Dim Off"
+    on_press:
+      - light.dim_relative:
+          id: test_light
+          relative_brightness: -100%

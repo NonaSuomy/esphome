@@ -1,26 +1,36 @@
+#include "esphome/core/application.h"
 #include "esphome/core/defines.h"
+#include "esphome/core/hal.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 
 #ifdef USE_BSEC2
 #include "bme68x_bsec2.h"
 
-#include <string>
-
-namespace esphome {
-namespace bme68x_bsec2 {
+namespace esphome::bme68x_bsec2 {
 
 #define BME68X_BSEC2_ALGORITHM_OUTPUT_LOG(a) (a == ALGORITHM_OUTPUT_CLASSIFICATION ? "Classification" : "Regression")
 #define BME68X_BSEC2_OPERATING_AGE_LOG(o) (o == OPERATING_AGE_4D ? "4 days" : "28 days")
 #define BME68X_BSEC2_SAMPLE_RATE_LOG(r) (r == SAMPLE_RATE_DEFAULT ? "Default" : (r == SAMPLE_RATE_ULP ? "ULP" : "LP"))
 #define BME68X_BSEC2_VOLTAGE_LOG(v) (v == VOLTAGE_3_3V ? "3.3V" : "1.8V")
 
-static const char *const TAG = "bme68x_bsec2.sensor";
+ESPHOME_LOG_TAG(TAG, "bme68x_bsec2.sensor");
 
-static const std::string IAQ_ACCURACY_STATES[4] = {"Stabilizing", "Uncertain", "Calibrating", "Calibrated"};
+static constexpr uint32_t READ_TIMEOUT_ID = 0;
+static constexpr uint32_t RUN_TIMEOUT_ID = 1;
+
+static constexpr const char *const IAQ_ACCURACY_STATES[4] = {"Stabilizing", "Uncertain", "Calibrating", "Calibrated"};
+
+static bool is_no_new_data_warning(int8_t status) {
+#ifdef BME68X_W_NO_NEW_DATA
+  return status == BME68X_W_NO_NEW_DATA;
+#else
+  return status == 2;
+#endif
+}
 
 void BME68xBSEC2Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up BME68X via BSEC2...");
+  this->warn_if_blocking_over_ = 60;  // initial reads may block for up to 60ms
 
   this->bsec_status_ = bsec_init_m(&this->bsec_instance_);
   if (this->bsec_status_ != BSEC_OK) {
@@ -53,17 +63,19 @@ void BME68xBSEC2Component::setup() {
     return;
   }
 
+  this->disable_loop();
   this->load_state_();
+  this->run_();
 }
 
 void BME68xBSEC2Component::dump_config() {
-  ESP_LOGCONFIG(TAG, "BME68X via BSEC2:");
-
-  ESP_LOGCONFIG(TAG, "  BSEC2 version: %d.%d.%d.%d", this->version_.major, this->version_.minor,
-                this->version_.major_bugfix, this->version_.minor_bugfix);
-
-  ESP_LOGCONFIG(TAG, "  BSEC2 configuration blob:");
-  ESP_LOGCONFIG(TAG, "    Configured: %s", YESNO(this->bsec2_blob_configured_));
+  ESP_LOGCONFIG(TAG,
+                "BME68X via BSEC2:\n"
+                "  BSEC2 version: %d.%d.%d.%d\n"
+                "  BSEC2 configuration blob:\n"
+                "    Configured: %s",
+                this->version_.major, this->version_.minor, this->version_.major_bugfix, this->version_.minor_bugfix,
+                YESNO(this->bsec2_blob_configured_));
   if (this->bsec2_configuration_ != nullptr && this->bsec2_configuration_length_) {
     ESP_LOGCONFIG(TAG, "    Size: %" PRIu32, this->bsec2_configuration_length_);
   }
@@ -71,16 +83,22 @@ void BME68xBSEC2Component::dump_config() {
   if (this->is_failed()) {
     ESP_LOGE(TAG, "Communication failed (BSEC2 status: %d, BME68X status: %d)", this->bsec_status_,
              this->bme68x_status_);
+    if (this->bsec_status_ == BSEC_I_SU_SUBSCRIBEDOUTPUTGATES) {
+      ESP_LOGE(TAG, "No sensors, add at least one sensor to the config");
+    }
   }
 
   if (this->algorithm_output_ != ALGORITHM_OUTPUT_IAQ) {
     ESP_LOGCONFIG(TAG, "  Algorithm output: %s", BME68X_BSEC2_ALGORITHM_OUTPUT_LOG(this->algorithm_output_));
   }
-  ESP_LOGCONFIG(TAG, "  Operating age: %s", BME68X_BSEC2_OPERATING_AGE_LOG(this->operating_age_));
-  ESP_LOGCONFIG(TAG, "  Sample rate: %s", BME68X_BSEC2_SAMPLE_RATE_LOG(this->sample_rate_));
-  ESP_LOGCONFIG(TAG, "  Voltage: %s", BME68X_BSEC2_VOLTAGE_LOG(this->voltage_));
-  ESP_LOGCONFIG(TAG, "  State save interval: %ims", this->state_save_interval_ms_);
-  ESP_LOGCONFIG(TAG, "  Temperature offset: %.2f", this->temperature_offset_);
+  ESP_LOGCONFIG(TAG,
+                "  Operating age: %s\n"
+                "  Sample rate: %s\n"
+                "  Voltage: %s\n"
+                "  State save interval: %" PRIu32 "ms\n"
+                "  Temperature offset: %.2f",
+                BME68X_BSEC2_OPERATING_AGE_LOG(this->operating_age_), BME68X_BSEC2_SAMPLE_RATE_LOG(this->sample_rate_),
+                BME68X_BSEC2_VOLTAGE_LOG(this->voltage_), this->state_save_interval_ms_, this->temperature_offset_);
 
 #ifdef USE_SENSOR
   LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
@@ -101,33 +119,79 @@ void BME68xBSEC2Component::dump_config() {
 #endif
 }
 
-float BME68xBSEC2Component::get_setup_priority() const { return setup_priority::DATA; }
-
-void BME68xBSEC2Component::loop() {
-  this->run_();
-
+void BME68xBSEC2Component::check_status_() {
   if (this->bsec_status_ < BSEC_OK || this->bme68x_status_ < BME68X_OK) {
     this->status_set_error();
   } else {
     this->status_clear_error();
   }
-  if (this->bsec_status_ > BSEC_OK || this->bme68x_status_ > BME68X_OK) {
-    this->status_set_warning();
-  } else {
-    this->status_clear_warning();
+  const bool has_bme68x_warning = this->bme68x_status_ > BME68X_OK && !is_no_new_data_warning(this->bme68x_status_);
+  this->status_comm_result(this->bsec_status_ <= BSEC_OK && !has_bme68x_warning, nullptr);
+}
+
+void BME68xBSEC2Component::loop() {
+  // Publish a single waiting state. All of them in one call take too long.
+  if (this->pending_.empty()) {
+    this->disable_loop();
+    return;
   }
-  // Process a single action from the queue. These are primarily sensor state publishes
-  // that in totality take too long to send in a single call.
-  if (this->queue_.size()) {
-    auto action = std::move(this->queue_.front());
-    this->queue_.pop();
-    action();
+  const PendingPublish pending = this->pending_.front();
+  this->pending_.pop();
+  const float value = pending.value;
+  switch (pending.slot) {
+#ifdef USE_SENSOR
+    case PUBLISH_SLOT_IAQ:
+      this->publish_sensor_(this->iaq_sensor_, value);
+      break;
+    case PUBLISH_SLOT_IAQ_STATIC:
+      this->publish_sensor_(this->iaq_static_sensor_, value);
+      break;
+    case PUBLISH_SLOT_CO2_EQUIVALENT:
+      this->publish_sensor_(this->co2_equivalent_sensor_, value);
+      break;
+    case PUBLISH_SLOT_BREATH_VOC_EQUIVALENT:
+      this->publish_sensor_(this->breath_voc_equivalent_sensor_, value);
+      break;
+    case PUBLISH_SLOT_PRESSURE:
+      this->publish_sensor_(this->pressure_sensor_, value);
+      break;
+    case PUBLISH_SLOT_GAS_RESISTANCE:
+      this->publish_sensor_(this->gas_resistance_sensor_, value);
+      break;
+    case PUBLISH_SLOT_TEMPERATURE:
+      this->publish_sensor_(this->temperature_sensor_, value);
+      break;
+    case PUBLISH_SLOT_HUMIDITY:
+      this->publish_sensor_(this->humidity_sensor_, value);
+      break;
+    case PUBLISH_SLOT_IAQ_ACCURACY:
+      this->publish_sensor_(this->iaq_accuracy_sensor_, value, true);
+      break;
+#endif
+#ifdef USE_TEXT_SENSOR
+    case PUBLISH_SLOT_IAQ_ACCURACY_TEXT:
+      this->publish_sensor_(this->iaq_accuracy_text_sensor_, IAQ_ACCURACY_STATES[static_cast<uint8_t>(value)]);
+      break;
+#endif
+    case PUBLISH_SLOT_SAVE_STATE:
+      this->save_state_(static_cast<uint8_t>(value));
+      break;
+    default:
+      break;
+  }
+}
+
+void BME68xBSEC2Component::queue_publish_(PublishSlot slot, float value) {
+  // Only full when the loop stalled for seconds; drop the oldest so the newest reading still goes out
+  if (!this->pending_.push({value, slot})) {
+    this->pending_.pop();
+    this->pending_.push({value, slot});
   }
 }
 
 void BME68xBSEC2Component::set_config_(const uint8_t *config, uint32_t len) {
   if (len > BSEC_MAX_PROPERTY_BLOB_SIZE) {
-    ESP_LOGE(TAG, "Configuration is larger than BSEC_MAX_PROPERTY_BLOB_SIZE");
+    ESP_LOGE(TAG, "Configuration blob too large");
     this->mark_failed();
     return;
   }
@@ -206,17 +270,15 @@ void BME68xBSEC2Component::update_subscription_() {
 void BME68xBSEC2Component::run_() {
   this->op_mode_ = this->bsec_settings_.op_mode;
   int64_t curr_time_ns = this->get_time_ns_();
-  if (curr_time_ns < this->bsec_settings_.next_call) {
-    return;
-  }
-  uint8_t status;
-
   ESP_LOGV(TAG, "Performing sensor run");
 
   struct bme68x_conf bme68x_conf;
   this->bsec_status_ = bsec_sensor_control_m(&this->bsec_instance_, curr_time_ns, &this->bsec_settings_);
   if (this->bsec_status_ < BSEC_OK) {
-    ESP_LOGW(TAG, "Failed to fetch sensor control settings (BSEC2 error code %d)", this->bsec_status_);
+    ESP_LOGW(TAG, "Fetching control settings failed (BSEC2 error code %d)", this->bsec_status_);
+    this->check_status_();
+    // schedule next run after short delay
+    this->set_timeout(RUN_TIMEOUT_ID, 50, [this]() { this->run_(); });
     return;
   }
 
@@ -232,9 +294,9 @@ void BME68xBSEC2Component::run_() {
       this->bme68x_heatr_conf_.heatr_temp = this->bsec_settings_.heater_temperature;
       this->bme68x_heatr_conf_.heatr_dur = this->bsec_settings_.heater_duration;
 
-      // status = bme68x_set_op_mode(this->bsec_settings_.op_mode, &this->bme68x_);
-      status = bme68x_set_heatr_conf(BME68X_FORCED_MODE, &this->bme68x_heatr_conf_, &this->bme68x_);
-      status = bme68x_set_op_mode(BME68X_FORCED_MODE, &this->bme68x_);
+      // this->bme68x_status_ = bme68x_set_op_mode(this->bsec_settings_.op_mode, &this->bme68x_);
+      this->bme68x_status_ = bme68x_set_heatr_conf(BME68X_FORCED_MODE, &this->bme68x_heatr_conf_, &this->bme68x_);
+      this->bme68x_status_ = bme68x_set_op_mode(BME68X_FORCED_MODE, &this->bme68x_);
       this->op_mode_ = BME68X_FORCED_MODE;
       ESP_LOGV(TAG, "Using forced mode");
 
@@ -256,9 +318,8 @@ void BME68xBSEC2Component::run_() {
             BSEC_TOTAL_HEAT_DUR -
             (bme68x_get_meas_dur(BME68X_PARALLEL_MODE, &bme68x_conf, &this->bme68x_) / INT64_C(1000));
 
-        status = bme68x_set_heatr_conf(BME68X_PARALLEL_MODE, &this->bme68x_heatr_conf_, &this->bme68x_);
-
-        status = bme68x_set_op_mode(BME68X_PARALLEL_MODE, &this->bme68x_);
+        this->bme68x_status_ = bme68x_set_heatr_conf(BME68X_PARALLEL_MODE, &this->bme68x_heatr_conf_, &this->bme68x_);
+        this->bme68x_status_ = bme68x_set_op_mode(BME68X_PARALLEL_MODE, &this->bme68x_);
         this->op_mode_ = BME68X_PARALLEL_MODE;
         ESP_LOGV(TAG, "Using parallel mode");
       }
@@ -273,28 +334,33 @@ void BME68xBSEC2Component::run_() {
   }
 
   if (this->bsec_settings_.trigger_measurement && this->bsec_settings_.op_mode != BME68X_SLEEP_MODE) {
-    uint32_t meas_dur = 0;
-    meas_dur = bme68x_get_meas_dur(this->op_mode_, &bme68x_conf, &this->bme68x_);
-    ESP_LOGV(TAG, "Queueing read in %uus", meas_dur);
-    this->set_timeout("read", meas_dur / 1000, [this, curr_time_ns]() { this->read_(curr_time_ns); });
+    bme68x_get_conf(&bme68x_conf, &this->bme68x_);
+    uint32_t meas_dur = bme68x_get_meas_dur(this->op_mode_, &bme68x_conf, &this->bme68x_);
+    ESP_LOGV(TAG, "Queueing read in %" PRIu32 "us", meas_dur);
+    this->trigger_time_ns_ = curr_time_ns;
+    this->set_timeout(READ_TIMEOUT_ID, meas_dur / 1000, [this]() {
+      this->read_(this->trigger_time_ns_);
+      this->check_status_();
+    });
   } else {
-    ESP_LOGV(TAG, "Measurement not required");
-    this->read_(curr_time_ns);
+    ESP_LOGV(TAG, "Measurement not required, queueing immediate read");
+    this->trigger_time_ns_ = curr_time_ns;
+    this->set_timeout(READ_TIMEOUT_ID, 0, [this]() {
+      this->read_(this->trigger_time_ns_);
+      this->check_status_();
+    });
   }
+
+  // schedule next run
+  int64_t delay_ns = this->bsec_settings_.next_call - this->get_time_ns_();
+  uint32_t delay_ms = delay_ns > 0 ? static_cast<uint32_t>((delay_ns + 999999) / 1000000) : 1;
+  ESP_LOGV(TAG, "Next run in: %" PRIu32 "ms", delay_ms);
+  this->set_timeout(RUN_TIMEOUT_ID, delay_ms, [this]() { this->run_(); });
+  this->check_status_();
 }
 
 void BME68xBSEC2Component::read_(int64_t trigger_time_ns) {
   ESP_LOGV(TAG, "Reading data");
-
-  if (this->bsec_settings_.trigger_measurement) {
-    uint8_t current_op_mode;
-    this->bme68x_status_ = bme68x_get_op_mode(&current_op_mode, &this->bme68x_);
-
-    if (current_op_mode == BME68X_SLEEP_MODE) {
-      ESP_LOGV(TAG, "Still in sleep mode, doing nothing");
-      return;
-    }
-  }
 
   if (!this->bsec_settings_.process_data) {
     ESP_LOGV(TAG, "Data processing not required");
@@ -305,12 +371,16 @@ void BME68xBSEC2Component::read_(int64_t trigger_time_ns) {
   uint8_t nFields = 0;
   this->bme68x_status_ = bme68x_get_data(this->op_mode_, &data[0], &nFields, &this->bme68x_);
 
+  if (is_no_new_data_warning(this->bme68x_status_)) {
+    ESP_LOGV(TAG, "BME68X did not provide new data");
+    return;
+  }
   if (this->bme68x_status_ != BME68X_OK) {
-    ESP_LOGW(TAG, "Failed to get sensor data (BME68X error code %d)", this->bme68x_status_);
+    ESP_LOGW(TAG, "Fetching data failed (BME68X error code %d)", this->bme68x_status_);
     return;
   }
   if (nFields < 1) {
-    ESP_LOGD(TAG, "BME68X did not provide new data");
+    ESP_LOGV(TAG, "BME68X did not provide new fields");
     return;
   }
 
@@ -369,7 +439,7 @@ void BME68xBSEC2Component::read_(int64_t trigger_time_ns) {
     uint8_t num_outputs = BSEC_NUMBER_OUTPUTS;
     this->bsec_status_ = bsec_do_steps_m(&this->bsec_instance_, inputs, num_inputs, outputs, &num_outputs);
     if (this->bsec_status_ != BSEC_OK) {
-      ESP_LOGW(TAG, "BSEC2 failed to process signals (BSEC2 error code %d)", this->bsec_status_);
+      ESP_LOGW(TAG, "Signal processing failed (BSEC2 error code %d)", this->bsec_status_);
       return;
     }
     if (num_outputs < 1) {
@@ -392,61 +462,60 @@ void BME68xBSEC2Component::publish_(const bsec_output_t *outputs, uint8_t num_ou
         max_accuracy = std::max(outputs[i].accuracy, max_accuracy);
         update_accuracy = true;
 #ifdef USE_SENSOR
-        this->queue_push_([this, signal]() { this->publish_sensor_(this->iaq_sensor_, signal); });
+        this->queue_publish_(PUBLISH_SLOT_IAQ, signal);
 #endif
         break;
       case BSEC_OUTPUT_STATIC_IAQ:
         max_accuracy = std::max(outputs[i].accuracy, max_accuracy);
         update_accuracy = true;
 #ifdef USE_SENSOR
-        this->queue_push_([this, signal]() { this->publish_sensor_(this->iaq_static_sensor_, signal); });
+        this->queue_publish_(PUBLISH_SLOT_IAQ_STATIC, signal);
 #endif
         break;
       case BSEC_OUTPUT_CO2_EQUIVALENT:
 #ifdef USE_SENSOR
-        this->queue_push_([this, signal]() { this->publish_sensor_(this->co2_equivalent_sensor_, signal); });
+        this->queue_publish_(PUBLISH_SLOT_CO2_EQUIVALENT, signal);
 #endif
         break;
       case BSEC_OUTPUT_BREATH_VOC_EQUIVALENT:
 #ifdef USE_SENSOR
-        this->queue_push_([this, signal]() { this->publish_sensor_(this->breath_voc_equivalent_sensor_, signal); });
+        this->queue_publish_(PUBLISH_SLOT_BREATH_VOC_EQUIVALENT, signal);
 #endif
         break;
       case BSEC_OUTPUT_RAW_PRESSURE:
 #ifdef USE_SENSOR
-        this->queue_push_([this, signal]() { this->publish_sensor_(this->pressure_sensor_, signal / 100.0f); });
+        this->queue_publish_(PUBLISH_SLOT_PRESSURE, signal / 100.0f);
 #endif
         break;
       case BSEC_OUTPUT_RAW_GAS:
 #ifdef USE_SENSOR
-        this->queue_push_([this, signal]() { this->publish_sensor_(this->gas_resistance_sensor_, signal); });
+        this->queue_publish_(PUBLISH_SLOT_GAS_RESISTANCE, signal);
 #endif
         break;
       case BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_TEMPERATURE:
 #ifdef USE_SENSOR
-        this->queue_push_([this, signal]() { this->publish_sensor_(this->temperature_sensor_, signal); });
+        this->queue_publish_(PUBLISH_SLOT_TEMPERATURE, signal);
 #endif
         break;
       case BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_HUMIDITY:
 #ifdef USE_SENSOR
-        this->queue_push_([this, signal]() { this->publish_sensor_(this->humidity_sensor_, signal); });
+        this->queue_publish_(PUBLISH_SLOT_HUMIDITY, signal);
 #endif
         break;
     }
   }
   if (update_accuracy) {
+    max_accuracy = std::min<uint8_t>(max_accuracy, std::size(IAQ_ACCURACY_STATES) - 1);
 #ifdef USE_SENSOR
-    this->queue_push_(
-        [this, max_accuracy]() { this->publish_sensor_(this->iaq_accuracy_sensor_, max_accuracy, true); });
+    this->queue_publish_(PUBLISH_SLOT_IAQ_ACCURACY, max_accuracy);
 #endif
 #ifdef USE_TEXT_SENSOR
-    this->queue_push_([this, max_accuracy]() {
-      this->publish_sensor_(this->iaq_accuracy_text_sensor_, IAQ_ACCURACY_STATES[max_accuracy]);
-    });
+    this->queue_publish_(PUBLISH_SLOT_IAQ_ACCURACY_TEXT, max_accuracy);
 #endif
     // Queue up an opportunity to save state
-    this->queue_push_([this, max_accuracy]() { this->save_state_(max_accuracy); });
+    this->queue_publish_(PUBLISH_SLOT_SAVE_STATE, max_accuracy);
   }
+  this->enable_loop();
 }
 
 int64_t BME68xBSEC2Component::get_time_ns_() {
@@ -469,7 +538,7 @@ void BME68xBSEC2Component::publish_sensor_(sensor::Sensor *sensor, float value, 
 #endif
 
 #ifdef USE_TEXT_SENSOR
-void BME68xBSEC2Component::publish_sensor_(text_sensor::TextSensor *sensor, const std::string &value) {
+void BME68xBSEC2Component::publish_sensor_(text_sensor::TextSensor *sensor, const char *value) {
   if (!sensor || (sensor->has_state() && sensor->state == value)) {
     return;
   }
@@ -489,13 +558,15 @@ void BME68xBSEC2Component::load_state_() {
         bsec_set_state_m(&this->bsec_instance_, state, BSEC_MAX_STATE_BLOB_SIZE, work_buffer, sizeof(work_buffer));
     if (this->bsec_status_ != BSEC_OK) {
       ESP_LOGW(TAG, "Failed to load state (BSEC2 error code %d)", this->bsec_status_);
+      // no need to set error here
     }
     ESP_LOGI(TAG, "Loaded state");
   }
 }
 
 void BME68xBSEC2Component::save_state_(uint8_t accuracy) {
-  if (accuracy < 3 || (millis() - this->last_state_save_ms_ < this->state_save_interval_ms_)) {
+  if (accuracy < 3 ||
+      (App.get_loop_component_start_time() - this->last_state_save_ms_ < this->state_save_interval_ms_)) {
     return;
   }
 
@@ -509,6 +580,7 @@ void BME68xBSEC2Component::save_state_(uint8_t accuracy) {
                                         BSEC_MAX_STATE_BLOB_SIZE, &num_serialized_state);
   if (this->bsec_status_ != BSEC_OK) {
     ESP_LOGW(TAG, "Failed fetch state for save (BSEC2 error code %d)", this->bsec_status_);
+    this->check_status_();
     return;
   }
 
@@ -516,11 +588,10 @@ void BME68xBSEC2Component::save_state_(uint8_t accuracy) {
     ESP_LOGW(TAG, "Failed to save state");
     return;
   }
-  this->last_state_save_ms_ = millis();
+  this->last_state_save_ms_ = App.get_loop_component_start_time();
 
   ESP_LOGI(TAG, "Saved state");
 }
 
-}  // namespace bme68x_bsec2
-}  // namespace esphome
+}  // namespace esphome::bme68x_bsec2
 #endif

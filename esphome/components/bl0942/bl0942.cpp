@@ -1,13 +1,13 @@
 #include "bl0942.h"
+#include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 #include <cinttypes>
 
 // Datasheet: https://www.belling.com.cn/media/file_object/bel_product/BL0942/datasheet/BL0942_V1.06_en.pdf
 
-namespace esphome {
-namespace bl0942 {
+namespace esphome::bl0942 {
 
-static const char *const TAG = "bl0942";
+ESPHOME_LOG_TAG(TAG, "bl0942");
 
 static const uint8_t BL0942_READ_COMMAND = 0x58;
 static const uint8_t BL0942_FULL_PACKET = 0xAA;
@@ -46,18 +46,18 @@ static const uint32_t PKT_TIMEOUT_MS = 200;
 
 void BL0942::loop() {
   DataPacket buffer;
-  int avail = this->available();
+  size_t avail = this->available();
 
   if (!avail) {
     return;
   }
   if (avail < sizeof(buffer)) {
-    if (!this->rx_start_) {
+    if (!this->rx_start_.has_value()) {
       this->rx_start_ = millis();
-    } else if (millis() > this->rx_start_ + PKT_TIMEOUT_MS) {
-      ESP_LOGW(TAG, "Junk on wire. Throwing away partial message (%d bytes)", avail);
+    } else if (millis() - *this->rx_start_ > PKT_TIMEOUT_MS) {
+      ESP_LOGW(TAG, "Junk on wire. Throwing away partial message (%zu bytes)", avail);
       this->read_array((uint8_t *) &buffer, avail);
-      this->rx_start_ = 0;
+      this->rx_start_.reset();
     }
     return;
   }
@@ -67,17 +67,14 @@ void BL0942::loop() {
       this->received_package_(&buffer);
     }
   }
-  this->rx_start_ = 0;
+  this->rx_start_.reset();
 }
 
 bool BL0942::validate_checksum_(DataPacket *data) {
-  uint8_t checksum = BL0942_READ_COMMAND | this->address_;
   // Whole package but checksum
-  uint8_t *raw = (uint8_t *) data;
-  for (uint32_t i = 0; i < sizeof(*data) - 1; i++) {
-    checksum += raw[i];
-  }
-  checksum ^= 0xFF;
+  const uint8_t checksum =
+      sum_bytes(reinterpret_cast<const uint8_t *>(data), sizeof(*data) - 1, BL0942_READ_COMMAND | this->address_) ^
+      0xFF;
   if (checksum != data->checksum) {
     ESP_LOGW(TAG, "BL0942 invalid checksum! 0x%02X != 0x%02X", checksum, data->checksum);
   }
@@ -93,26 +90,19 @@ void BL0942::write_reg_(uint8_t reg, uint32_t val) {
   pkt[2] = (val & 0xff);
   pkt[3] = (val >> 8) & 0xff;
   pkt[4] = (val >> 16) & 0xff;
-  pkt[5] = (pkt[0] + pkt[1] + pkt[2] + pkt[3] + pkt[4]) ^ 0xff;
+  pkt[5] = sum_bytes(pkt, 5) ^ 0xFF;
   this->write_array(pkt, 6);
   delay(1);
 }
 
 int BL0942::read_reg_(uint8_t reg) {
-  union {
-    uint8_t b[4];
-    uint32_le_t le32;
-  } resp;
+  uint8_t resp[4];
 
   this->write_byte(BL0942_READ_COMMAND | this->address_);
   this->write_byte(reg);
   this->flush();
-  if (this->read_array(resp.b, 4) &&
-      resp.b[3] ==
-          (uint8_t) ((BL0942_READ_COMMAND + this->address_ + reg + resp.b[0] + resp.b[1] + resp.b[2]) ^ 0xff)) {
-    resp.b[3] = 0;
-    return resp.le32;
-  }
+  if (this->read_array(resp, 4) && resp[3] == (sum_bytes(resp, 3, BL0942_READ_COMMAND + this->address_ + reg) ^ 0xFF))
+    return encode_uint24(resp[2], resp[1], resp[0]);
   return -1;
 }
 
@@ -125,14 +115,14 @@ void BL0942::setup() {
   // If either current or voltage references are set explicitly by the user,
   // calculate the power reference from it unless that is also explicitly set.
   if ((this->current_reference_set_ || this->voltage_reference_set_) && !this->power_reference_set_) {
-    this->power_reference_ = (this->voltage_reference_ * this->current_reference_ * 3537.0 / 305978.0) / 73989.0;
+    this->power_reference_ = (this->voltage_reference_ * this->current_reference_ * 3537.0f / 305978.0f) / 73989.0f;
     this->power_reference_set_ = true;
   }
 
   // Similarly for energy reference, if the power reference was set by the user
   // either implicitly or explicitly.
   if (this->power_reference_set_ && !this->energy_reference_set_) {
-    this->energy_reference_ = this->power_reference_ * 3600000 / 419430.4;
+    this->energy_reference_ = this->power_reference_ * 3600000 / 419430.4f;
     this->energy_reference_set_ = true;
   }
 
@@ -148,8 +138,8 @@ void BL0942::setup() {
 
   this->write_reg_(BL0942_REG_USR_WRPROT, 0);
 
-  if (this->read_reg_(BL0942_REG_MODE) != mode)
-    this->status_set_warning("BL0942 setup failed!");
+  if (static_cast<uint32_t>(this->read_reg_(BL0942_REG_MODE)) != mode)
+    this->status_set_warning(LOG_STR("BL0942 setup failed!"));
 
   this->flush();
 }
@@ -161,49 +151,38 @@ void BL0942::received_package_(DataPacket *data) {
     return;
   }
 
-  // cf_cnt is only 24 bits, so track overflows
+  // cf_cnt wraps at 24 bits; total_increasing on the energy sensor handles the
+  // wrap (and any spurious chip resets) downstream.
   uint32_t cf_cnt = (uint24_t) data->cf_cnt;
-  cf_cnt |= this->prev_cf_cnt_ & 0xff000000;
-  if (cf_cnt < this->prev_cf_cnt_) {
-    cf_cnt += 0x1000000;
-  }
-  this->prev_cf_cnt_ = cf_cnt;
 
   float v_rms = (uint24_t) data->v_rms / voltage_reference_;
   float i_rms = (uint24_t) data->i_rms / current_reference_;
   float watt = (int24_t) data->watt / power_reference_;
   float total_energy_consumption = cf_cnt / energy_reference_;
-  float frequency = 1000000.0f / data->frequency;
+  float frequency = data->frequency != 0 ? 1000000.0f / data->frequency : NAN;
 
-  if (voltage_sensor_ != nullptr) {
-    voltage_sensor_->publish_state(v_rms);
-  }
-  if (current_sensor_ != nullptr) {
-    current_sensor_->publish_state(i_rms);
-  }
-  if (power_sensor_ != nullptr) {
-    power_sensor_->publish_state(watt);
-  }
-  if (energy_sensor_ != nullptr) {
-    energy_sensor_->publish_state(total_energy_consumption);
-  }
-  if (frequency_sensor_ != nullptr) {
-    frequency_sensor_->publish_state(frequency);
-  }
+  PUBLISH_STATE(this->voltage_sensor_, v_rms);
+  PUBLISH_STATE(this->current_sensor_, i_rms);
+  PUBLISH_STATE(this->power_sensor_, watt);
+  PUBLISH_STATE(this->energy_sensor_, total_energy_consumption);
+  PUBLISH_STATE(this->frequency_sensor_, frequency);
   this->status_clear_warning();
   ESP_LOGV(TAG, "BL0942: U %fV, I %fA, P %fW, Cnt %" PRId32 ", ∫P %fkWh, frequency %fHz, status 0x%08X", v_rms, i_rms,
            watt, cf_cnt, total_energy_consumption, frequency, data->status);
 }
 
 void BL0942::dump_config() {  // NOLINT(readability-function-cognitive-complexity)
-  ESP_LOGCONFIG(TAG, "BL0942:");
-  ESP_LOGCONFIG(TAG, "  Reset: %s", TRUEFALSE(this->reset_));
-  ESP_LOGCONFIG(TAG, "  Address: %d", this->address_);
-  ESP_LOGCONFIG(TAG, "  Nominal line frequency: %d Hz", this->line_freq_);
-  ESP_LOGCONFIG(TAG, "  Current reference: %f", this->current_reference_);
-  ESP_LOGCONFIG(TAG, "  Energy reference: %f", this->energy_reference_);
-  ESP_LOGCONFIG(TAG, "  Power reference: %f", this->power_reference_);
-  ESP_LOGCONFIG(TAG, "  Voltage reference: %f", this->voltage_reference_);
+  ESP_LOGCONFIG(TAG,
+                "BL0942:\n"
+                "  Reset: %s\n"
+                "  Address: %d\n"
+                "  Nominal line frequency: %d Hz\n"
+                "  Current reference: %f\n"
+                "  Energy reference: %f\n"
+                "  Power reference: %f\n"
+                "  Voltage reference: %f",
+                TRUEFALSE(this->reset_), this->address_, this->line_freq_, this->current_reference_,
+                this->energy_reference_, this->power_reference_, this->voltage_reference_);
   LOG_SENSOR("", "Voltage", this->voltage_sensor_);
   LOG_SENSOR("", "Current", this->current_sensor_);
   LOG_SENSOR("", "Power", this->power_sensor_);
@@ -211,5 +190,4 @@ void BL0942::dump_config() {  // NOLINT(readability-function-cognitive-complexit
   LOG_SENSOR("", "Frequency", this->frequency_sensor_);
 }
 
-}  // namespace bl0942
-}  // namespace esphome
+}  // namespace esphome::bl0942

@@ -1,10 +1,9 @@
 #include "tt21100.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace tt21100 {
+namespace esphome::tt21100 {
 
-static const char *const TAG = "tt21100";
+ESPHOME_LOG_TAG(TAG, "tt21100");
 
 static const uint8_t MAX_BUTTONS = 4;
 static const uint8_t MAX_TOUCH_POINTS = 5;
@@ -47,8 +46,6 @@ struct TT21100TouchReport {
 float TT21100Touchscreen::get_setup_priority() const { return setup_priority::HARDWARE - 1.0f; }
 
 void TT21100Touchscreen::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up TT21100 Touchscreen...");
-
   // Register interrupt pin
   if (this->interrupt_pin_ != nullptr) {
     this->interrupt_pin_->pin_mode(gpio::FLAG_INPUT | gpio::FLAG_PULLUP);
@@ -57,10 +54,7 @@ void TT21100Touchscreen::setup() {
   }
 
   // Perform reset if necessary
-  if (this->reset_pin_ != nullptr) {
-    this->reset_pin_->setup();
-    this->reset_();
-  }
+  pulse_reset(this->reset_pin_, {.low_ms = 10, .high_after_ms = 10});
 
   // Update display dimensions if they were updated during display setup
   if (this->display_ != nullptr) {
@@ -68,7 +62,7 @@ void TT21100Touchscreen::setup() {
       this->x_raw_max_ = this->display_->get_native_width();
     }
     if (this->y_raw_max_ == this->y_raw_min_) {
-      this->x_raw_max_ = this->display_->get_native_height();
+      this->y_raw_max_ = this->display_->get_native_height();
     }
   }
 
@@ -125,15 +119,6 @@ void TT21100Touchscreen::update_touches() {
   }
 }
 
-void TT21100Touchscreen::reset_() {
-  if (this->reset_pin_ != nullptr) {
-    this->reset_pin_->digital_write(false);
-    delay(10);
-    this->reset_pin_->digital_write(true);
-    delay(10);
-  }
-}
-
 void TT21100Touchscreen::dump_config() {
   ESP_LOGCONFIG(TAG, "TT21100 Touchscreen:");
   LOG_I2C_DEVICE(this);
@@ -141,5 +126,4 @@ void TT21100Touchscreen::dump_config() {
   LOG_PIN("  Reset Pin: ", this->reset_pin_);
 }
 
-}  // namespace tt21100
-}  // namespace esphome
+}  // namespace esphome::tt21100

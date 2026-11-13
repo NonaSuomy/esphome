@@ -1,12 +1,11 @@
 #include "tm1637.h"
-#include "esphome/core/log.h"
-#include "esphome/core/helpers.h"
 #include "esphome/core/hal.h"
+#include "esphome/core/helpers.h"
+#include "esphome/core/log.h"
 
-namespace esphome {
-namespace tm1637 {
+namespace esphome::tm1637 {
 
-static const char *const TAG = "display.tm1637";
+ESPHOME_LOG_TAG(TAG, "display.tm1637");
 const uint8_t TM1637_CMD_DATA = 0x40;  //!< Display data command
 const uint8_t TM1637_CMD_CTRL = 0x80;  //!< Display control command
 const uint8_t TM1637_CMD_ADDR = 0xc0;  //!< Display address command
@@ -27,7 +26,7 @@ const uint8_t TM1637_DATA_FIXED_ADDR = 0x04;     //!< Fixed address
 //     ---
 //      D   X
 // XABCDEFG
-const uint8_t TM1637_ASCII_TO_RAW[] PROGMEM = {
+constexpr uint8_t TM1637_ASCII_TO_RAW[] PROGMEM = {
     0b00000000,           // ' ', ord 0x20
     0b10110000,           // '!', ord 0x21
     0b00100010,           // '"', ord 0x22
@@ -125,8 +124,6 @@ const uint8_t TM1637_ASCII_TO_RAW[] PROGMEM = {
     0b01100011,           // '~', ord 0x7E (degree symbol)
 };
 void TM1637Display::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up TM1637...");
-
   this->clk_pin_->setup();               // OUTPUT
   this->clk_pin_->digital_write(false);  // LOW
   this->dio_pin_->setup();               // OUTPUT
@@ -135,10 +132,12 @@ void TM1637Display::setup() {
   this->display();
 }
 void TM1637Display::dump_config() {
-  ESP_LOGCONFIG(TAG, "TM1637:");
-  ESP_LOGCONFIG(TAG, "  Intensity: %d", this->intensity_);
-  ESP_LOGCONFIG(TAG, "  Inverted: %d", this->inverted_);
-  ESP_LOGCONFIG(TAG, "  Length: %d", this->length_);
+  ESP_LOGCONFIG(TAG,
+                "TM1637:\n"
+                "  Intensity: %d\n"
+                "  Inverted: %d\n"
+                "  Length: %d",
+                this->intensity_, this->inverted_, this->length_);
   LOG_PIN("  CLK Pin: ", this->clk_pin_);
   LOG_PIN("  DIO Pin: ", this->dio_pin_);
   LOG_UPDATE_INTERVAL(this);
@@ -199,7 +198,7 @@ void TM1637Display::stop_() {
 }
 
 void TM1637Display::display() {
-  ESP_LOGVV(TAG, "Display %02X%02X%02X%02X", buffer_[0], buffer_[1], buffer_[2], buffer_[3]);
+  ESP_LOGVV_HEX(TAG, this->buffer_, 4, 4, "Display %s");
 
   // Write DATA CMND
   this->start_();
@@ -347,7 +346,20 @@ uint8_t TM1637Display::print(uint8_t start_pos, const char *str) {
   }
   return pos - start_pos;
 }
+
+void TM1637Display::set_brightness(float brightness) {
+  auto intensity = clamp(brightness, 0.f, 1.f) * 7;
+  this->set_on(intensity > 0);
+  this->set_intensity(intensity);
+}
+
 uint8_t TM1637Display::print(const char *str) { return this->print(0, str); }
+
+void TM1637Display::set_buffer(const uint8_t *data, uint8_t length) {
+  uint8_t len = std::min(length, (uint8_t) sizeof(this->buffer_));
+  memcpy(this->buffer_, data, len);
+}
+
 uint8_t TM1637Display::printf(uint8_t pos, const char *format, ...) {
   va_list arg;
   va_start(arg, format);
@@ -378,5 +390,4 @@ uint8_t TM1637Display::strftime(uint8_t pos, const char *format, ESPTime time) {
 }
 uint8_t TM1637Display::strftime(const char *format, ESPTime time) { return this->strftime(0, format, time); }
 
-}  // namespace tm1637
-}  // namespace esphome
+}  // namespace esphome::tm1637

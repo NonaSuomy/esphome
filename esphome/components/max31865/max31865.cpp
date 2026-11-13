@@ -1,13 +1,15 @@
 #include "max31865.h"
 
 #include "esphome/core/log.h"
+#include "esphome/core/helpers.h"
 #include <cmath>
 #include <cinttypes>
 
-namespace esphome {
-namespace max31865 {
+namespace esphome::max31865 {
 
-static const char *const TAG = "max31865";
+ESPHOME_LOG_TAG(TAG, "max31865");
+
+static constexpr uint32_t READ_TIMEOUT_ID = 0;
 
 void MAX31865Sensor::update() {
   // Check new faults since last measurement
@@ -60,12 +62,10 @@ void MAX31865Sensor::update() {
   this->write_config_(0b11100000, 0b10100000);
 
   // Datasheet max conversion time is 55ms for 60Hz / 66ms for 50Hz
-  auto f = std::bind(&MAX31865Sensor::read_data_, this);
-  this->set_timeout("value", filter_ == FILTER_60HZ ? 55 : 66, f);
+  this->set_timeout(READ_TIMEOUT_ID, filter_ == FILTER_60HZ ? 55 : 66, [this]() { this->read_data_(); });
 }
 
 void MAX31865Sensor::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MAX31865Sensor '%s'...", this->name_.c_str());
   this->spi_setup();
 
   // Build base configuration
@@ -83,13 +83,15 @@ void MAX31865Sensor::dump_config() {
   LOG_SENSOR("", "MAX31865", this);
   LOG_PIN("  CS Pin: ", this->cs_);
   LOG_UPDATE_INTERVAL(this);
-  ESP_LOGCONFIG(TAG, "  Reference Resistance: %.2fΩ", reference_resistance_);
-  ESP_LOGCONFIG(TAG, "  RTD: %u-wire %.2fΩ", rtd_wires_, rtd_nominal_resistance_);
-  ESP_LOGCONFIG(TAG, "  Mains Filter: %s",
-                (filter_ == FILTER_60HZ ? "60 Hz" : (filter_ == FILTER_50HZ ? "50 Hz" : "Unknown!")));
+  ESP_LOGCONFIG(
+      TAG,
+      "  Reference Resistance: %.2fΩ\n"
+      "  RTD: %u-wire %.2fΩ\n"
+      "  Mains Filter: %s",
+      reference_resistance_, rtd_wires_, rtd_nominal_resistance_,
+      (filter_ == FILTER_60HZ ? LOG_STR_LITERAL("60 Hz")
+                              : (filter_ == FILTER_50HZ ? LOG_STR_LITERAL("50 Hz") : LOG_STR_LITERAL("Unknown!"))));
 }
-
-float MAX31865Sensor::get_setup_priority() const { return setup_priority::DATA; }
 
 void MAX31865Sensor::read_data_() {
   // Read temperature, disable V_BIAS (save power)
@@ -183,7 +185,7 @@ uint16_t MAX31865Sensor::read_register_16_(uint8_t reg) {
   const uint8_t msb(this->read_byte());
   const uint8_t lsb(this->read_byte());
   this->disable();
-  const uint16_t value((msb << 8) | lsb);
+  const uint16_t value = encode_uint16(msb, lsb);
   ESP_LOGVV(TAG, "read_register_16_ 0x%02X: 0x%04X", reg, value);
   return value;
 }
@@ -228,5 +230,4 @@ float MAX31865Sensor::calc_temperature_(float rtd_ratio) {
   return neg_temp;
 }
 
-}  // namespace max31865
-}  // namespace esphome
+}  // namespace esphome::max31865

@@ -2,10 +2,12 @@ import esphome.codegen as cg
 from esphome.components import i2c, sensirion_common, sensor
 import esphome.config_validation as cv
 from esphome.const import (
+    CONF_MEASUREMENT_MODE,
     DEVICE_CLASS_PRESSURE,
     STATE_CLASS_MEASUREMENT,
     UNIT_HECTOPASCAL,
 )
+from esphome.types import ConfigType
 
 DEPENDENCIES = ["i2c"]
 AUTO_LOAD = ["sensirion_common"]
@@ -13,16 +15,19 @@ CODEOWNERS = ["@Azimath"]
 
 sdp3x_ns = cg.esphome_ns.namespace("sdp3x")
 SDP3XComponent = sdp3x_ns.class_(
-    "SDP3XComponent", cg.PollingComponent, sensirion_common.SensirionI2CDevice
+    "SDP3XComponent",
+    sensor.Sensor,
+    cg.PollingComponent,
+    sensirion_common.SensirionI2CDevice,
 )
 
 
-MeasurementMode = sdp3x_ns.enum("MeasurementMode")
+# The start command for each mode, with averaging
 MEASUREMENT_MODE = {
-    "mass_flow": MeasurementMode.MASS_FLOW_AVG,
-    "differential_pressure": MeasurementMode.DP_AVG,
+    "mass_flow": 0x3603,
+    "differential_pressure": 0x3615,
 }
-CONF_MEASUREMENT_MODE = "measurement_mode"
+
 
 CONFIG_SCHEMA = (
     sensor.sensor_schema(
@@ -44,8 +49,7 @@ CONFIG_SCHEMA = (
 )
 
 
-async def to_code(config):
-    var = await sensor.new_sensor(config)
+async def to_code(config: ConfigType) -> None:
+    var = await sensor.new_sensor(config, config[CONF_MEASUREMENT_MODE])
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
-    cg.add(var.set_measurement_mode(config[CONF_MEASUREMENT_MODE]))

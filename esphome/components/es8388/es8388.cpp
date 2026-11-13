@@ -1,0 +1,290 @@
+#include "es8388.h"
+
+#include <cinttypes>
+#include <cmath>
+#include "esphome/core/hal.h"
+#include "esphome/core/helpers.h"
+#include "esphome/core/log.h"
+
+namespace esphome::es8388 {
+
+ESPHOME_LOG_TAG(TAG, "es8388");
+
+// Mark the component as failed; use only in setup
+#define ES8388_ERROR_FAILED(func) \
+  if (!(func)) { \
+    this->mark_failed(LOG_STR("Failed to initialize")); \
+    return; \
+  }
+
+// Return false; use outside of setup
+#define ES8388_ERROR_CHECK(func) \
+  if (!(func)) { \
+    return false; \
+  }
+
+static constexpr i2c::I2CRegValue ES8388_INIT[] PROGMEM = {
+    // I2S worker mode
+    {ES8388_MASTERMODE, 0x00},
+    /* Chip Control and Power Management */
+    {ES8388_CONTROL2, 0x50},
+    // normal all and power up all
+    {ES8388_CHIPPOWER, 0x00},
+    // vmidsel/500k
+    // EnRef=0,Play&Record Mode,(0x17-both of mic&play)
+    {ES8388_CONTROL1, 0x12},
+    // i2s 16 bits
+    {ES8388_DACCONTROL1, 0x18},
+    // sample freq 256
+    // DACFsMode,SINGLE SPEED; DACFsRatio,256
+    {ES8388_DACCONTROL2, 0x02},
+    // 0x00 audio on LIN1&RIN1,  0x09 LIN2&RIN2
+    {ES8388_DACCONTROL16, 0x00},
+    // only left DAC to left mixer enable 0db
+    {ES8388_DACCONTROL17, 0x90},
+    // only right DAC to right mixer enable 0db
+    {ES8388_DACCONTROL20, 0x90},
+    // set internal ADC and DAC use the same LRCK clock, ADC LRCK as internal LRCK
+    {ES8388_DACCONTROL21, 0x80},
+    // vroi=0 - 1.5k VREF to analog output resistance (default)
+    {ES8388_DACCONTROL23, 0x00},
+    // power down adc and line in
+    {ES8388_ADCPOWER, 0xFF},
+    // set to Mono Right
+    {ES8388_ADCCONTROL3, 0x02},
+    // I2S 16 Bits length and I2S serial audio data format
+    {ES8388_ADCCONTROL4, 0x0d},
+    // ADCFsMode,single SPEED,RATIO=256
+    {ES8388_ADCCONTROL5, 0x02},
+    // ADC Volume
+    {ES8388_ADCCONTROL8, 0x00},
+    {ES8388_ADCCONTROL9, 0x00},
+    //@nightDav
+    // ALC Config (as recommended by ES8388 user guide for voice recording)
+    // Reg 0x12 = 0xe2 (ALC stereo, max gain +17.5dB, min gain 0dB)
+    {ES8388_ADCCONTROL10, 0xe2},
+    // Reg 0x13 = 0xa0 (ALC target = -1.5dB, hold time = 0ms)
+    {ES8388_ADCCONTROL11, 0xa0},
+    // Reg 0x14 = 0x12 (decay time = 820us, attack time = 416us)
+    {ES8388_ADCCONTROL12, 0x12},
+    // Reg 0x15 = 0x06 (ALC mode, window size = 96 samples)
+    {ES8388_ADCCONTROL13, 0x06},
+    // Reg 0x16 = 0xc3 (noise gate = -40.5dBFS, NGG = 0x01 (mute ADC output), enabled)
+    {ES8388_ADCCONTROL14, 0xc3},
+    // Power on ADC
+    {ES8388_DACCONTROL21, 0x80},
+    // Start state machine
+    {ES8388_CHIPPOWER, 0xF0},
+};
+
+static constexpr i2c::I2CRegValue ES8388_UNMUTE[] PROGMEM = {
+    // unmute ADC with fade in
+    {ES8388_ADCCONTROL7, 0x60},
+    // unmute DAC with fade in
+    {ES8388_DACCONTROL3, 0x20},
+    // Power on ADC, Enable LIN&RIN, Power off MICBIAS, set int1lp to low power mode
+    {ES8388_ADCPOWER, 0x09},
+};
+
+void ES8388::setup() {
+  // mute DAC
+  this->set_mute_state_(true);
+
+  ES8388_ERROR_FAILED(this->write_registers(ES8388_INIT));
+  // ADC PGA gain (reg 0x09): MicAmpL in bits 7:4, MicAmpR in bits 3:0, 3 dB per step
+  ES8388_ERROR_FAILED(this->write_byte(ES8388_ADCCONTROL1, this->mic_gain_));
+  delay(1);
+  ES8388_ERROR_FAILED(this->write_byte(ES8388_CHIPPOWER, 0x00));
+
+  // DAC volume max
+  // Set initial volume
+  // this->set_volume(0.75);  // 0.75 = 0xBF = 0dB
+
+  this->set_mute_state_(false);
+
+  ES8388_ERROR_FAILED(this->write_registers(ES8388_UNMUTE));
+
+#ifdef USE_ES8388_SELECT
+  if (this->dac_output_select_ != nullptr) {
+    if (this->dac_output_initial_.has_value()) {
+      const DacOutputLine line = this->dac_output_initial_.value();
+      ES8388_ERROR_FAILED(this->set_dac_output(line));
+      this->dac_output_select_->publish_state(static_cast<size_t>(line));
+    } else {
+      auto dac_power = this->get_dac_power();
+      if (dac_power.has_value()) {
+        if (this->dac_output_select_->has_index(dac_power.value())) {
+          this->dac_output_select_->publish_state(dac_power.value());
+        } else {
+          ESP_LOGW(TAG, "Unknown DAC output power value: %d", dac_power.value());
+        }
+      }
+    }
+  }
+  if (this->adc_input_mic_select_ != nullptr) {
+    if (this->adc_input_mic_initial_.has_value()) {
+      const AdcInputMicLine line = this->adc_input_mic_initial_.value();
+      ES8388_ERROR_FAILED(this->set_adc_input_mic(line));
+      this->adc_input_mic_select_->publish_state(static_cast<size_t>(line));
+    } else {
+      auto mic_input = this->get_mic_input();
+      if (mic_input.has_value()) {
+        if (this->adc_input_mic_select_->has_index(mic_input.value())) {
+          this->adc_input_mic_select_->publish_state(mic_input.value());
+        } else {
+          ESP_LOGW(TAG, "Unknown ADC input mic value: %d", mic_input.value());
+        }
+      }
+    }
+  }
+#endif
+}
+
+void ES8388::dump_config() {
+  ESP_LOGCONFIG(TAG,
+                "ES8388 Audio Codec:\n"
+                "  Volume range: %.1f dB to %.1f dB",
+                this->volume_min_db_, this->volume_max_db_);
+  LOG_I2C_DEVICE(this);
+  ESP_LOGCONFIG(TAG, "  Mic gain: %u dB", (this->mic_gain_ & 0x0F) * 3);
+#ifdef USE_ES8388_SELECT
+  LOG_SELECT("  ", "DAC Output", this->dac_output_select_);
+  LOG_SELECT("  ", "ADC Input Mic", this->adc_input_mic_select_);
+#endif
+}
+
+// DACCONTROL4/5 attenuate the DAC in 0.5 dB steps, from 0 dB at 0x00 to -96 dB at 0xC0
+static constexpr float DAC_ATTENUATION_STEPS_PER_DB = 2.0f;
+static constexpr uint8_t DAC_ATTENUATION_MAX = 0xC0;
+
+bool ES8388::set_volume(float volume) {
+  volume = clamp(volume, 0.0f, 1.0f);
+  // Linear in dB between the two ends, so equal volume steps sound like equal changes in loudness
+  const float db = this->volume_min_db_ + volume * (this->volume_max_db_ - this->volume_min_db_);
+  const auto steps = static_cast<int32_t>(lroundf(-db * DAC_ATTENUATION_STEPS_PER_DB));
+  const auto value = static_cast<uint8_t>(clamp<int32_t>(steps, 0, DAC_ATTENUATION_MAX));
+  ESP_LOGD(TAG, "Setting ES8388_DACCONTROL4 / ES8388_DACCONTROL5 to 0x%02X (volume: %f)", value, volume);
+  ES8388_ERROR_CHECK(this->write_byte(ES8388_DACCONTROL4, value));
+  ES8388_ERROR_CHECK(this->write_byte(ES8388_DACCONTROL5, value));
+
+  return true;
+}
+
+float ES8388::volume() {
+  uint8_t value;
+  ES8388_ERROR_CHECK(this->read_byte(ES8388_DACCONTROL4, &value));
+  const float db = -value / DAC_ATTENUATION_STEPS_PER_DB;
+  return clamp((db - this->volume_min_db_) / (this->volume_max_db_ - this->volume_min_db_), 0.0f, 1.0f);
+}
+
+bool ES8388::set_mute_state_(bool mute_state) {
+  this->is_muted_ = mute_state;
+
+  // Only toggle the DACMute bit; the other bits of this register hold unrelated DAC settings
+  return this->update_register(ES8388_DACCONTROL3, ES8388_DACCONTROL3_DAC_MUTE,
+                               mute_state ? ES8388_DACCONTROL3_DAC_MUTE : 0);
+}
+
+// Set dac power output
+bool ES8388::set_dac_output(DacOutputLine line) {
+  uint8_t reg_out1 = 0;
+  uint8_t reg_out2 = 0;
+  uint8_t dac_power = 0;
+
+  // 0x00: -30dB , 0x1E: 0dB
+  switch (line) {
+    case DAC_OUTPUT_LINE1:
+      reg_out1 = 0x1E;
+      dac_power = ES8388_DAC_OUTPUT_LOUT1_ROUT1;
+      break;
+    case DAC_OUTPUT_LINE2:
+      reg_out2 = 0x1E;
+      dac_power = ES8388_DAC_OUTPUT_LOUT2_ROUT2;
+      break;
+    case DAC_OUTPUT_BOTH:
+      reg_out1 = 0x1E;
+      reg_out2 = 0x1E;
+      dac_power = ES8388_DAC_OUTPUT_BOTH;
+      break;
+    default:
+      ESP_LOGE(TAG, "Unknown DAC output line: %d", line);
+      return false;
+  };
+
+  ESP_LOGV(TAG,
+           "DAC output config:\n"
+           "  DACPOWER: 0x%02X\n"
+           "  DACCONTROL24/25: 0x%02X\n"
+           "  DACCONTROL26/27: 0x%02X",
+           dac_power, reg_out1, reg_out2);
+
+  ES8388_ERROR_CHECK(this->write_byte(ES8388_DACCONTROL24, reg_out1));  // LOUT1VOL
+  ES8388_ERROR_CHECK(this->write_byte(ES8388_DACCONTROL25, reg_out1));  // ROUT1VOL
+  ES8388_ERROR_CHECK(this->write_byte(ES8388_DACCONTROL26, reg_out2));  // LOUT2VOL
+  ES8388_ERROR_CHECK(this->write_byte(ES8388_DACCONTROL27, reg_out2));  // ROUT1VOL
+
+  return this->write_byte(ES8388_DACPOWER, dac_power);
+}
+
+optional<DacOutputLine> ES8388::get_dac_power() {
+  uint8_t dac_power;
+  if (!this->read_byte(ES8388_DACPOWER, &dac_power)) {
+    this->status_momentary_warning();
+    return {};
+  }
+  switch (dac_power) {
+    case ES8388_DAC_OUTPUT_LOUT1_ROUT1:
+      return DAC_OUTPUT_LINE1;
+    case ES8388_DAC_OUTPUT_LOUT2_ROUT2:
+      return DAC_OUTPUT_LINE2;
+    case ES8388_DAC_OUTPUT_BOTH:
+      return DAC_OUTPUT_BOTH;
+    default:
+      return {};
+  }
+}
+
+// Set ADC input MIC
+bool ES8388::set_adc_input_mic(AdcInputMicLine line) {
+  uint8_t mic_input = 0;
+
+  switch (line) {
+    case ADC_INPUT_MIC_LINE1:
+      mic_input = ES8388_ADC_INPUT_LINPUT1_RINPUT1;
+      break;
+    case ADC_INPUT_MIC_LINE2:
+      mic_input = ES8388_ADC_INPUT_LINPUT2_RINPUT2;
+      break;
+    case ADC_INPUT_MIC_DIFFERENCE:
+      mic_input = ES8388_ADC_INPUT_DIFFERENCE;
+      break;
+    default:
+      ESP_LOGE(TAG, "Unknown ADC input mic line: %d", line);
+      return false;
+  }
+
+  ESP_LOGV(TAG, "Setting ES8388_ADCCONTROL2 to 0x%02X", mic_input);
+  ES8388_ERROR_CHECK(this->write_byte(ES8388_ADCCONTROL2, mic_input));
+
+  return true;
+}
+
+optional<AdcInputMicLine> ES8388::get_mic_input() {
+  uint8_t mic_input;
+  if (!this->read_byte(ES8388_ADCCONTROL2, &mic_input)) {
+    this->status_momentary_warning();
+    return {};
+  }
+  switch (mic_input) {
+    case ES8388_ADC_INPUT_LINPUT1_RINPUT1:
+      return ADC_INPUT_MIC_LINE1;
+    case ES8388_ADC_INPUT_LINPUT2_RINPUT2:
+      return ADC_INPUT_MIC_LINE2;
+    case ES8388_ADC_INPUT_DIFFERENCE:
+      return ADC_INPUT_MIC_DIFFERENCE;
+    default:
+      return {};
+  };
+}
+
+}  // namespace esphome::es8388

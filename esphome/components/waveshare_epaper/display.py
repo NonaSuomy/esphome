@@ -1,3 +1,5 @@
+import logging
+
 from esphome import core, pins
 import esphome.codegen as cg
 from esphome.components import display, spi
@@ -13,8 +15,11 @@ from esphome.const import (
     CONF_RESET_DURATION,
     CONF_RESET_PIN,
 )
+from esphome.types import ConfigType
 
 DEPENDENCIES = ["spi"]
+
+LOGGER = logging.getLogger(__name__)
 
 waveshare_epaper_ns = cg.esphome_ns.namespace("waveshare_epaper")
 WaveshareEPaperBase = waveshare_epaper_ns.class_(
@@ -70,12 +75,16 @@ WaveshareEPaper4P2InBV2 = waveshare_epaper_ns.class_(
 WaveshareEPaper4P2InBV2BWR = waveshare_epaper_ns.class_(
     "WaveshareEPaper4P2InBV2BWR", WaveshareEPaperBWR
 )
+WaveshareEPaper5P65InF = waveshare_epaper_ns.class_(
+    "WaveshareEPaper5P65InF", WaveshareEPaper7C
+)
 WaveshareEPaper5P8In = waveshare_epaper_ns.class_(
     "WaveshareEPaper5P8In", WaveshareEPaper
 )
 WaveshareEPaper5P8InV2 = waveshare_epaper_ns.class_(
     "WaveshareEPaper5P8InV2", WaveshareEPaper
 )
+GDEY0583T81 = waveshare_epaper_ns.class_("GDEY0583T81", WaveshareEPaper)
 WaveshareEPaper7P3InF = waveshare_epaper_ns.class_(
     "WaveshareEPaper7P3InF", WaveshareEPaper7C
 )
@@ -150,8 +159,10 @@ MODELS = {
     "4.20in": ("b", WaveshareEPaper4P2In),
     "4.20in-bv2": ("b", WaveshareEPaper4P2InBV2),
     "4.20in-bv2-bwr": ("b", WaveshareEPaper4P2InBV2BWR),
+    "5.65in-f": ("b", WaveshareEPaper5P65InF),
     "5.83in": ("b", WaveshareEPaper5P8In),
     "5.83inv2": ("b", WaveshareEPaper5P8InV2),
+    "gdey0583t81": ("c", GDEY0583T81),
     "7.30in-f": ("b", WaveshareEPaper7P3InF),
     "7.50in": ("b", WaveshareEPaper7P5In),
     "7.50in-bv2": ("b", WaveshareEPaper7P5InBV2),
@@ -171,7 +182,7 @@ MODELS = {
 RESET_PIN_REQUIRED_MODELS = ("2.13inv2", "2.13in-ttgo-b74")
 
 
-def validate_full_update_every_only_types_ac(value):
+def validate_full_update_every_only_types_ac(value: ConfigType) -> ConfigType:
     if CONF_FULL_UPDATE_EVERY not in value:
         return value
     if MODELS[value[CONF_MODEL]][0] == "b":
@@ -186,7 +197,7 @@ def validate_full_update_every_only_types_ac(value):
     return value
 
 
-def validate_reset_pin_required(config):
+def validate_reset_pin_required(config: ConfigType) -> ConfigType:
     if config[CONF_MODEL] in RESET_PIN_REQUIRED_MODELS and CONF_RESET_PIN not in config:
         raise cv.Invalid(
             f"'{CONF_RESET_PIN}' is required for model {config[CONF_MODEL]}"
@@ -221,7 +232,12 @@ FINAL_VALIDATE_SCHEMA = spi.final_validate_device_schema(
 )
 
 
-async def to_code(config):
+async def to_code(config: ConfigType) -> None:
+    # Remove before 2027.5.0
+    LOGGER.warning(
+        "The 'waveshare_epaper' component is deprecated and will be removed in ESPHome 2027.5.0, "
+        "migrate to 'epaper_spi' instead."
+    )
     model_type, model = MODELS[config[CONF_MODEL]]
     if model_type == "a":
         rhs = WaveshareEPaperTypeA.new(model)
@@ -230,10 +246,10 @@ async def to_code(config):
         rhs = model.new()
         var = cg.Pvariable(config[CONF_ID], rhs, model)
     else:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     await display.register_display(var, config)
-    await spi.register_spi_device(var, config)
+    await spi.register_spi_device(var, config, write_only=True)
 
     dc = await cg.gpio_pin_expression(config[CONF_DC_PIN])
     cg.add(var.set_dc_pin(dc))

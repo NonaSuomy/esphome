@@ -3,23 +3,18 @@
 #include "../ld2420.h"
 #include "esphome/components/binary_sensor/binary_sensor.h"
 
-namespace esphome {
-namespace ld2420 {
+namespace esphome::ld2420 {
 
-class LD2420BinarySensor : public LD2420Listener, public Component, binary_sensor::BinarySensor {
+class LD2420BinarySensor final : public LD2420Listener, public Component, public binary_sensor::BinarySensor {
  public:
   void dump_config() override;
-  void set_presence_sensor(binary_sensor::BinarySensor *bsensor) { this->presence_bsensor_ = bsensor; };
+  SUB_BINARY_SENSOR(presence)
   void on_presence(bool presence) override {
-    if (this->presence_bsensor_ != nullptr) {
-      if (this->presence_bsensor_->state != presence)
-        this->presence_bsensor_->publish_state(presence);
+    if (this->presence_binary_sensor_ != nullptr) {
+      if (this->presence_binary_sensor_->state != presence)
+        this->presence_binary_sensor_->publish_state(presence);
     }
   }
-
- protected:
-  binary_sensor::BinarySensor *presence_bsensor_{nullptr};
 };
 
-}  // namespace ld2420
-}  // namespace esphome
+}  // namespace esphome::ld2420

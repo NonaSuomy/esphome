@@ -27,6 +27,7 @@
 #include "debug.h"
 
 #include "dev_table.h"
+#include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 
 #include <algorithm>
@@ -108,17 +109,16 @@ constexpr uint8_t STM_OBL_LAUNCH_CODE[] = {
 
 constexpr uint32_t STM_OBL_LAUNCH_CODE_SIZE = sizeof(STM_OBL_LAUNCH_CODE);
 
-constexpr char TAG[] = "stm32flash";
+ESPHOME_LOG_TAG(TAG, "stm32flash");
 
 }  // Anonymous namespace
 
-namespace esphome {
-namespace shelly_dimmer {
+namespace esphome::shelly_dimmer {
 
 namespace {
 
 int flash_addr_to_page_ceil(const stm32_unique_ptr &stm, uint32_t addr) {
-  if (!(addr >= stm->dev->fl_start && addr <= stm->dev->fl_end))
+  if (addr < stm->dev->fl_start || addr > stm->dev->fl_end)
     return 0;
 
   int page = 0;
@@ -149,7 +149,7 @@ stm32_err_t stm32_get_ack_timeout(const stm32_unique_ptr &stm, uint32_t timeout)
   do {
     yield();
     if (!stream->available()) {
-      if (millis() < start_time + timeout)
+      if (millis() - start_time < timeout)
         continue;
       ESP_LOGD(TAG, "Failed to read ACK timeout=%i", timeout);
       return STM32_ERR_UNKNOWN;
@@ -212,7 +212,7 @@ stm32_err_t stm32_resync(const stm32_unique_ptr &stm) {
   static_assert(sizeof(buf) == BUFFER_SIZE, "Buf expected to be 2 bytes");
 
   uint8_t ack;
-  while (t1 < t0 + STM32_RESYNC_TIMEOUT) {
+  while (t1 - t0 < STM32_RESYNC_TIMEOUT) {
     stream->write_array(buf, BUFFER_SIZE);
     stream->flush();
     if (!stream->read_array(&ack, 1)) {
@@ -340,8 +340,9 @@ stm32_err_t stm32_mass_erase(const stm32_unique_ptr &stm) {
   /* extended erase */
   static constexpr auto BUFFER_SIZE = 3;
   const uint8_t buf[] = {
-      0xFF,       /* 0xFFFF the magic number for mass erase */
-      0xFF, 0x00, /* checksum */
+      0xFF, /* 0xFFFF the magic number for mass erase */
+      0xFF,
+      0x00, /* checksum */
   };
   static_assert(sizeof(buf) == BUFFER_SIZE, "Expected the buffer to be 3 bytes");
   stream->write_array(buf, 3);
@@ -445,33 +446,15 @@ template<typename T> stm32_err_t stm32_check_ack_timeout(const stm32_err_t s_err
       return STM32_ERR_OK;
     case STM32_ERR_NACK:
       log();
-      // TODO: c++17 [[fallthrough]]
-      /* fallthrough */
+      [[fallthrough]];
     default:
       return STM32_ERR_UNKNOWN;
   }
 }
 
-/* detect CPU endian */
-bool cpu_le() {
-  static constexpr int N = 1;
-
-  // returns true if little endian
-  return *reinterpret_cast<const char *>(&N) == 1;
-}
-
-uint32_t le_u32(const uint32_t v) {
-  if (!cpu_le())
-    return ((v & 0xFF000000) >> 24) | ((v & 0x00FF0000) >> 8) | ((v & 0x0000FF00) << 8) | ((v & 0x000000FF) << 24);
-  return v;
-}
-
 template<size_t N> void populate_buffer_with_address(uint8_t (&buffer)[N], uint32_t address) {
-  buffer[0] = static_cast<uint8_t>(address >> 24);
-  buffer[1] = static_cast<uint8_t>((address >> 16) & 0xFF);
-  buffer[2] = static_cast<uint8_t>((address >> 8) & 0xFF);
-  buffer[3] = static_cast<uint8_t>(address & 0xFF);
-  buffer[4] = static_cast<uint8_t>(buffer[0] ^ buffer[1] ^ buffer[2] ^ buffer[3]);
+  put_be32(buffer, address);
+  buffer[4] = xor_bytes(buffer, 4);
 }
 
 template<typename T> stm32_unique_ptr make_stm32_with_deletor(T ptr) {
@@ -487,12 +470,6 @@ template<typename T> stm32_unique_ptr make_stm32_with_deletor(T ptr) {
 }
 
 }  // Anonymous namespace
-
-}  // namespace shelly_dimmer
-}  // namespace esphome
-
-namespace esphome {
-namespace shelly_dimmer {
 
 /* find newer command by higher code */
 #define newer(prev, a) (((prev) == STM32_CMD_ERR) ? (a) : (((prev) > (a)) ? (prev) : (a)))
@@ -637,8 +614,9 @@ stm32_unique_ptr stm32_init(uart::UARTDevice *stream, const uint8_t flags, const
   stm->pid = (buf[1] << 8) | buf[2];
   if (returned > 2) {
     ESP_LOGD(TAG, "This bootloader returns %d extra bytes in PID:", returned);
-    for (auto i = 2; i <= returned; i++)
+    for (auto i = 2; i <= returned; i++) {
       ESP_LOGD(TAG, " %02x", buf[i]);
+    }
   }
   if (stm32_get_ack(stm) != STM32_ERR_OK) {
     return make_stm32_with_deletor(nullptr);
@@ -732,20 +710,13 @@ stm32_err_t stm32_write_memory(const stm32_unique_ptr &stm, uint32_t address, co
     return STM32_ERR_UNKNOWN;
 
   const unsigned int aligned_len = (len + 3) & ~3;
-  uint8_t cs = aligned_len - 1;
   uint8_t buf[256 + 2];
 
   buf[0] = aligned_len - 1;
-  for (auto i = 0; i < len; i++) {
-    cs ^= data[i];
-    buf[i + 1] = data[i];
-  }
+  memcpy(&buf[1], data, len);
   /* padding data */
-  for (auto i = len; i < aligned_len; i++) {
-    cs ^= 0xFF;
-    buf[i + 1] = 0xFF;
-  }
-  buf[aligned_len + 1] = cs;
+  memset(&buf[1 + len], 0xFF, aligned_len - len);
+  buf[aligned_len + 1] = xor_bytes(buf, aligned_len + 1);
   stream->write_array(buf, aligned_len + 2);
   stream->flush();
 
@@ -854,8 +825,6 @@ static stm32_err_t stm32_run_raw_code(const stm32_unique_ptr &stm, uint32_t targ
                                       uint32_t code_size) {
   static constexpr uint32_t BUFFER_SIZE = 256;
 
-  const auto stack_le = le_u32(0x20002000);
-  const auto code_address_le = le_u32(target_address + 8 + 1);  // thumb mode address (!)
   uint32_t length = code_size + 8;
 
   /* Must be 32-bit aligned */
@@ -876,8 +845,8 @@ static stm32_err_t stm32_run_raw_code(const stm32_unique_ptr &stm, uint32_t targ
   if (!mem)
     return STM32_ERR_UNKNOWN;
 
-  memcpy(mem.get(), &stack_le, sizeof(stack_le));
-  memcpy(mem.get() + 4, &code_address_le, sizeof(code_address_le));
+  put_le32(mem.get(), 0x20002000);
+  put_le32(mem.get() + 4, target_address + 8 + 1);  // thumb mode address (!)
   memcpy(mem.get() + 8, code, code_size);
 
   auto *pos = mem.get();
@@ -980,7 +949,7 @@ stm32_err_t stm32_crc_memory(const stm32_unique_ptr &stm, const uint32_t address
     if (!stream->read_array(buf, BUFFER_SIZE))
       return STM32_ERR_UNKNOWN;
 
-    if (buf[4] != (buf[0] ^ buf[1] ^ buf[2] ^ buf[3]))
+    if (buf[4] != xor_bytes(buf, 4))
       return STM32_ERR_UNKNOWN;
 
     *crc = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
@@ -1060,7 +1029,6 @@ stm32_err_t stm32_crc_wrapper(const stm32_unique_ptr &stm, uint32_t address, uin
   return STM32_ERR_OK;
 }
 
-}  // namespace shelly_dimmer
-}  // namespace esphome
+}  // namespace esphome::shelly_dimmer
 
 #endif  // USE_SHD_FIRMWARE_DATA

@@ -3,26 +3,19 @@
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace mcp4728 {
+namespace esphome::mcp4728 {
 
-static const char *const TAG = "mcp4728";
+ESPHOME_LOG_TAG(TAG, "mcp4728");
 
 void MCP4728Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MCP4728 (0x%02X)...", this->address_);
   auto err = this->write(nullptr, 0);
-  if (err != i2c::ERROR_OK) {
-    this->mark_failed();
+  if (!this->setup_check(err == i2c::ERROR_OK))
     return;
-  }
 }
 
 void MCP4728Component::dump_config() {
   ESP_LOGCONFIG(TAG, "MCP4728:");
   LOG_I2C_DEVICE(this);
-  if (this->is_failed()) {
-    ESP_LOGE(TAG, "Communication with MCP4728 failed!");
-  }
 }
 
 void MCP4728Component::loop() {
@@ -44,19 +37,10 @@ void MCP4728Component::loop() {
   }
 }
 
-void MCP4728Component::set_channel_value_(MCP4728ChannelIdx channel, uint16_t value) {
-  uint8_t cn = 0;
-  if (channel == MCP4728_CHANNEL_A) {
-    cn = 'A';
-  } else if (channel == MCP4728_CHANNEL_B) {
-    cn = 'B';
-  } else if (channel == MCP4728_CHANNEL_C) {
-    cn = 'C';
-  } else {
-    cn = 'D';
-  }
-  ESP_LOGV(TAG, "Setting MCP4728 channel %c to %d!", cn, value);
-  reg_[channel].data = value;
+void MCP4728Component::write_channel(uint8_t channel, float state) {
+  auto value = static_cast<uint16_t>(roundf(state * 4095));
+  ESP_LOGV(TAG, "Setting MCP4728 channel %c to %d!", 'A' + channel, value);
+  this->reg_[channel].data = value;
   this->update_ = true;
 }
 
@@ -92,23 +76,12 @@ bool MCP4728Component::seq_write_() {
   return err == i2c::ERROR_OK;
 }
 
-void MCP4728Component::select_vref_(MCP4728ChannelIdx channel, MCP4728Vref vref) {
-  reg_[channel].vref = vref;
-
+void MCP4728Component::configure_channel(MCP4728ChannelIdx channel, MCP4728Vref vref, MCP4728Gain gain,
+                                         MCP4728PwrDown pd) {
+  this->reg_[channel].vref = vref;
+  this->reg_[channel].pd = pd;
+  this->reg_[channel].gain = gain;
   this->update_ = true;
 }
 
-void MCP4728Component::select_power_down_(MCP4728ChannelIdx channel, MCP4728PwrDown pd) {
-  reg_[channel].pd = pd;
-
-  this->update_ = true;
-}
-
-void MCP4728Component::select_gain_(MCP4728ChannelIdx channel, MCP4728Gain gain) {
-  reg_[channel].gain = gain;
-
-  this->update_ = true;
-}
-
-}  // namespace mcp4728
-}  // namespace esphome
+}  // namespace esphome::mcp4728

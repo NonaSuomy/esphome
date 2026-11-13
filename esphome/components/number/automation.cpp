@@ -1,10 +1,9 @@
 #include "automation.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace number {
+namespace esphome::number {
 
-static const char *const TAG = "number.automation";
+ESPHOME_LOG_TAG(TAG, "number.automation");
 
 union convert {
   float from;
@@ -12,11 +11,9 @@ union convert {
 };
 
 void ValueRangeTrigger::setup() {
-  float local_min = this->min_.value(0.0);
-  float local_max = this->max_.value(0.0);
-  convert hash = {.from = (local_max - local_min)};
-  uint32_t myhash = hash.to ^ this->parent_->get_object_id_hash();
-  this->rtc_ = global_preferences->make_preference<bool>(myhash);
+  const ValueRange range = this->range_(0.0f);
+  convert hash = {.from = range.max - range.min};
+  this->rtc_ = this->parent_->make_entity_preference<bool>(hash.to);
   bool initial_state;
   if (this->rtc_.load(&initial_state)) {
     this->previous_in_range_ = initial_state;
@@ -30,19 +27,7 @@ void ValueRangeTrigger::on_state_(float state) {
   if (std::isnan(state))
     return;
 
-  float local_min = this->min_.value(state);
-  float local_max = this->max_.value(state);
-
-  bool in_range;
-  if (std::isnan(local_min) && std::isnan(local_max)) {
-    in_range = this->previous_in_range_;
-  } else if (std::isnan(local_min)) {
-    in_range = state <= local_max;
-  } else if (std::isnan(local_max)) {
-    in_range = state >= local_min;
-  } else {
-    in_range = local_min <= state && state <= local_max;
-  }
+  bool in_range = this->range_(state).contains(state, this->previous_in_range_);
 
   if (in_range != this->previous_in_range_ && in_range) {
     this->trigger(state);
@@ -52,5 +37,4 @@ void ValueRangeTrigger::on_state_(float state) {
   this->rtc_.save(&in_range);
 }
 
-}  // namespace number
-}  // namespace esphome
+}  // namespace esphome::number

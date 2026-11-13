@@ -1,13 +1,20 @@
+from esphome import automation
 import esphome.codegen as cg
 from esphome.components import display, spi
 import esphome.config_validation as cv
-from esphome.const import CONF_ID, CONF_INTENSITY, CONF_LAMBDA, CONF_NUM_CHIPS
+from esphome.const import (
+    CONF_FLIP_X,
+    CONF_ID,
+    CONF_INTENSITY,
+    CONF_NUM_CHIPS,
+    CONF_STATE,
+)
+from esphome.types import ConfigType
 
 CODEOWNERS = ["@rspaargaren"]
 DEPENDENCIES = ["spi"]
 
 CONF_ROTATE_CHIP = "rotate_chip"
-CONF_FLIP_X = "flip_x"
 CONF_SCROLL_SPEED = "scroll_speed"
 CONF_SCROLL_DWELL = "scroll_dwell"
 CONF_SCROLL_DELAY = "scroll_delay"
@@ -17,18 +24,13 @@ CONF_REVERSE_ENABLE = "reverse_enable"
 CONF_NUM_CHIP_LINES = "num_chip_lines"
 CONF_CHIP_LINES_STYLE = "chip_lines_style"
 
+
 integration_ns = cg.esphome_ns.namespace("max7219digit")
 ChipLinesStyle = integration_ns.enum("ChipLinesStyle")
-CHIP_LINES_STYLE = {
-    "ZIGZAG": ChipLinesStyle.ZIGZAG,
-    "SNAKE": ChipLinesStyle.SNAKE,
-}
+CHIP_LINES_STYLE = ChipLinesStyle.options("ZIGZAG", "SNAKE")
 
 ScrollMode = integration_ns.enum("ScrollMode")
-SCROLL_MODES = {
-    "CONTINUOUS": ScrollMode.CONTINUOUS,
-    "STOP": ScrollMode.STOP,
-}
+SCROLL_MODES = ScrollMode.options("CONTINUOUS", "STOP")
 
 CHIP_MODES = {
     "0": 0,
@@ -76,9 +78,9 @@ CONFIG_SCHEMA = (
 )
 
 
-async def to_code(config):
+async def to_code(config: ConfigType) -> None:
     var = cg.new_Pvariable(config[CONF_ID])
-    await spi.register_spi_device(var, config)
+    await spi.register_spi_device(var, config, write_only=True)
     await display.register_display(var, config)
 
     cg.add(var.set_num_chips(config[CONF_NUM_CHIPS]))
@@ -94,8 +96,50 @@ async def to_code(config):
     cg.add(var.set_reverse(config[CONF_REVERSE_ENABLE]))
     cg.add(var.set_flip_x(config[CONF_FLIP_X]))
 
-    if CONF_LAMBDA in config:
-        lambda_ = await cg.process_lambda(
-            config[CONF_LAMBDA], [(MAX7219ComponentRef, "it")], return_type=cg.void
-        )
-        cg.add(var.set_writer(lambda_))
+    await display.add_writer(var, config, MAX7219ComponentRef)
+
+
+MAX7219_OFF_ACTION_SCHEMA = automation.maybe_simple_id(
+    {
+        cv.GenerateID(): cv.use_id(MAX7219Component),
+        cv.Optional(CONF_STATE, default=False): False,
+    }
+)
+
+MAX7219_ON_ACTION_SCHEMA = automation.maybe_simple_id(
+    {
+        cv.GenerateID(): cv.use_id(MAX7219Component),
+        cv.Optional(CONF_STATE, default=True): True,
+    }
+)
+
+
+for _name, _schema, _method in (
+    ("max7219digit.invert_off", MAX7219_OFF_ACTION_SCHEMA, "invert_on_off"),
+    ("max7219digit.invert_on", MAX7219_ON_ACTION_SCHEMA, "invert_on_off"),
+    ("max7219digit.turn_off", MAX7219_OFF_ACTION_SCHEMA, "turn_on_off"),
+    ("max7219digit.turn_on", MAX7219_ON_ACTION_SCHEMA, "turn_on_off"),
+    ("max7219digit.reverse_off", MAX7219_OFF_ACTION_SCHEMA, "set_reverse"),
+    ("max7219digit.reverse_on", MAX7219_ON_ACTION_SCHEMA, "set_reverse"),
+):
+    automation.register_apply_action(
+        _name, _schema, automation.ApplyField(CONF_STATE, _method, cg.bool_)
+    )
+
+
+MAX7219_INTENSITY_SCHEMA = cv.maybe_simple_value(
+    {
+        cv.GenerateID(): cv.use_id(MAX7219Component),
+        cv.Optional(CONF_INTENSITY, default=15): cv.templatable(
+            cv.int_range(min=0, max=15)
+        ),
+    },
+    key=CONF_INTENSITY,
+)
+
+
+automation.register_apply_action(
+    "max7219digit.intensity",
+    MAX7219_INTENSITY_SCHEMA,
+    automation.ApplyField(CONF_INTENSITY, "set_intensity", cg.uint8),
+)

@@ -1,19 +1,23 @@
 #ifdef USE_ESP8266
 
 #include "gpio.h"
+#include "esphome/core/hal.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace esp8266 {
+namespace esphome::esp8266 {
 
-static const char *const TAG = "esp8266";
+ESPHOME_LOG_TAG(TAG, "esp8266");
 
-static int IRAM_ATTR flags_to_mode(gpio::Flags flags, uint8_t pin) {
-  if (flags == gpio::FLAG_INPUT) {  // NOLINT(bugprone-branch-clone)
-    return INPUT;
-  } else if (flags == gpio::FLAG_OUTPUT) {
+static int flags_to_mode(gpio::Flags flags, uint8_t pin) {
+  flags =
+      flags & (gpio::FLAG_INPUT | gpio::FLAG_OUTPUT | gpio::FLAG_OPEN_DRAIN | gpio::FLAG_PULLUP | gpio::FLAG_PULLDOWN);
+  if (flags == gpio::FLAG_OUTPUT || flags == (gpio::FLAG_OUTPUT | gpio::FLAG_INPUT)) {
     return OUTPUT;
-  } else if (flags == (gpio::FLAG_INPUT | gpio::FLAG_PULLUP)) {
+  }
+  if (flags == gpio::FLAG_INPUT) {
+    return INPUT;
+  }
+  if (flags == (gpio::FLAG_INPUT | gpio::FLAG_PULLUP)) {
     if (pin == 16) {
       // GPIO16 doesn't have a pullup, so pinMode would fail.
       // However, sometimes this method is called with pullup mode anyway
@@ -22,28 +26,27 @@ static int IRAM_ATTR flags_to_mode(gpio::Flags flags, uint8_t pin) {
       return INPUT;
     }
     return INPUT_PULLUP;
-  } else if (flags == (gpio::FLAG_INPUT | gpio::FLAG_PULLDOWN)) {
-    return INPUT_PULLDOWN_16;
-  } else if (flags == (gpio::FLAG_OUTPUT | gpio::FLAG_OPEN_DRAIN)) {
-    return OUTPUT_OPEN_DRAIN;
-  } else {
-    return 0;
   }
+  if (flags == (gpio::FLAG_INPUT | gpio::FLAG_PULLDOWN)) {
+    return INPUT_PULLDOWN_16;
+  }
+  if (flags == (gpio::FLAG_OUTPUT | gpio::FLAG_OPEN_DRAIN)) {
+    return OUTPUT_OPEN_DRAIN;
+  }
+  return INPUT;
 }
 
-struct ISRPinArg {
-  uint8_t pin;
-  bool inverted;
-};
-
-ISRInternalGPIOPin ESP8266GPIOPin::to_isr() const {
-  auto *arg = new ISRPinArg{};  // NOLINT(cppcoreguidelines-owning-memory)
-  arg->pin = pin_;
-  arg->inverted = inverted_;
-  return ISRInternalGPIOPin((void *) arg);
+// Slot of each pin's GPF register (0x804 + 4 * slot), so ISR code does not read the core's PROGMEM table.
+static constexpr uint32_t GPF_SLOTS_0_7 = 0x76fe4d5c;
+static constexpr uint32_t GPF_SLOTS_8_15 = 0x3210ba98;
+static inline volatile uint32_t &IRAM_ATTR isr_gpf(uint8_t num) {
+  const uint32_t slots = num < 8 ? GPF_SLOTS_0_7 : GPF_SLOTS_8_15;
+  return ESP8266_REG(0x804 + 4 * ((slots >> (4 * (num & 7))) & 0xF));
 }
 
-void ESP8266GPIOPin::attach_interrupt(void (*func)(void *), void *arg, gpio::InterruptType type) const {
+ISRInternalGPIOPin ESP8266GPIOPin::to_isr() const { return ISRInternalGPIOPin(this); }
+
+void ESP8266GPIOPin::attach_interrupt_(void (*func)(void *), void *arg, gpio::InterruptType type) const {
   uint8_t arduino_mode = 0;
   switch (type) {
     case gpio::INTERRUPT_RISING_EDGE:
@@ -69,10 +72,8 @@ void ESP8266GPIOPin::pin_mode(gpio::Flags flags) {
   pinMode(pin_, flags_to_mode(flags, pin_));  // NOLINT
 }
 
-std::string ESP8266GPIOPin::dump_summary() const {
-  char buffer[32];
-  snprintf(buffer, sizeof(buffer), "GPIO%u", pin_);
-  return buffer;
+size_t ESP8266GPIOPin::dump_summary(char *buffer, size_t len) const {
+  return buf_append_printf(buffer, len, 0, "GPIO%u", this->pin_);
 }
 
 bool ESP8266GPIOPin::digital_read() {
@@ -83,25 +84,62 @@ void ESP8266GPIOPin::digital_write(bool value) {
 }
 void ESP8266GPIOPin::detach_interrupt() const { detachInterrupt(pin_); }
 
-}  // namespace esp8266
+}  // namespace esphome::esp8266
 
-using namespace esp8266;
+namespace esphome {
+
+using esp8266::ESP8266GPIOPin;
+using esp8266::isr_gpf;
 
 bool IRAM_ATTR ISRInternalGPIOPin::digital_read() {
-  auto *arg = reinterpret_cast<ISRPinArg *>(arg_);
-  return bool(digitalRead(arg->pin)) != arg->inverted;  // NOLINT
+  auto *pin = static_cast<ESP8266GPIOPin *>(this->arg_);
+  const uint8_t num = pin->get_pin();
+  return bool(num < 16 ? GPI & (1 << num) : GP16I & 1) != pin->is_inverted();
 }
+
 void IRAM_ATTR ISRInternalGPIOPin::digital_write(bool value) {
-  auto *arg = reinterpret_cast<ISRPinArg *>(arg_);
-  digitalWrite(arg->pin, value != arg->inverted ? 1 : 0);  // NOLINT
+  auto *pin = static_cast<ESP8266GPIOPin *>(this->arg_);
+  const uint8_t num = pin->get_pin();
+  if (num < 16) {
+    if (value != pin->is_inverted()) {
+      GPOS = 1 << num;
+    } else {
+      GPOC = 1 << num;
+    }
+  } else {
+    GP16O = value != pin->is_inverted() ? GP16O | 1 : GP16O & ~1;
+  }
 }
+
 void IRAM_ATTR ISRInternalGPIOPin::clear_interrupt() {
-  auto *arg = reinterpret_cast<ISRPinArg *>(arg_);
-  GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, 1UL << arg->pin);
+  auto *pin = static_cast<ESP8266GPIOPin *>(this->arg_);
+  // NOLINTNEXTLINE(clang-analyzer-core.FixedAddressDereference) -- GPIO_REG_WRITE is MMIO at a fixed address
+  GPIO_REG_WRITE(GPIO_STATUS_W1TC_ADDRESS, 1UL << pin->get_pin());
 }
+
 void IRAM_ATTR ISRInternalGPIOPin::pin_mode(gpio::Flags flags) {
-  auto *arg = reinterpret_cast<ISRPinArg *>(arg_);
-  pinMode(arg->pin, flags_to_mode(flags, arg->pin));  // NOLINT
+  const uint8_t num = static_cast<ESP8266GPIOPin *>(this->arg_)->get_pin();
+  if (num < 16) {
+    if (flags & gpio::FLAG_OUTPUT) {
+      GPES = 1 << num;
+      if (flags & gpio::FLAG_OPEN_DRAIN) {
+        GPC(num) = GPC(num) | (1 << GPCD);
+      } else {
+        GPC(num) &= ~(1 << GPCD);
+      }
+    } else if (flags & gpio::FLAG_INPUT) {
+      GPEC = 1 << num;
+    }
+    if (flags & gpio::FLAG_PULLUP) {
+      isr_gpf(num) = isr_gpf(num) | (1 << GPFPU);
+      GPC(num) = GPC(num) | (1 << GPCD);
+    } else {
+      isr_gpf(num) = isr_gpf(num) & ~(1 << GPFPU);
+    }
+  } else {
+    GP16E = flags & gpio::FLAG_OUTPUT ? GP16E | 1 : GP16E & ~1;
+    GPF16 = flags & gpio::FLAG_PULLDOWN ? GPF16 | (1 << GP16FPD) : GPF16 & ~(1 << GP16FPD);
+  }
 }
 
 }  // namespace esphome

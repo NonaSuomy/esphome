@@ -1,13 +1,14 @@
 #pragma once
 
+#include <type_traits>
 #include <utility>
-#include <vector>
 
 #include "esphome/core/automation.h"
+#include "esphome/core/hal.h"
+#include "esphome/core/helpers.h"
 #include "light_effect.h"
 
-namespace esphome {
-namespace light {
+namespace esphome::light {
 
 inline static float random_cubic_float() {
   const float r = random_float() * 2.0f - 1.0f;
@@ -17,7 +18,7 @@ inline static float random_cubic_float() {
 /// Pulse effect.
 class PulseLightEffect : public LightEffect {
  public:
-  explicit PulseLightEffect(const std::string &name) : LightEffect(name) {}
+  explicit PulseLightEffect(const char *name) : LightEffect(name) {}
 
   void apply() override {
     const uint32_t now = millis();
@@ -60,7 +61,7 @@ class PulseLightEffect : public LightEffect {
 /// Random effect. Sets random colors every 10 seconds and slowly transitions between them.
 class RandomLightEffect : public LightEffect {
  public:
-  explicit RandomLightEffect(const std::string &name) : LightEffect(name) {}
+  explicit RandomLightEffect(const char *name) : LightEffect(name) {}
 
   void apply() override {
     const uint32_t now = millis();
@@ -112,21 +113,25 @@ class RandomLightEffect : public LightEffect {
 
 class LambdaLightEffect : public LightEffect {
  public:
-  LambdaLightEffect(const std::string &name, std::function<void(bool initial_run)> f, uint32_t update_interval)
-      : LightEffect(name), f_(std::move(f)), update_interval_(update_interval) {}
+  LambdaLightEffect(const char *name, void (*f)(LightState &, bool initial_run), uint32_t update_interval)
+      : LightEffect(name), f_(f), update_interval_(update_interval) {}
 
   void start() override { this->initial_run_ = true; }
   void apply() override {
     const uint32_t now = millis();
     if (now - this->last_run_ >= this->update_interval_ || this->initial_run_) {
       this->last_run_ = now;
-      this->f_(this->initial_run_);
+      this->f_(*this->state_, this->initial_run_);
       this->initial_run_ = false;
     }
   }
 
+  /// Get the current effect index for use in lambda functions.
+  /// This can be useful for lambda effects that need to know their own index.
+  uint32_t get_current_index() const { return this->get_index(); }
+
  protected:
-  std::function<void(bool initial_run)> f_;
+  void (*f_)(LightState &, bool initial_run);
   uint32_t update_interval_;
   uint32_t last_run_{0};
   bool initial_run_;
@@ -134,39 +139,65 @@ class LambdaLightEffect : public LightEffect {
 
 class AutomationLightEffect : public LightEffect {
  public:
-  AutomationLightEffect(const std::string &name) : LightEffect(name) {}
-  void stop() override { this->trig_->stop_action(); }
+  AutomationLightEffect(const char *name) : LightEffect(name) {}
+  void stop() override { this->trig_.stop_action(); }
   void apply() override {
-    if (!this->trig_->is_action_running()) {
-      this->trig_->trigger();
+    if (!this->trig_.is_action_running()) {
+      this->trig_.trigger();
     }
   }
-  Trigger<> *get_trig() const { return trig_; }
+  Trigger<> *get_trig() { return &this->trig_; }
+
+  /// Get the current effect index for use in automations.
+  /// Useful for automations that need to know which effect is running.
+  uint32_t get_current_index() const { return this->get_index(); }
 
  protected:
-  Trigger<> *trig_{new Trigger<>};
+  Trigger<> trig_;
 };
 
+/// One strobe step. Codegen keeps the steps in a flash table, so it is read with progmem_memcpy.
 struct StrobeLightEffectColor {
-  LightColorValues color;
+  float state;
+  float brightness;
+  float color_brightness;
+  float red;
+  float green;
+  float blue;
+  float white;
+  float color_temperature;
+  float cold_white;
+  float warm_white;
   uint32_t duration;
   uint32_t transition_length;
+  ColorMode color_mode;
 };
+static_assert(std::is_trivially_copyable_v<StrobeLightEffectColor>, "StrobeLightEffectColor is copied out of flash");
+static_assert(sizeof(StrobeLightEffectColor) % sizeof(uint32_t) == 0,
+              "StrobeLightEffectColor must be whole words for ESP8266 flash reads");
 
 class StrobeLightEffect : public LightEffect {
  public:
-  explicit StrobeLightEffect(const std::string &name) : LightEffect(name) {}
+  explicit StrobeLightEffect(const char *name) : LightEffect(name) {}
+  void start() override {
+    // Place the cycle at the end of the last color, so the first apply() switches straight to the first color
+    this->at_color_ = this->colors_.size() - 1;
+    this->last_switch_ = millis() - this->duration_(this->at_color_);
+  }
   void apply() override {
     const uint32_t now = millis();
-    if (now - this->last_switch_ < this->colors_[this->at_color_].duration)
+    if (now - this->last_switch_ < this->duration_(this->at_color_))
       return;
 
     // Switch to next color
     this->at_color_ = (this->at_color_ + 1) % this->colors_.size();
-    auto color = this->colors_[this->at_color_].color;
+    StrobeLightEffectColor step;
+    progmem_memcpy(&step, &this->colors_[this->at_color_], sizeof(step));
+    LightColorValues color(step.color_mode, step.state, step.brightness, step.color_brightness, step.red, step.green,
+                           step.blue, step.white, step.color_temperature, step.cold_white, step.warm_white);
 
     auto call = this->state_->turn_on();
-    call.from_light_color_values(this->colors_[this->at_color_].color);
+    call.from_light_color_values(color);
 
     if (!color.is_on()) {
       // Don't turn the light off, otherwise the light effect will be stopped
@@ -175,22 +206,29 @@ class StrobeLightEffect : public LightEffect {
     }
     call.set_publish(false);
     call.set_save(false);
-    call.set_transition_length_if_supported(this->colors_[this->at_color_].transition_length);
+    call.set_transition_length_if_supported(step.transition_length);
     call.perform();
     this->last_switch_ = now;
   }
 
-  void set_colors(const std::vector<StrobeLightEffectColor> &colors) { this->colors_ = colors; }
+  /// Codegen only: point at the generated flash table of steps, which must outlive the effect.
+  void set_colors(const StrobeLightEffectColor *colors, size_t count) { this->colors_ = {colors, count}; }
 
  protected:
-  std::vector<StrobeLightEffectColor> colors_;
+  uint32_t duration_(size_t index) const {
+    uint32_t duration;
+    progmem_memcpy(&duration, &this->colors_[index].duration, sizeof(duration));
+    return duration;
+  }
+
+  ConstVector<StrobeLightEffectColor> colors_;
   uint32_t last_switch_{0};
   size_t at_color_{0};
 };
 
 class FlickerLightEffect : public LightEffect {
  public:
-  explicit FlickerLightEffect(const std::string &name) : LightEffect(name) {}
+  explicit FlickerLightEffect(const char *name) : LightEffect(name) {}
 
   void apply() override {
     LightColorValues remote = this->state_->remote_values;
@@ -227,5 +265,4 @@ class FlickerLightEffect : public LightEffect {
   float alpha_{};
 };
 
-}  // namespace light
-}  // namespace esphome
+}  // namespace esphome::light

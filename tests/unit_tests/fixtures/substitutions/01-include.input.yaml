@@ -1,0 +1,34 @@
+substitutions:
+  var1: "1"
+  var2: "2"
+  a: "alpha"
+
+test_list:
+  - !include
+    file: inc1.yaml
+    vars:
+      a: "A"
+      c: "C"
+  - !include
+    file: inc1.yaml
+    vars:
+      b: "beta"
+    condition: true
+  - !include
+    file: inc1.yaml
+    vars:
+      b: "gamma"
+      c: "saw"
+    condition: false
+  - !include
+    file: inc1.yaml
+    vars:
+      b: "delta"
+      c: "saw"
+    condition: ${var1 == "1"}
+  - !include
+    file: inc1.yaml
+    vars:
+      b: "epsilon"
+      c: "saw"
+    condition: ${var1 == "2"}

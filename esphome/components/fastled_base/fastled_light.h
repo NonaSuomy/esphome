@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef USE_ARDUINO
+#if defined(USE_ARDUINO) && !defined(USE_RP2) && !defined(USE_LIBRETINY)
 
 #include "esphome/core/component.h"
 #include "esphome/core/helpers.h"
@@ -15,15 +15,17 @@
 
 #include "FastLED.h"
 
-namespace esphome {
-namespace fastled_base {
+namespace esphome::fastled_base {
 
-class FastLEDLightOutput : public light::AddressableLight {
+class FastLEDLightOutput final : public light::AddressableLight {
  public:
   /// Only for custom effects: Get the internal controller.
   CLEDController *get_controller() const { return this->controller_; }
 
   inline int32_t size() const override { return this->num_leds_; }
+
+  /// A static block from code generation: 3 color bytes and 1 effect byte per LED
+  void set_buffer(uint8_t *buffer, int num_leds) { this->internal_accessor_.set_buffer(buffer, num_leds); }
 
   /// Set a maximum refresh rate in µs as some lights do not like being updated too often.
   void set_max_refresh_rate(uint32_t interval_us) { this->max_refresh_rate_ = interval_us; }
@@ -32,11 +34,6 @@ class FastLEDLightOutput : public light::AddressableLight {
   CLEDController &add_leds(CLEDController *controller, int num_leds) {
     this->controller_ = controller;
     this->num_leds_ = num_leds;
-    this->leds_ = new CRGB[num_leds];  // NOLINT
-
-    for (int i = 0; i < this->num_leds_; i++)
-      this->leds_[i] = CRGB::Black;
-
     return *this->controller_;
   }
 
@@ -144,7 +141,6 @@ class FastLEDLightOutput : public light::AddressableLight {
     }
   }
 
-#ifdef FASTLED_HAS_CLOCKLESS
   template<template<uint8_t DATA_PIN, EOrder RGB_ORDER> class CHIPSET, uint8_t DATA_PIN, EOrder RGB_ORDER>
   CLEDController &add_leds(int num_leds) {
     static CHIPSET<DATA_PIN, RGB_ORDER> controller;
@@ -161,7 +157,6 @@ class FastLEDLightOutput : public light::AddressableLight {
     static CHIPSET<DATA_PIN> controller;
     return add_leds(&controller, num_leds);
   }
-#endif
 
   template<template<EOrder RGB_ORDER> class CHIPSET, EOrder RGB_ORDER> CLEDController &add_leds(int num_leds) {
     static CHIPSET<RGB_ORDER> controller;
@@ -218,26 +213,17 @@ class FastLEDLightOutput : public light::AddressableLight {
   void write_state(light::LightState *state) override;
   float get_setup_priority() const override { return setup_priority::HARDWARE; }
 
-  void clear_effect_data() override {
-    for (int i = 0; i < this->size(); i++)
-      this->effect_data_[i] = 0;
-  }
+  void clear_effect_data() override { this->internal_accessor_.clear_effect_data(this->size()); }
 
  protected:
-  light::ESPColorView get_view_internal(int32_t index) const override {
-    return {&this->leds_[index].r,      &this->leds_[index].g, &this->leds_[index].b, nullptr,
-            &this->effect_data_[index], &this->correction_};
-  }
-
+  light::CorrectedBufferColorAccessor internal_accessor_{
+      nullptr, nullptr, {offsetof(CRGB, r), offsetof(CRGB, g), offsetof(CRGB, b)}, &this->correction_};
   CLEDController *controller_{nullptr};
-  CRGB *leds_{nullptr};
-  uint8_t *effect_data_{nullptr};
   int num_leds_{0};
   uint32_t last_refresh_{0};
   optional<uint32_t> max_refresh_rate_{};
 };
 
-}  // namespace fastled_base
-}  // namespace esphome
+}  // namespace esphome::fastled_base
 
 #endif  // USE_ARDUINO

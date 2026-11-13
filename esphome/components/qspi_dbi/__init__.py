@@ -1,4 +1,10 @@
 CODEOWNERS = ["@clydebarrow"]
+DOMAIN = "qspi_dbi"
 
 CONF_DRAW_FROM_ORIGIN = "draw_from_origin"
-CONF_DRAW_ROUNDING = "draw_rounding"
+
+DEPRECATED_COMPONENT = """
+The 'qspi_dbi' component is deprecated and no new models will be added to it.
+New model PRs should target the newer and more performant 'mipi_spi' component.
+It will be removed in ESPHome 2027.5.0.
+"""

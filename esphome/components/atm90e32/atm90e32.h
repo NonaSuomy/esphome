@@ -3,21 +3,74 @@
 #include "atm90e32_reg.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/spi/spi.h"
+#include <cmath>
+#include <span>
+#include <unordered_map>
+#ifdef USE_TEXT_SENSOR
+#include "esphome/components/text_sensor/text_sensor.h"
+#endif
 #include "esphome/core/application.h"
 #include "esphome/core/component.h"
+#include "esphome/core/gpio.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/preferences.h"
 
-namespace esphome {
-namespace atm90e32 {
+namespace esphome::atm90e32 {
 
-class ATM90E32Component : public PollingComponent,
-                          public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_HIGH,
-                                                spi::CLOCK_PHASE_TRAILING, spi::DATA_RATE_1MHZ> {
+inline bool offset_register_value_matches(uint16_t actual, int16_t expected) {
+  return actual == static_cast<uint16_t>(expected);
+}
+
+struct OffsetCalibration {
+  int16_t first_offset{0};
+  int16_t second_offset{0};
+};
+
+struct GainCalibration {
+  uint16_t voltage_gain{1};
+  uint16_t current_gain{1};
+};
+
+// Stored size of each calibration table; an all-zero payload marks a table as cleared.
+static constexpr size_t CALIBRATION_PAYLOAD_SIZE = 12;
+
+static_assert(sizeof(OffsetCalibration[3]) == CALIBRATION_PAYLOAD_SIZE,
+              "Offset calibration preference layout must remain compatible");
+static_assert(sizeof(GainCalibration[3]) == CALIBRATION_PAYLOAD_SIZE,
+              "Gain calibration preference layout must remain compatible");
+
+enum class OffsetCalibrationType : uint8_t {
+  OFFSET_CALIBRATION_TYPE_VOLTAGE_CURRENT,
+  OFFSET_CALIBRATION_TYPE_POWER,
+};
+
+class ATM90E32Component final : public PollingComponent,
+                                public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_HIGH,
+                                                      spi::CLOCK_PHASE_TRAILING, spi::DATA_RATE_1MHZ> {
  public:
   static const uint8_t PHASEA = 0;
   static const uint8_t PHASEB = 1;
   static const uint8_t PHASEC = 2;
+  const char *phase_labels[3] = {"A", "B", "C"};
+  // these registers are not successive, so we can't just do 'base + phase'
+  const uint16_t voltage_gain_registers[3] = {ATM90E32_REGISTER_UGAINA, ATM90E32_REGISTER_UGAINB,
+                                              ATM90E32_REGISTER_UGAINC};
+  const uint16_t current_gain_registers[3] = {ATM90E32_REGISTER_IGAINA, ATM90E32_REGISTER_IGAINB,
+                                              ATM90E32_REGISTER_IGAINC};
+  const uint16_t voltage_offset_registers[3] = {ATM90E32_REGISTER_UOFFSETA, ATM90E32_REGISTER_UOFFSETB,
+                                                ATM90E32_REGISTER_UOFFSETC};
+  const uint16_t current_offset_registers[3] = {ATM90E32_REGISTER_IOFFSETA, ATM90E32_REGISTER_IOFFSETB,
+                                                ATM90E32_REGISTER_IOFFSETC};
+  const uint16_t power_offset_registers[3] = {ATM90E32_REGISTER_POFFSETA, ATM90E32_REGISTER_POFFSETB,
+                                              ATM90E32_REGISTER_POFFSETC};
+  const uint16_t reactive_power_offset_registers[3] = {ATM90E32_REGISTER_QOFFSETA, ATM90E32_REGISTER_QOFFSETB,
+                                                       ATM90E32_REGISTER_QOFFSETC};
+  const uint16_t over_voltage_flags[3] = {ATM90E32_STATUS_S0_OVPHASEAST, ATM90E32_STATUS_S0_OVPHASEBST,
+                                          ATM90E32_STATUS_S0_OVPHASECST};
+  const uint16_t voltage_sag_flags[3] = {ATM90E32_STATUS_S1_SAGPHASEAST, ATM90E32_STATUS_S1_SAGPHASEBST,
+                                         ATM90E32_STATUS_S1_SAGPHASECST};
+  const uint16_t phase_loss_flags[3] = {ATM90E32_STATUS_S1_PHASELOSSAST, ATM90E32_STATUS_S1_PHASELOSSBST,
+                                        ATM90E32_STATUS_S1_PHASELOSSCST};
   void loop() override;
   void setup() override;
   void dump_config() override;
@@ -40,64 +93,156 @@ class ATM90E32Component : public PollingComponent,
     this->phase_[phase].harmonic_active_power_sensor_ = obj;
   }
   void set_peak_current_sensor(int phase, sensor::Sensor *obj) { this->phase_[phase].peak_current_sensor_ = obj; }
-  void set_volt_gain(int phase, uint16_t gain) { this->phase_[phase].voltage_gain_ = gain; }
-  void set_ct_gain(int phase, uint16_t gain) { this->phase_[phase].ct_gain_ = gain; }
-  void set_freq_sensor(sensor::Sensor *freq_sensor) { freq_sensor_ = freq_sensor; }
+  void set_volt_gain(int phase, uint16_t gain) {
+    this->phase_[phase].voltage_gain_ = gain;
+    this->has_config_voltage_gain_[phase] = true;
+  }
+  void set_ct_gain(int phase, uint16_t gain) {
+    this->phase_[phase].ct_gain_ = gain;
+    this->has_config_current_gain_[phase] = true;
+  }
+  void set_voltage_offset(uint8_t phase, int16_t offset) {
+    this->offset_phase_[phase].first_offset = offset;
+    this->has_config_voltage_offset_[phase] = true;
+  }
+  void set_current_offset(uint8_t phase, int16_t offset) {
+    this->offset_phase_[phase].second_offset = offset;
+    this->has_config_current_offset_[phase] = true;
+  }
+  void set_active_power_offset(uint8_t phase, int16_t offset) {
+    this->power_offset_phase_[phase].first_offset = offset;
+    this->has_config_active_power_offset_[phase] = true;
+  }
+  void set_reactive_power_offset(uint8_t phase, int16_t offset) {
+    this->power_offset_phase_[phase].second_offset = offset;
+    this->has_config_reactive_power_offset_[phase] = true;
+  }
   void set_peak_current_signed(bool flag) { peak_current_signed_ = flag; }
-  void set_chip_temperature_sensor(sensor::Sensor *chip_temperature_sensor) {
-    chip_temperature_sensor_ = chip_temperature_sensor;
+  void set_threshold_voltage_sag_v(float voltage) { this->threshold_voltage_sag_v_ = voltage; }
+  void set_threshold_voltage_peak_v(float voltage) { this->threshold_voltage_peak_v_ = voltage; }
+  void set_threshold_current_peak_a(float current) { this->threshold_current_peak_a_ = current; }
+  void set_frequency_thresholds(uint16_t low, uint16_t high) {
+    this->frequency_low_threshold_ = low;
+    this->frequency_high_threshold_ = high;
   }
   void set_line_freq(int freq) { line_freq_ = freq; }
   void set_current_phases(int phases) { current_phases_ = phases; }
   void set_pga_gain(uint16_t gain) { pga_gain_ = gain; }
   void run_offset_calibrations();
+  void run_power_offset_calibrations();
   void clear_offset_calibrations();
+  void clear_power_offset_calibrations();
+  void clear_gain_calibrations();
   void set_enable_offset_calibration(bool flag) { enable_offset_calibration_ = flag; }
-  uint16_t calibrate_voltage_offset_phase(uint8_t /*phase*/);
-  uint16_t calibrate_current_offset_phase(uint8_t /*phase*/);
-  int32_t last_periodic_millis = millis();
+  void set_enable_gain_calibration(bool flag) { enable_gain_calibration_ = flag; }
+  void set_instance_id(const char *id) { instance_id_ = id; }
+  int16_t calibrate_offset(uint8_t phase, bool voltage);
+  int16_t calibrate_power_offset(uint8_t phase, bool reactive);
+  void run_gain_calibrations();
+  // Body of the calibration buttons: logs the button name and the hint lines, then runs action.
+  void press_calibration_button(EntityBase *entity, void (ATM90E32Component::*action)(),
+                                const LogString *hint = nullptr, const LogString *hint2 = nullptr);
+#ifdef USE_NUMBER
+  void set_reference_voltage(uint8_t phase, number::Number *ref_voltage) { ref_voltages_[phase] = ref_voltage; }
+  void set_reference_current(uint8_t phase, number::Number *ref_current) { ref_currents_[phase] = ref_current; }
+#endif
+  float get_reference_voltage(uint8_t phase) {
+#ifdef USE_NUMBER
+    return (phase < 3 && ref_voltages_[phase]) ? ref_voltages_[phase]->state : 120.0;  // Default voltage
+#else
+    return 120.0;  // Default voltage
+#endif
+  }
+  float get_reference_current(uint8_t phase) {
+#ifdef USE_NUMBER
+    return (phase < 3 && ref_currents_[phase]) ? ref_currents_[phase]->state : 5.0f;  // Default current
+#else
+    return 5.0f;  // Default current
+#endif
+  }
+#ifdef USE_TEXT_SENSOR
+  void check_phase_status();
+  void check_freq_status();
+  void set_phase_status_text_sensor(uint8_t phase, text_sensor::TextSensor *sensor) {
+    this->phase_status_text_sensor_[phase] = sensor;
+  }
+#endif
+  static uint16_t calculate_voltage_threshold_from_volts(float voltage_rms, uint16_t ugain);
+  static uint16_t calculate_current_threshold_from_amps(float current_rms, uint16_t igain);
 
  protected:
+  friend class ATM90E32ThresholdRegisters;
+#ifdef USE_NUMBER
+  number::Number *ref_voltages_[3]{nullptr, nullptr, nullptr};
+  number::Number *ref_currents_[3]{nullptr, nullptr, nullptr};
+#endif
   uint16_t read16_(uint16_t a_register);
   int read32_(uint16_t addr_h, uint16_t addr_l);
-  void write16_(uint16_t a_register, uint16_t val);
-  float get_local_phase_voltage_(uint8_t /*phase*/);
-  float get_local_phase_current_(uint8_t /*phase*/);
-  float get_local_phase_active_power_(uint8_t /*phase*/);
-  float get_local_phase_reactive_power_(uint8_t /*phase*/);
-  float get_local_phase_power_factor_(uint8_t /*phase*/);
-  float get_local_phase_forward_active_energy_(uint8_t /*phase*/);
-  float get_local_phase_reverse_active_energy_(uint8_t /*phase*/);
-  float get_local_phase_angle_(uint8_t /*phase*/);
-  float get_local_phase_harmonic_active_power_(uint8_t /*phase*/);
-  float get_local_phase_peak_current_(uint8_t /*phase*/);
-  float get_phase_voltage_(uint8_t /*phase*/);
-  float get_phase_voltage_avg_(uint8_t /*phase*/);
-  float get_phase_current_(uint8_t /*phase*/);
-  float get_phase_current_avg_(uint8_t /*phase*/);
-  float get_phase_active_power_(uint8_t /*phase*/);
-  float get_phase_reactive_power_(uint8_t /*phase*/);
-  float get_phase_power_factor_(uint8_t /*phase*/);
-  float get_phase_forward_active_energy_(uint8_t /*phase*/);
-  float get_phase_reverse_active_energy_(uint8_t /*phase*/);
-  float get_phase_angle_(uint8_t /*phase*/);
-  float get_phase_harmonic_active_power_(uint8_t /*phase*/);
-  float get_phase_peak_current_(uint8_t /*phase*/);
+  void write16_(uint16_t a_register, uint16_t val, bool validate = true);
+  float get_local_phase_voltage_(uint8_t phase);
+  float get_local_phase_current_(uint8_t phase);
+  float get_local_phase_active_power_(uint8_t phase);
+  float get_local_phase_reactive_power_(uint8_t phase);
+  float get_local_phase_apparent_power_(uint8_t phase);
+  float get_local_phase_power_factor_(uint8_t phase);
+  float get_local_phase_forward_active_energy_(uint8_t phase);
+  float get_local_phase_reverse_active_energy_(uint8_t phase);
+  float get_local_phase_angle_(uint8_t phase);
+  float get_local_phase_harmonic_active_power_(uint8_t phase);
+  float get_local_phase_peak_current_(uint8_t phase);
+  float get_phase_voltage_(uint8_t phase);
+  float get_phase_voltage_avg_(uint8_t phase);
+  float get_phase_current_(uint8_t phase);
+  float get_phase_current_avg_(uint8_t phase);
+  float get_phase_active_power_(uint8_t phase);
+  float get_phase_reactive_power_(uint8_t phase);
+  float get_phase_apparent_power_(uint8_t phase);
+  float get_phase_power_factor_(uint8_t phase);
+  float get_phase_forward_active_energy_(uint8_t phase);
+  float get_phase_reverse_active_energy_(uint8_t phase);
+  float get_phase_angle_(uint8_t phase);
+  float get_phase_harmonic_active_power_(uint8_t phase);
+  float get_phase_peak_current_(uint8_t phase);
   float get_frequency_();
   float get_chip_temperature_();
   bool get_publish_interval_flag_() { return publish_interval_flag_; };
   void set_publish_interval_flag_(bool flag) { publish_interval_flag_ = flag; };
-  void restore_calibrations_();
+  void restore_offset_calibrations_(OffsetCalibrationType type);
+  void restore_gain_calibrations_();
+  void finish_gain_calibration_(const GainCalibration (&previous)[3]);
+  void finish_offset_calibration_(const OffsetCalibration (&previous)[3], OffsetCalibrationType type);
+  // Persists verified register values; otherwise rollback() rewrites the previous values and returns their readback.
+  // name starts a sentence; noun is used mid-sentence, keeping the log text the calibration helper matches.
+  template<typename T, typename F>
+  void finish_calibration_(const LogString *name, const LogString *noun, ESPPreferenceObject &preference,
+                           const T (&values)[3], bool writes_verified, bool &has_stored, bool &restored,
+                           bool (&mismatches)[3], F &&rollback);
+  bool clear_calibration_pref_(ESPPreferenceObject &preference, bool &has_stored, bool &restored,
+                               bool (&mismatches)[3]);
+  void configure_chip_();
+  void write_offsets_to_registers_(uint8_t phase, int16_t first_offset, int16_t second_offset,
+                                   OffsetCalibrationType type);
+  void write_gains_to_registers_();
+  void write_thresholds_();
+  bool verify_gain_writes_();
+  bool verify_offset_writes_(OffsetCalibrationType type);
+  bool validate_spi_read_(uint16_t expected, const char *context = nullptr);
+  void log_calibration_status_();
+  const char *get_calibration_id_();
+  void get_cs_summary_(std::span<char, GPIO_SUMMARY_MAX_LEN> buffer);
 
   struct ATM90E32Phase {
     uint16_t voltage_gain_{0};
     uint16_t ct_gain_{0};
-    uint16_t voltage_offset_{0};
-    uint16_t current_offset_{0};
+    int16_t voltage_offset_{0};
+    int16_t current_offset_{0};
+    int16_t active_power_offset_{0};
+    int16_t reactive_power_offset_{0};
     float voltage_{0};
     float current_{0};
     float active_power_{0};
     float reactive_power_{0};
+    float apparent_power_{0};
     float power_factor_{0};
     float forward_active_energy_{0};
     float reverse_active_energy_{0};
@@ -119,22 +264,64 @@ class ATM90E32Component : public PollingComponent,
     uint32_t cumulative_reverse_active_energy_{0};
   } phase_[3];
 
-  struct Calibration {
-    uint16_t voltage_offset_{0};
-    uint16_t current_offset_{0};
-  } offset_phase_[3];
+  OffsetCalibration offset_phase_[3];
+  OffsetCalibration config_offset_phase_[3];
+  OffsetCalibration power_offset_phase_[3];
+  OffsetCalibration config_power_offset_phase_[3];
 
-  ESPPreferenceObject pref_;
+  GainCalibration gain_phase_[3];
+  GainCalibration config_gain_phase_[3];
 
-  sensor::Sensor *freq_sensor_{nullptr};
-  sensor::Sensor *chip_temperature_sensor_{nullptr};
+  bool has_config_voltage_offset_[3]{false, false, false};
+  bool has_config_current_offset_[3]{false, false, false};
+  bool has_config_active_power_offset_[3]{false, false, false};
+  bool has_config_reactive_power_offset_[3]{false, false, false};
+  bool has_config_voltage_gain_[3]{false, false, false};
+  bool has_config_current_gain_[3]{false, false, false};
+
+  ESPPreferenceObject offset_pref_;
+  ESPPreferenceObject power_offset_pref_;
+  ESPPreferenceObject gain_calibration_pref_;
+
+  friend class ATM90E32CalibrationTestAccess;
+
+#ifdef USE_TEXT_SENSOR
+  text_sensor::TextSensor *phase_status_text_sensor_[3]{nullptr};
+#endif
   uint16_t pga_gain_{0x15};
   int line_freq_{60};
   int current_phases_{3};
   bool publish_interval_flag_{false};
   bool peak_current_signed_{false};
   bool enable_offset_calibration_{false};
+  bool enable_gain_calibration_{false};
+  float threshold_voltage_sag_v_{0.0f};
+  float threshold_voltage_peak_v_{0.0f};
+  float threshold_current_peak_a_{NAN};  // NAN keeps the legacy OITH register and 65.53 A software limit
+  uint16_t frequency_low_threshold_{0};
+  uint16_t frequency_high_threshold_{0};
+  const char *instance_id_{nullptr};
+  bool has_stored_offset_calibration_{false};
+  bool has_stored_power_offset_calibration_{false};
+  bool has_stored_gain_calibration_{false};
+  bool restored_offset_calibration_{false};
+  bool restored_power_offset_calibration_{false};
+  bool restored_gain_calibration_{false};
+  bool calibration_message_printed_{false};
+#ifdef USE_TEXT_SENSOR
+  bool use_voltage_threshold_flags_{true};
+  bool use_current_threshold_flags_{true};
+#endif
+  bool offset_calibration_mismatch_[3]{false, false, false};
+  bool power_offset_calibration_mismatch_[3]{false, false, false};
+  bool gain_calibration_mismatch_[3]{false, false, false};
+
+  // Last, so no member below them becomes public
+  SUB_SENSOR(freq)
+  SUB_SENSOR(chip_temperature)
+#ifdef USE_TEXT_SENSOR
+  SUB_TEXT_SENSOR(freq_status)
+#endif
 };
 
-}  // namespace atm90e32
-}  // namespace esphome
+}  // namespace esphome::atm90e32

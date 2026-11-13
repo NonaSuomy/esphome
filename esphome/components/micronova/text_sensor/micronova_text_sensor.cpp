@@ -1,7 +1,17 @@
 #include "micronova_text_sensor.h"
+#include "esphome/core/progmem.h"
 
-namespace esphome {
-namespace micronova {
+namespace esphome::micronova {
+
+ESPHOME_LOG_TAG(TAG, "micronova.text_sensor");
+
+PROGMEM_STRING_TABLE(StoveStateStrings, "Off", "Start", "Pellets loading", "Ignition", "Working", "Brazier Cleaning",
+                     "Final Cleaning", "Standby", "No pellets alarm", "No ignition alarm", "Undefined alarm");
+
+void MicroNovaTextSensor::dump_config() {
+  LOG_TEXT_SENSOR("", "Micronova text sensor", this);
+  this->dump_base_config();
+}
 
 void MicroNovaTextSensor::process_value_from_stove(int value_from_stove) {
   if (value_from_stove == -1) {
@@ -9,23 +19,9 @@ void MicroNovaTextSensor::process_value_from_stove(int value_from_stove) {
     return;
   }
 
-  switch (this->get_function()) {
-    case MicroNovaFunctions::STOVE_FUNCTION_STOVE_STATE:
-      this->micronova_->set_current_stove_state(value_from_stove);
-      this->publish_state(STOVE_STATES[value_from_stove]);
-      // set the stove switch to on for any value but 0
-      if (value_from_stove != 0 && this->micronova_->get_stove_switch() != nullptr &&
-          !this->micronova_->get_stove_switch()->get_stove_state()) {
-        this->micronova_->get_stove_switch()->set_stove_state(true);
-      } else if (value_from_stove == 0 && this->micronova_->get_stove_switch() != nullptr &&
-                 this->micronova_->get_stove_switch()->get_stove_state()) {
-        this->micronova_->get_stove_switch()->set_stove_state(false);
-      }
-      break;
-    default:
-      break;
-  }
+  // Values past the table read as "Undefined alarm"
+  this->publish_state(
+      StoveStateStrings::get_progmem_str(static_cast<uint8_t>(value_from_stove), StoveStateStrings::LAST_INDEX));
 }
 
-}  // namespace micronova
-}  // namespace esphome
+}  // namespace esphome::micronova

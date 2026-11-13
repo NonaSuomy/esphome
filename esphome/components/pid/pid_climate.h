@@ -1,25 +1,25 @@
 #pragma once
 
+#include "esphome/core/automation.h"
 #include "esphome/core/component.h"
 #include "esphome/core/helpers.h"
-#include "esphome/core/automation.h"
 #include "esphome/components/climate/climate.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/output/float_output.h"
 #include "pid_controller.h"
 #include "pid_autotuner.h"
 
-namespace esphome {
-namespace pid {
+namespace esphome::pid {
 
-class PIDClimate : public climate::Climate, public Component {
+class PIDClimate final : public climate::Climate, public Component {
+  SUB_SENSOR(temperature)
+  SUB_SENSOR(humidity)
+
  public:
   PIDClimate() = default;
   void setup() override;
   void dump_config() override;
 
-  void set_sensor(sensor::Sensor *sensor) { sensor_ = sensor; }
-  void set_humidity_sensor(sensor::Sensor *sensor) { humidity_sensor_ = sensor; }
   void set_cool_output(output::FloatOutput *cool_output) { cool_output_ = cool_output; }
   void set_heat_output(output::FloatOutput *heat_output) { heat_output_ = heat_output; }
   void set_kp(float kp) { controller_.kp_ = kp; }
@@ -27,8 +27,13 @@ class PIDClimate : public climate::Climate, public Component {
   void set_kd(float kd) { controller_.kd_ = kd; }
   void set_min_integral(float min_integral) { controller_.min_integral_ = min_integral; }
   void set_max_integral(float max_integral) { controller_.max_integral_ = max_integral; }
+  bool set_deadband_thresholds(float threshold_low, float threshold_high);
   void set_output_samples(int in) { controller_.output_samples_ = in; }
-  void set_derivative_samples(int in) { controller_.derivative_samples_ = in; }
+  void set_derivative_samples(int in) {
+    controller_.derivative_samples_ = in;
+    if (in > 1)  // No allocation needed when samples=1 (ring_buffer_average_ short-circuits)
+      controller_.derivative_window_.init(in);
+  }
 
   void set_threshold_low(float in) { controller_.threshold_low_ = in; }
   void set_threshold_high(float in) { controller_.threshold_high_ = in; }
@@ -38,6 +43,10 @@ class PIDClimate : public climate::Climate, public Component {
   void set_starting_integral_term(float in) { controller_.set_starting_integral_term(in); }
 
   void set_deadband_output_samples(int in) { controller_.deadband_output_samples_ = in; }
+  void init_output_buffer(int size) {
+    if (size > 1)  // No allocation needed when samples=1 (ring_buffer_average_ short-circuits)
+      controller_.output_window_.init(size);
+  }
 
   float get_output_value() const { return output_value_; }
   float get_error_value() const { return controller_.error_; }
@@ -64,13 +73,15 @@ class PIDClimate : public climate::Climate, public Component {
   // float get_deadband() const { return controller_.deadband; }
   // float get_proportional_deadband_multiplier() const { return controller_.proportional_deadband_multiplier; }
 
-  void add_on_pid_computed_callback(std::function<void()> &&callback) {
-    pid_computed_callback_.add(std::move(callback));
+  template<typename F> void add_on_pid_computed_callback(F &&callback) {
+    this->pid_computed_callback_.add(std::forward<F>(callback));
   }
   void set_default_target_temperature(float default_target_temperature) {
     default_target_temperature_ = default_target_temperature;
   }
   void start_autotune(std::unique_ptr<PIDAutotuner> &&autotune);
+  /// Build a tuner from the climate.pid.autotune settings and start it.
+  void start_autotune(float noiseband, float positive_output, float negative_output);
   void reset_integral_term();
 
  protected:
@@ -86,10 +97,6 @@ class PIDClimate : public climate::Climate, public Component {
 
   void write_output_(float value);
 
-  /// The sensor used for getting the current temperature
-  sensor::Sensor *sensor_;
-  /// The sensor used for getting the current humidity
-  sensor::Sensor *humidity_sensor_{nullptr};
   output::FloatOutput *cool_output_{nullptr};
   output::FloatOutput *heat_output_{nullptr};
   PIDController controller_;
@@ -101,60 +108,4 @@ class PIDClimate : public climate::Climate, public Component {
   bool do_publish_ = false;
 };
 
-template<typename... Ts> class PIDAutotuneAction : public Action<Ts...> {
- public:
-  PIDAutotuneAction(PIDClimate *parent) : parent_(parent) {}
-
-  void set_noiseband(float noiseband) { noiseband_ = noiseband; }
-  void set_positive_output(float positive_output) { positive_output_ = positive_output; }
-  void set_negative_output(float negative_output) { negative_output_ = negative_output; }
-
-  void play(Ts... x) {
-    auto tuner = make_unique<PIDAutotuner>();
-    tuner->set_noiseband(this->noiseband_);
-    tuner->set_output_negative(this->negative_output_);
-    tuner->set_output_positive(this->positive_output_);
-    this->parent_->start_autotune(std::move(tuner));
-  }
-
- protected:
-  float noiseband_;
-  float positive_output_;
-  float negative_output_;
-  PIDClimate *parent_;
-};
-
-template<typename... Ts> class PIDResetIntegralTermAction : public Action<Ts...> {
- public:
-  PIDResetIntegralTermAction(PIDClimate *parent) : parent_(parent) {}
-
-  void play(Ts... x) { this->parent_->reset_integral_term(); }
-
- protected:
-  PIDClimate *parent_;
-};
-
-template<typename... Ts> class PIDSetControlParametersAction : public Action<Ts...> {
- public:
-  PIDSetControlParametersAction(PIDClimate *parent) : parent_(parent) {}
-
-  void play(Ts... x) {
-    auto kp = this->kp_.value(x...);
-    auto ki = this->ki_.value(x...);
-    auto kd = this->kd_.value(x...);
-
-    this->parent_->set_kp(kp);
-    this->parent_->set_ki(ki);
-    this->parent_->set_kd(kd);
-  }
-
- protected:
-  TEMPLATABLE_VALUE(float, kp)
-  TEMPLATABLE_VALUE(float, ki)
-  TEMPLATABLE_VALUE(float, kd)
-
-  PIDClimate *parent_;
-};
-
-}  // namespace pid
-}  // namespace esphome
+}  // namespace esphome::pid

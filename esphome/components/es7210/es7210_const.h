@@ -2,8 +2,7 @@
 
 #include <cinttypes>
 
-namespace esphome {
-namespace es7210 {
+namespace esphome::es7210 {
 
 // ES7210 register addresses
 static const uint8_t ES7210_RESET_REG00 = 0x00;     /* Reset control */
@@ -16,7 +15,7 @@ static const uint8_t ES7210_LRCK_DIVL_REG05 = 0x05;  /* lrck_divl */
 static const uint8_t ES7210_POWER_DOWN_REG06 = 0x06; /* power down */
 static const uint8_t ES7210_OSR_REG07 = 0x07;
 static const uint8_t ES7210_MODE_CONFIG_REG08 = 0x08;     /* Set primary/secondary & channels */
-static const uint8_t ES7210_TIME_CONTROL0_REG09 = 0x09;   /* Set Chip intial state period*/
+static const uint8_t ES7210_TIME_CONTROL0_REG09 = 0x09;   /* Set Chip initial state period*/
 static const uint8_t ES7210_TIME_CONTROL1_REG0A = 0x0A;   /* Set Power up state period */
 static const uint8_t ES7210_SDP_INTERFACE1_REG11 = 0x11;  /* Set sample & fmt */
 static const uint8_t ES7210_SDP_INTERFACE2_REG12 = 0x12;  /* Pins state */
@@ -125,5 +124,4 @@ static const ES7210Coefficient ES7210_COEFFICIENTS[] = {
 static const float ES7210_MIC_GAIN_MIN = 0.0;
 static const float ES7210_MIC_GAIN_MAX = 37.5;
 
-}  // namespace es7210
-}  // namespace esphome
+}  // namespace esphome::es7210

@@ -1,12 +1,11 @@
 #include "tem3200.h"
-#include "esphome/core/log.h"
-#include "esphome/core/helpers.h"
 #include "esphome/core/hal.h"
+#include "esphome/core/helpers.h"
+#include "esphome/core/log.h"
 
-namespace esphome {
-namespace tem3200 {
+namespace esphome::tem3200 {
 
-static const char *const TAG = "tem3200";
+ESPHOME_LOG_TAG(TAG, "tem3200");
 
 enum ErrorCode {
   NONE = 0,
@@ -16,15 +15,13 @@ enum ErrorCode {
 };
 
 void TEM3200Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up TEM3200...");
-
   uint8_t status(NONE);
   uint16_t raw_temperature(0);
   uint16_t raw_pressure(0);
 
   i2c::ErrorCode err = this->read_(status, raw_temperature, raw_pressure);
   if (err != i2c::ERROR_OK) {
-    ESP_LOGCONFIG(TAG, "    I2C Communication Failed...");
+    ESP_LOGCONFIG(TAG, ESP_LOG_MSG_COMM_FAIL);
     this->mark_failed();
     return;
   }
@@ -42,8 +39,9 @@ void TEM3200Component::setup() {
       ESP_LOGE(TAG, "STALE data. Data has not been updated since last fetch");
       this->status_set_warning();
       break;
+    default:
+      break;
   }
-  ESP_LOGCONFIG(TAG, "    Success...");
 }
 
 void TEM3200Component::dump_config() {
@@ -53,8 +51,6 @@ void TEM3200Component::dump_config() {
   LOG_SENSOR("  ", "Raw Pressure", this->raw_pressure_sensor_);
   LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
 }
-
-float TEM3200Component::get_setup_priority() const { return setup_priority::DATA; }
 
 i2c::ErrorCode TEM3200Component::read_(uint8_t &status, uint16_t &raw_temperature, uint16_t &raw_pressure) {
   uint8_t response[4] = {0x00, 0x00, 0x00, 0x00};
@@ -89,10 +85,10 @@ i2c::ErrorCode TEM3200Component::read_(uint8_t &status, uint16_t &raw_temperatur
   }
 
   // extract top 6 bits of first byte and all bits of second byte for pressure
-  raw_pressure = (((response[0] & 0x3f)) << 8 | response[1]);
+  raw_pressure = encode_uint16(response[0] & 0x3f, response[1]);
 
   // extract all bytes of 3rd byte and top 3 bits of fourth byte for temperature
-  raw_temperature = ((response[2] << 3) | (response[3] & 0xe0) >> 5);
+  raw_temperature = encode_uint16(response[2], response[3]) >> 5;
 
   return i2c::ERROR_OK;
 }
@@ -115,7 +111,7 @@ void TEM3200Component::update() {
   i2c::ErrorCode err = this->read_(status, raw_temperature, raw_pressure);
 
   if (err != i2c::ERROR_OK) {
-    ESP_LOGW(TAG, "I2C Communication Failed");
+    ESP_LOGW(TAG, ESP_LOG_MSG_COMM_FAIL);
     this->status_set_warning();
     return;
   }
@@ -133,19 +129,18 @@ void TEM3200Component::update() {
       ESP_LOGE(TAG, "Warning: STALE data. Data has not been updated since last fetch");
       this->status_set_warning();
       return;
+    default:
+      break;
   }
 
   float temperature = convert_temperature(raw_temperature);
 
   ESP_LOGD(TAG, "Got raw pressure=%d, temperature=%.1f°C", raw_pressure, temperature);
 
-  if (this->temperature_sensor_ != nullptr)
-    this->temperature_sensor_->publish_state(temperature);
-  if (this->raw_pressure_sensor_ != nullptr)
-    this->raw_pressure_sensor_->publish_state(raw_pressure);
+  PUBLISH_STATE(this->temperature_sensor_, temperature);
+  PUBLISH_STATE(this->raw_pressure_sensor_, raw_pressure);
 
   this->status_clear_warning();
 }
 
-}  // namespace tem3200
-}  // namespace esphome
+}  // namespace esphome::tem3200

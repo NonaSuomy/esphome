@@ -1,10 +1,11 @@
-uart:
-  - id: uart_rdm6300
-    tx_pin: ${tx_pin}
-    rx_pin: ${rx_pin}
-    baud_rate: 115200
-
 rdm6300:
+  on_tag:
+    - then:
+        - lambda: |-
+            ESP_LOGD("main", "Found tag %" PRIu32, x);
+    - then:
+        - lambda: |-
+            ESP_LOGD("main", "Second found tag %" PRIu32, x);
 
 binary_sensor:
   - platform: rdm6300

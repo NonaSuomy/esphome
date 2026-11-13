@@ -2,22 +2,16 @@
 #include "esphome/core/hal.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace ads1115 {
+namespace esphome::ads1115 {
 
-static const char *const TAG = "ads1115";
+ESPHOME_LOG_TAG(TAG, "ads1115");
 static const uint8_t ADS1115_REGISTER_CONVERSION = 0x00;
 static const uint8_t ADS1115_REGISTER_CONFIG = 0x01;
 
 void ADS1115Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up ADS1115...");
   uint16_t value;
-  if (!this->read_byte_16(ADS1115_REGISTER_CONVERSION, &value)) {
-    this->mark_failed();
+  if (!this->setup_check(this->read_byte_16(ADS1115_REGISTER_CONVERSION, &value)))
     return;
-  }
-
-  ESP_LOGCONFIG(TAG, "Configuring ADS1115...");
 
   uint16_t config = 0;
   // Clear single-shot bit
@@ -61,18 +55,13 @@ void ADS1115Component::setup() {
   //        0bxxxxxxxxxxxxxx11
   config |= 0b0000000000000011;
 
-  if (!this->write_byte_16(ADS1115_REGISTER_CONFIG, config)) {
-    this->mark_failed();
+  if (!this->setup_check(this->write_byte_16(ADS1115_REGISTER_CONFIG, config)))
     return;
-  }
   this->prev_config_ = config;
 }
 void ADS1115Component::dump_config() {
-  ESP_LOGCONFIG(TAG, "Setting up ADS1115...");
+  ESP_LOGCONFIG(TAG, "ADS1115:");
   LOG_I2C_DEVICE(this);
-  if (this->is_failed()) {
-    ESP_LOGE(TAG, "Communication with ADS1115 failed!");
-  }
 }
 float ADS1115Component::request_measurement(ADS1115Multiplexer multiplexer, ADS1115Gain gain,
                                             ADS1115Resolution resolution, ADS1115Samplerate samplerate) {
@@ -98,10 +87,8 @@ float ADS1115Component::request_measurement(ADS1115Multiplexer multiplexer, ADS1
   }
 
   if (!this->continuous_mode_ || this->prev_config_ != config) {
-    if (!this->write_byte_16(ADS1115_REGISTER_CONFIG, config)) {
-      this->status_set_warning();
+    if (!this->status_comm_check(this->write_byte_16(ADS1115_REGISTER_CONFIG, config)))
       return NAN;
-    }
     this->prev_config_ = config;
 
     // Delay calculated as: ceil((1000/SPS)+.5)
@@ -170,25 +157,12 @@ float ADS1115Component::request_measurement(ADS1115Multiplexer multiplexer, ADS1
   }
 
   uint16_t raw_conversion;
-  if (!this->read_byte_16(ADS1115_REGISTER_CONVERSION, &raw_conversion)) {
-    this->status_set_warning();
+  if (!this->status_comm_result(this->read_byte_16(ADS1115_REGISTER_CONVERSION, &raw_conversion)))
     return NAN;
-  }
 
   if (resolution == ADS1015_12_BITS) {
-    bool negative = (raw_conversion >> 15) == 1;
-
-    // shift raw_conversion as it's only 12-bits, left justified
-    raw_conversion = raw_conversion >> (16 - ADS1015_12_BITS);
-
-    // check if number was negative in order to keep the sign
-    if (negative) {
-      // the number was negative
-      // 1) set the negative bit back
-      raw_conversion |= 0x8000;
-      // 2) reset the former (shifted) negative bit
-      raw_conversion &= 0xF7FF;
-    }
+    // ADS1015 returns 12-bit value left-justified in 16 bits; shift right and sign-extend
+    raw_conversion = static_cast<uint16_t>(static_cast<int16_t>(raw_conversion) >> (16 - ADS1015_12_BITS));
   }
 
   auto signed_conversion = static_cast<int16_t>(raw_conversion);
@@ -218,9 +192,7 @@ float ADS1115Component::request_measurement(ADS1115Multiplexer multiplexer, ADS1
       millivolts = NAN;
   }
 
-  this->status_clear_warning();
   return millivolts / 1e3f;
 }
 
-}  // namespace ads1115
-}  // namespace esphome
+}  // namespace esphome::ads1115

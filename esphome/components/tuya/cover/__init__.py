@@ -1,12 +1,7 @@
 import esphome.codegen as cg
 from esphome.components import cover
 import esphome.config_validation as cv
-from esphome.const import (
-    CONF_MAX_VALUE,
-    CONF_MIN_VALUE,
-    CONF_OUTPUT_ID,
-    CONF_RESTORE_MODE,
-)
+from esphome.const import CONF_MAX_VALUE, CONF_MIN_VALUE, CONF_RESTORE_MODE
 
 from .. import CONF_TUYA_ID, Tuya, tuya_ns
 
@@ -22,11 +17,9 @@ CONF_INVERT_POSITION_REPORT = "invert_position_report"
 TuyaCover = tuya_ns.class_("TuyaCover", cover.Cover, cg.Component)
 
 TuyaCoverRestoreMode = tuya_ns.enum("TuyaCoverRestoreMode")
-RESTORE_MODES = {
-    "NO_RESTORE": TuyaCoverRestoreMode.COVER_NO_RESTORE,
-    "RESTORE": TuyaCoverRestoreMode.COVER_RESTORE,
-    "RESTORE_AND_CALL": TuyaCoverRestoreMode.COVER_RESTORE_AND_CALL,
-}
+RESTORE_MODES = TuyaCoverRestoreMode.options(
+    "NO_RESTORE", "RESTORE", "RESTORE_AND_CALL", prefix="COVER_"
+)
 
 
 def validate_range(config):
@@ -38,9 +31,9 @@ def validate_range(config):
 
 
 CONFIG_SCHEMA = cv.All(
-    cover.COVER_SCHEMA.extend(
+    cover.cover_schema(TuyaCover)
+    .extend(
         {
-            cv.GenerateID(CONF_OUTPUT_ID): cv.declare_id(TuyaCover),
             cv.GenerateID(CONF_TUYA_ID): cv.use_id(Tuya),
             cv.Optional(CONF_CONTROL_DATAPOINT): cv.uint8_t,
             cv.Optional(CONF_DIRECTION_DATAPOINT): cv.uint8_t,
@@ -54,20 +47,18 @@ CONFIG_SCHEMA = cv.All(
                 RESTORE_MODES, upper=True
             ),
         },
-    ).extend(cv.COMPONENT_SCHEMA),
+    )
+    .extend(cv.COMPONENT_SCHEMA),
     validate_range,
 )
 
 
 async def to_code(config):
-    var = cg.new_Pvariable(config[CONF_OUTPUT_ID])
+    var = await cover.new_cover(config)
     await cg.register_component(var, config)
-    await cover.register_cover(var, config)
 
-    if CONF_CONTROL_DATAPOINT in config:
-        cg.add(var.set_control_id(config[CONF_CONTROL_DATAPOINT]))
-    if CONF_DIRECTION_DATAPOINT in config:
-        cg.add(var.set_direction_id(config[CONF_DIRECTION_DATAPOINT]))
+    cg.add_optional(var.set_control_id, config.get(CONF_CONTROL_DATAPOINT))
+    cg.add_optional(var.set_direction_id, config.get(CONF_DIRECTION_DATAPOINT))
     cg.add(var.set_position_id(config[CONF_POSITION_DATAPOINT]))
     if CONF_POSITION_REPORT_DATAPOINT in config:
         cg.add(var.set_position_report_id(config[CONF_POSITION_REPORT_DATAPOINT]))
@@ -76,5 +67,4 @@ async def to_code(config):
     cg.add(var.set_invert_position(config[CONF_INVERT_POSITION]))
     cg.add(var.set_invert_position_report(config[CONF_INVERT_POSITION_REPORT]))
     cg.add(var.set_restore_mode(config[CONF_RESTORE_MODE]))
-    paren = await cg.get_variable(config[CONF_TUYA_ID])
-    cg.add(var.set_tuya_parent(paren))
+    await cg.add_variable(var.set_tuya_parent, config[CONF_TUYA_ID])

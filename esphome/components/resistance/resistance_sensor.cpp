@@ -1,16 +1,18 @@
 #include "resistance_sensor.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace resistance {
+namespace esphome::resistance {
 
-static const char *const TAG = "resistance";
+ESPHOME_LOG_TAG(TAG, "resistance");
 
 void ResistanceSensor::dump_config() {
   LOG_SENSOR("", "Resistance Sensor", this);
-  ESP_LOGCONFIG(TAG, "  Configuration: %s", this->configuration_ == UPSTREAM ? "UPSTREAM" : "DOWNSTREAM");
-  ESP_LOGCONFIG(TAG, "  Resistor: %.2fΩ", this->resistor_);
-  ESP_LOGCONFIG(TAG, "  Reference Voltage: %.1fV", this->reference_voltage_);
+  ESP_LOGCONFIG(TAG,
+                "  Configuration: %s\n"
+                "  Resistor: %.2fΩ\n"
+                "  Reference Voltage: %.1fV",
+                this->configuration_ == UPSTREAM ? LOG_STR_LITERAL("UPSTREAM") : LOG_STR_LITERAL("DOWNSTREAM"),
+                this->resistor_, this->reference_voltage_);
 }
 void ResistanceSensor::process_(float value) {
   if (std::isnan(value)) {
@@ -20,25 +22,16 @@ void ResistanceSensor::process_(float value) {
   float res = 0;
   switch (this->configuration_) {
     case UPSTREAM:
-      if (value == 0.0f) {
-        res = NAN;
-      } else {
-        res = (this->reference_voltage_ - value) / value;
-      }
+      res = value == 0.0f ? NAN : (this->reference_voltage_ - value) / value;
       break;
     case DOWNSTREAM:
-      if (value == this->reference_voltage_) {
-        res = NAN;
-      } else {
-        res = value / (this->reference_voltage_ - value);
-      }
+      res = value == this->reference_voltage_ ? NAN : value / (this->reference_voltage_ - value);
       break;
   }
 
   res *= this->resistor_;
-  ESP_LOGD(TAG, "'%s' - Resistance %.1fΩ", this->name_.c_str(), res);
+  ESP_LOGV(TAG, "'%s' - Resistance %.1fΩ", LOG_STR_ARG(this->get_log_name()), res);
   this->publish_state(res);
 }
 
-}  // namespace resistance
-}  // namespace esphome
+}  // namespace esphome::resistance

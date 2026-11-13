@@ -1,30 +1,24 @@
 #include "esphome/core/log.h"
 #include "ufire_ec.h"
+#include <cmath>
 
-namespace esphome {
-namespace ufire_ec {
+namespace esphome::ufire_ec {
 
-static const char *const TAG = "ufire_ec";
+ESPHOME_LOG_TAG(TAG, "ufire_ec");
+
+static constexpr uint32_t DATA_TIMEOUT_ID = 0;
 
 void UFireECComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up uFire_ec...");
-
   uint8_t version;
-  if (!this->read_byte(REGISTER_VERSION, &version) && version != 0xFF) {
+  if (!this->read_byte(REGISTER_VERSION, &version) || version == 0xFF) {
     this->mark_failed();
     return;
   }
   ESP_LOGI(TAG, "Found ufire_ec board version 0x%02X", version);
 
   // Write option for temperature adjustments
-  uint8_t config;
-  this->read_byte(REGISTER_CONFIG, &config);
-  if (this->temperature_sensor_ == nullptr && this->temperature_sensor_external_ == nullptr) {
-    config &= ~CONFIG_TEMP_COMPENSATION;
-  } else {
-    config |= CONFIG_TEMP_COMPENSATION;
-  }
-  this->write_byte(REGISTER_CONFIG, config);
+  const bool compensate = this->temperature_sensor_ != nullptr || this->external_temperature_sensor_ != nullptr;
+  this->update_register(REGISTER_CONFIG, CONFIG_TEMP_COMPENSATION, compensate ? CONFIG_TEMP_COMPENSATION : 0);
 
   // Update temperature compensation
   this->set_compensation_(this->temperature_compensation_);
@@ -37,8 +31,8 @@ void UFireECComponent::update() {
   if (this->temperature_sensor_ != nullptr) {
     this->write_byte(REGISTER_TASK, COMMAND_MEASURE_TEMP);
     wait += 750;
-  } else if (this->temperature_sensor_external_ != nullptr) {
-    this->set_temperature_(this->temperature_sensor_external_->state);
+  } else if (this->external_temperature_sensor_ != nullptr) {
+    this->set_temperature_(this->external_temperature_sensor_->state);
   }
 
   if (this->ec_sensor_ != nullptr) {
@@ -47,34 +41,39 @@ void UFireECComponent::update() {
   }
 
   if (wait > 0) {
-    this->set_timeout("data", wait, [this]() { this->update_internal_(); });
+    this->set_timeout(DATA_TIMEOUT_ID, wait, [this]() { this->update_internal_(); });
   }
 }
 
 void UFireECComponent::update_internal_() {
-  if (this->temperature_sensor_ != nullptr)
-    this->temperature_sensor_->publish_state(this->measure_temperature_());
-  if (this->ec_sensor_ != nullptr)
-    this->ec_sensor_->publish_state(this->measure_ms_());
+  PUBLISH_STATE(this->temperature_sensor_, this->measure_temperature_());
+  PUBLISH_STATE(this->ec_sensor_, this->measure_ms_());
 }
 
 float UFireECComponent::measure_temperature_() { return this->read_data_(REGISTER_TEMP); }
 
 float UFireECComponent::measure_ms_() { return this->read_data_(REGISTER_MS); }
 
-void UFireECComponent::set_solution_(float solution, float temperature) {
-  solution /= (1 - (this->temperature_coefficient_ * (temperature - 25)));
+bool UFireECComponent::set_solution_(float solution, float temperature) {
+  float denom = 1 - (this->temperature_coefficient_ * (temperature - 25));
+  if (std::abs(denom) < 1e-6f) {
+    ESP_LOGE(TAG, "Temperature compensation denominator is zero");
+    return false;
+  }
+  solution /= denom;
   this->write_data_(REGISTER_SOLUTION, solution);
+  return true;
 }
 
 void UFireECComponent::set_compensation_(float temperature) { this->write_data_(REGISTER_COMPENSATION, temperature); }
 
-void UFireECComponent::set_coefficient_(float coefficient) { this->write_data_(REGISTER_COEFFICENT, coefficient); }
+void UFireECComponent::set_coefficient_(float coefficient) { this->write_data_(REGISTER_COEFFICIENT, coefficient); }
 
 void UFireECComponent::set_temperature_(float temperature) { this->write_data_(REGISTER_TEMP, temperature); }
 
 void UFireECComponent::calibrate_probe(float solution, float temperature) {
-  this->set_solution_(solution, temperature);
+  if (!this->set_solution_(solution, temperature))
+    return;
   this->write_byte(REGISTER_TASK, COMMAND_CALIBRATE_PROBE);
 }
 
@@ -104,15 +103,16 @@ void UFireECComponent::write_data_(uint8_t reg, float data) {
 }
 
 void UFireECComponent::dump_config() {
-  ESP_LOGCONFIG(TAG, "uFire-EC");
+  ESP_LOGCONFIG(TAG,
+                "uFire-EC:\n"
+                "  Temperature Compensation: %f\n"
+                "  Temperature Coefficient: %f",
+                this->temperature_compensation_, this->temperature_coefficient_);
   LOG_I2C_DEVICE(this)
-  LOG_UPDATE_INTERVAL(this)
-  LOG_SENSOR("  ", "EC Sensor", this->ec_sensor_)
-  LOG_SENSOR("  ", "Temperature Sensor", this->temperature_sensor_)
-  LOG_SENSOR("  ", "Temperature Sensor external", this->temperature_sensor_external_)
-  ESP_LOGCONFIG(TAG, "  Temperature Compensation: %f", this->temperature_compensation_);
-  ESP_LOGCONFIG(TAG, "  Temperature Coefficient: %f", this->temperature_coefficient_);
+  LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "EC Sensor", this->ec_sensor_);
+  LOG_SENSOR("  ", "Temperature Sensor", this->temperature_sensor_);
+  LOG_SENSOR("  ", "Temperature Sensor external", this->external_temperature_sensor_);
 }
 
-}  // namespace ufire_ec
-}  // namespace esphome
+}  // namespace esphome::ufire_ec

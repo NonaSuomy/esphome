@@ -1,17 +1,16 @@
 #include "msa3xx.h"
-#include "esphome/core/log.h"
 #include "esphome/core/hal.h"
 #include "esphome/core/helpers.h"
+#include "esphome/core/log.h"
 
-namespace esphome {
-namespace msa3xx {
+namespace esphome::msa3xx {
 
-static const char *const TAG = "msa3xx";
+ESPHOME_LOG_TAG(TAG, "msa3xx");
 
 const uint8_t MSA_3XX_PART_ID = 0x13;
 
 const float GRAVITY_EARTH = 9.80665f;
-const float LSB_COEFF = 1000.0f / (GRAVITY_EARTH * 3.9);  // LSB to 1 LSB = 3.9mg = 0.0039g
+const float LSB_COEFF = 1000.0f / (GRAVITY_EARTH * 3.9f);  // LSB to 1 LSB = 3.9mg = 0.0039g
 const float G_OFFSET_MIN = -4.5f;  // -127...127 LSB = +- 0.4953g = +- 4.857 m/s^2 => +- 4.5 for the safe
 const float G_OFFSET_MAX = 4.5f;   // -127...127 LSB = +- 0.4953g = +- 4.857 m/s^2 => +- 4.5 for the safe
 
@@ -118,14 +117,8 @@ const char *orientation_xy_to_string(OrientationXY orientation) {
 const char *orientation_z_to_string(bool orientation) { return orientation ? "Downwards looking" : "Upwards looking"; }
 
 void MSA3xxComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MSA3xx...");
-
-  uint8_t part_id{0xff};
-  if (!this->read_byte(static_cast<uint8_t>(RegisterMap::PART_ID), &part_id) || (part_id != MSA_3XX_PART_ID)) {
-    ESP_LOGE(TAG, "Part ID is wrong or missing. Got 0x%02X", part_id);
-    this->mark_failed();
+  if (!this->check_chip_id(this, static_cast<uint8_t>(RegisterMap::PART_ID), MSA_3XX_PART_ID))
     return;
-  }
 
   // Resolution LSB/g
   // Range : MSA301      : MSA311
@@ -140,8 +133,7 @@ void MSA3xxComponent::setup() {
     this->device_params_.accel_data_width = 12;
     this->device_params_.scale_factor_exp = static_cast<uint8_t>(this->range_) - 10;
   } else {
-    ESP_LOGE(TAG, "Unknown model");
-    this->mark_failed();
+    this->mark_failed(LOG_STR("Unknown model"));
     return;
   }
 
@@ -158,16 +150,17 @@ void MSA3xxComponent::setup() {
 void MSA3xxComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "MSA3xx:");
   LOG_I2C_DEVICE(this);
-  if (this->is_failed()) {
-    ESP_LOGE(TAG, "Communication with MSA3xx failed!");
-  }
-  ESP_LOGCONFIG(TAG, "  Model: %s", model_to_string(this->model_));
-  ESP_LOGCONFIG(TAG, "  Power Mode: %s", power_mode_to_string(this->power_mode_));
-  ESP_LOGCONFIG(TAG, "  Bandwidth: %s", bandwidth_to_string(this->bandwidth_));
-  ESP_LOGCONFIG(TAG, "  Range: %s", range_to_string(this->range_));
-  ESP_LOGCONFIG(TAG, "  Resolution: %s", res_to_string(this->resolution_));
-  ESP_LOGCONFIG(TAG, "  Offsets: {%.3f m/s², %.3f m/s², %.3f m/s²}", this->offset_x_, this->offset_y_, this->offset_z_);
-  ESP_LOGCONFIG(TAG, "  Transform: {mirror_x=%s, mirror_y=%s, mirror_z=%s, swap_xy=%s}", YESNO(this->swap_.x_polarity),
+  ESP_LOGCONFIG(TAG,
+                "  Model: %s\n"
+                "  Power Mode: %s\n"
+                "  Bandwidth: %s\n"
+                "  Range: %s\n"
+                "  Resolution: %s\n"
+                "  Offsets: {%.3f m/s², %.3f m/s², %.3f m/s²}\n"
+                "  Transform: {mirror_x=%s, mirror_y=%s, mirror_z=%s, swap_xy=%s}",
+                model_to_string(this->model_), power_mode_to_string(this->power_mode_),
+                bandwidth_to_string(this->bandwidth_), range_to_string(this->range_), res_to_string(this->resolution_),
+                this->offset_x_, this->offset_y_, this->offset_z_, YESNO(this->swap_.x_polarity),
                 YESNO(this->swap_.y_polarity), YESNO(this->swap_.z_polarity), YESNO(this->swap_.x_y_swap));
   LOG_UPDATE_INTERVAL(this);
 
@@ -239,19 +232,17 @@ void MSA3xxComponent::loop() {
 
   RegMotionInterrupt old_motion_int = this->status_.motion_int;
 
-  if (!this->read_data_() || !this->read_motion_status_()) {
-    this->status_set_warning();
+  if (!this->status_comm_check(this->read_data_() && this->read_motion_status_()))
     return;
-  }
 
   this->process_motions_(old_motion_int);
 }
 
 void MSA3xxComponent::update() {
-  ESP_LOGV(TAG, "Updating MSA3xx...");
+  ESP_LOGV(TAG, "Updating");
 
   if (!this->is_ready()) {
-    ESP_LOGV(TAG, "Component MSA3xx not ready for update");
+    ESP_LOGV(TAG, "Not ready for update");
     return;
   }
   ESP_LOGV(TAG, "Acceleration: {x = %+1.3f m/s², y = %+1.3f m/s², z = %+1.3f m/s²}; ", this->data_.x, this->data_.y,
@@ -261,12 +252,9 @@ void MSA3xxComponent::update() {
            orientation_z_to_string(this->status_.orientation.orient_z));
 
 #ifdef USE_SENSOR
-  if (this->acceleration_x_sensor_ != nullptr)
-    this->acceleration_x_sensor_->publish_state(this->data_.x);
-  if (this->acceleration_y_sensor_ != nullptr)
-    this->acceleration_y_sensor_->publish_state(this->data_.y);
-  if (this->acceleration_z_sensor_ != nullptr)
-    this->acceleration_z_sensor_->publish_state(this->data_.z);
+  PUBLISH_STATE(this->acceleration_x_sensor_, this->data_.x);
+  PUBLISH_STATE(this->acceleration_y_sensor_, this->data_.y);
+  PUBLISH_STATE(this->acceleration_z_sensor_, this->data_.z);
 #endif
 
 #ifdef USE_TEXT_SENSOR
@@ -285,7 +273,6 @@ void MSA3xxComponent::update() {
   this->status_.never_published = false;
   this->status_clear_warning();
 }
-float MSA3xxComponent::get_setup_priority() const { return setup_priority::DATA; }
 
 void MSA3xxComponent::set_offset(float offset_x, float offset_y, float offset_z) {
   this->offset_x_ = offset_x;
@@ -303,11 +290,7 @@ void MSA3xxComponent::set_transform(bool mirror_x, bool mirror_y, bool mirror_z,
 void MSA3xxComponent::setup_odr_(DataRate rate) {
   RegOutputDataRate reg_odr;
   auto reg = this->read_byte(static_cast<uint8_t>(RegisterMap::ODR));
-  if (reg.has_value()) {
-    reg_odr.raw = reg.value();
-  } else {
-    reg_odr.raw = 0x0F;  // defaut from datasheet
-  }
+  reg_odr.raw = reg.value_or(0x0F);  // default from datasheet
 
   reg_odr.x_axis_disable = false;
   reg_odr.y_axis_disable = false;
@@ -322,11 +305,7 @@ void MSA3xxComponent::setup_power_mode_bandwidth_(PowerMode power_mode, Bandwidt
   auto reg = this->read_byte(static_cast<uint8_t>(RegisterMap::POWER_MODE_BANDWIDTH));
 
   RegPowerModeBandwidth power_mode_bandwidth;
-  if (reg.has_value()) {
-    power_mode_bandwidth.raw = reg.value();
-  } else {
-    power_mode_bandwidth.raw = 0xde;  // defaut from datasheet
-  }
+  power_mode_bandwidth.raw = reg.value_or(0xde);  // default from datasheet
 
   power_mode_bandwidth.power_mode = power_mode;
   power_mode_bandwidth.low_power_bandwidth = bandwidth;
@@ -363,11 +342,7 @@ void MSA3xxComponent::setup_offset_(float offset_x, float offset_y, float offset
 }
 
 int64_t MSA3xxComponent::twos_complement_(uint64_t value, uint8_t bits) {
-  if (value > (1ULL << (bits - 1))) {
-    return (int64_t) (value - (1ULL << bits));
-  } else {
-    return (int64_t) value;
-  }
+  return (int64_t) (value << (64 - bits)) >> (64 - bits);
 }
 
 void binary_event_debounce(bool state, bool old_state, uint32_t now, uint32_t &last_ms, Trigger<> &trigger,
@@ -413,5 +388,4 @@ void MSA3xxComponent::process_motions_(RegMotionInterrupt old) {
   }
 }
 
-}  // namespace msa3xx
-}  // namespace esphome
+}  // namespace esphome::msa3xx

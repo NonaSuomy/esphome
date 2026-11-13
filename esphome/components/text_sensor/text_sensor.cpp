@@ -1,24 +1,59 @@
 #include "text_sensor.h"
+#include "esphome/core/defines.h"
+#include "esphome/core/controller_registry.h"
 #include "esphome/core/log.h"
+#include <cstring>
 
-namespace esphome {
-namespace text_sensor {
+namespace esphome::text_sensor {
 
-static const char *const TAG = "text_sensor";
+ESPHOME_LOG_TAG(TAG, "text_sensor");
 
-void TextSensor::publish_state(const std::string &state) {
-  this->raw_state = state;
-  this->raw_callback_.call(state);
-
-  ESP_LOGV(TAG, "'%s': Received new state %s", this->name_.c_str(), state.c_str());
-
-  if (this->filter_list_ == nullptr) {
-    this->internal_send_state_to_frontend(state);
-  } else {
-    this->filter_list_->input(state);
+void log_text_sensor(const char *tag, const char *prefix, const char *type, TextSensor *obj) {
+  if (!log_entity_header(tag, prefix, type, obj)) {
+    return;
   }
+  LOG_ENTITY_DEVICE_CLASS(tag, prefix, *obj);
+  LOG_ENTITY_ICON(tag, prefix, *obj);
 }
 
+void TextSensor::publish_state(const char *state, size_t len) {
+#ifdef USE_TEXT_SENSOR_FILTER
+  if (this->filter_list_ == nullptr) {
+#endif
+    // No filters: raw_state == state, store once and use for both callbacks
+    // Only assign if changed to avoid heap allocation
+    if (len != this->state.size() || memcmp(state, this->state.data(), len) != 0) {
+      this->state.assign(state, len);
+    }
+#ifdef USE_TEXT_SENSOR_FILTER
+    this->raw_callback_.call(this->state);
+#endif
+    ESP_LOGV(TAG, "'%s': Received new state %s", LOG_STR_ARG(this->get_log_name()), this->state.c_str());
+    this->notify_frontend_();
+#ifdef USE_TEXT_SENSOR_FILTER
+  } else {
+    // Has filters: need separate raw storage
+    // Only assign if changed to avoid heap allocation
+    if (len != this->raw_state_.size() || memcmp(state, this->raw_state_.data(), len) != 0) {
+      this->raw_state_.assign(state, len);
+    }
+    this->raw_callback_.call(this->raw_state_);
+    ESP_LOGV(TAG, "'%s': Received new state %s", LOG_STR_ARG(this->get_log_name()), this->raw_state_.c_str());
+    this->filter_list_->input(this->raw_state_);
+  }
+#endif
+}
+
+#ifdef USE_ESP8266
+void TextSensor::publish_state(ProgmemStr state) {
+  char buf[256];
+  strncpy_P(buf, reinterpret_cast<PGM_P>(state), sizeof(buf));
+  buf[sizeof(buf) - 1] = '\0';
+  this->publish_state(buf);
+}
+#endif
+
+#ifdef USE_TEXT_SENSOR_FILTER
 void TextSensor::add_filter(Filter *filter) {
   // inefficient, but only happens once on every sensor setup and nobody's going to have massive amounts of
   // filters
@@ -33,12 +68,12 @@ void TextSensor::add_filter(Filter *filter) {
   }
   filter->initialize(this, nullptr);
 }
-void TextSensor::add_filters(const std::vector<Filter *> &filters) {
+void TextSensor::add_filters(std::initializer_list<Filter *> filters) {
   for (Filter *filter : filters) {
     this->add_filter(filter);
   }
 }
-void TextSensor::set_filters(const std::vector<Filter *> &filters) {
+void TextSensor::set_filters(std::initializer_list<Filter *> filters) {
   this->clear_filters();
   this->add_filters(filters);
 }
@@ -48,25 +83,55 @@ void TextSensor::clear_filters() {
   }
   this->filter_list_ = nullptr;
 }
-
-void TextSensor::add_on_state_callback(std::function<void(std::string)> callback) {
-  this->callback_.add(std::move(callback));
+#ifdef USE_TEXT_SENSOR_FILTER_RESET
+Filter *TextSensor::detach_filters() {
+  Filter *filters = this->filter_list_;
+  if (filters == nullptr)
+    return nullptr;
+  // Reset first, so a timeout armed by an earlier value does not send it while detached
+  filters->reset_chain();
+  this->filter_list_ = nullptr;
+  if (this->raw_state_ != this->state)
+    this->internal_send_state_to_frontend(this->raw_state_);
+  return filters;
 }
-void TextSensor::add_on_raw_state_callback(std::function<void(std::string)> callback) {
-  this->raw_callback_.add(std::move(callback));
+void TextSensor::attach_filters(Filter *filters) {
+  if (filters == nullptr)
+    return;
+  this->filter_list_ = filters;
+  // Values published while detached skipped the filters, which may change the current one (a map, for example)
+  if (this->has_state()) {
+    this->raw_state_ = this->state;
+    filters->input(this->raw_state_);
+  }
+}
+#endif
+#endif  // USE_TEXT_SENSOR_FILTER
+
+const std::string &TextSensor::get_state() const { return this->state; }
+const std::string &TextSensor::get_raw_state() const {
+#ifdef USE_TEXT_SENSOR_FILTER
+  if (this->filter_list_ != nullptr) {
+    return this->raw_state_;
+  }
+#endif
+  return this->state;  // No filters, raw == filtered
+}
+void TextSensor::internal_send_state_to_frontend(const char *state, size_t len) {
+  // Only assign if changed to avoid heap allocation
+  if (len != this->state.size() || memcmp(state, this->state.data(), len) != 0) {
+    this->state.assign(state, len);
+  }
+  this->notify_frontend_();
 }
 
-std::string TextSensor::get_state() const { return this->state; }
-std::string TextSensor::get_raw_state() const { return this->raw_state; }
-void TextSensor::internal_send_state_to_frontend(const std::string &state) {
-  this->state = state;
-  this->has_state_ = true;
-  ESP_LOGD(TAG, "'%s': Sending state '%s'", this->name_.c_str(), state.c_str());
-  this->callback_.call(state);
+void TextSensor::notify_frontend_() {
+  this->set_has_state(true);
+  ESP_LOGV(TAG, "'%s' >> '%s'", LOG_STR_ARG(this->get_log_name()), this->state.c_str());
+  this->callback_.call(this->state);
+#if defined(USE_TEXT_SENSOR) && defined(USE_CONTROLLER_REGISTRY)
+  ControllerRegistry::notify_text_sensor_update(this);
+#endif
 }
 
-std::string TextSensor::unique_id() { return ""; }
-bool TextSensor::has_state() { return this->has_state_; }
-
-}  // namespace text_sensor
-}  // namespace esphome
+}  // namespace esphome::text_sensor

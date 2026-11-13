@@ -14,8 +14,7 @@
 #include "esphome/core/component.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace airthings_wave_base {
+namespace esphome::airthings_wave_base {
 
 namespace espbt = esphome::esp32_ble_tracker;
 
@@ -31,10 +30,10 @@ class AirthingsWaveBase : public PollingComponent, public ble_client::BLEClientN
   void gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
                            esp_ble_gattc_cb_param_t *param) override;
 
-  void set_temperature(sensor::Sensor *temperature) { temperature_sensor_ = temperature; }
-  void set_humidity(sensor::Sensor *humidity) { humidity_sensor_ = humidity; }
-  void set_pressure(sensor::Sensor *pressure) { pressure_sensor_ = pressure; }
-  void set_tvoc(sensor::Sensor *tvoc) { tvoc_sensor_ = tvoc; }
+  SUB_SENSOR(temperature)
+  SUB_SENSOR(humidity)
+  SUB_SENSOR(pressure)
+  SUB_SENSOR(tvoc)
   void set_battery_voltage(sensor::Sensor *voltage) {
     battery_voltage_ = voltage;
     this->read_battery_next_update_ = true;
@@ -47,10 +46,6 @@ class AirthingsWaveBase : public PollingComponent, public ble_client::BLEClientN
   bool request_read_values_();
   virtual void read_sensors(uint8_t *raw_value, uint16_t value_len) = 0;
 
-  sensor::Sensor *temperature_sensor_{nullptr};
-  sensor::Sensor *humidity_sensor_{nullptr};
-  sensor::Sensor *pressure_sensor_{nullptr};
-  sensor::Sensor *tvoc_sensor_{nullptr};
   sensor::Sensor *battery_voltage_{nullptr};
 
   uint16_t handle_;
@@ -84,7 +79,6 @@ class AirthingsWaveBase : public PollingComponent, public ble_client::BLEClientN
   };
 };
 
-}  // namespace airthings_wave_base
-}  // namespace esphome
+}  // namespace esphome::airthings_wave_base
 
 #endif  // USE_ESP32

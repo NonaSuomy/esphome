@@ -1,10 +1,9 @@
 #include "max6956.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace max6956 {
+namespace esphome::max6956 {
 
-static const char *const TAG = "max6956";
+ESPHOME_LOG_TAG(TAG, "max6956");
 
 /// Masks for MAX6956 Configuration register
 const uint32_t MASK_TRANSITION_DETECTION = 0x80;
@@ -20,18 +19,15 @@ const uint8_t MASK_CURRENT_PIN = 0x0F;
  *    MAX6956                         *
  **************************************/
 void MAX6956::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up MAX6956...");
   uint8_t configuration;
-  if (!this->read_reg_(MAX6956_CONFIGURATION, &configuration)) {
-    this->mark_failed();
+  if (!this->setup_check(this->read_reg_(MAX6956_CONFIGURATION, &configuration)))
     return;
-  }
 
   write_brightness_global();
   write_brightness_mode();
 
   /** TO DO : read transition detection in yaml
-      TO DO : read indivdual current in yaml **/
+      TO DO : read individual current in yaml **/
   this->read_reg_(MAX6956_CONFIGURATION, &configuration);
   ESP_LOGD(TAG, "Initial reg[0x%.2X]=0x%.2X", MAX6956_CONFIGURATION, configuration);
   configuration = configuration | MASK_NORMAL_OPERATION;
@@ -99,8 +95,6 @@ void MAX6956::set_brightness_global(uint8_t current) {
 
 void MAX6956::write_brightness_global() { this->write_reg_(MAX6956_GLOBAL_CURRENT, global_brightness_); }
 
-void MAX6956::set_brightness_mode(max6956::MAX6956CURRENTMODE brightness_mode) { brightness_mode_ = brightness_mode; };
-
 void MAX6956::write_brightness_mode() {
   uint8_t reg_addr = MAX6956_CONFIGURATION;
   uint8_t config = 0;
@@ -112,6 +106,8 @@ void MAX6956::write_brightness_mode() {
 }
 
 void MAX6956::set_pin_brightness(uint8_t pin, float brightness) {
+  if (pin < MAX6956_MIN || pin > MAX6956_MAX)
+    return;
   uint8_t reg_addr = MAX6956_CURRENT_START + (pin - MAX6956_MIN) / 2;
   uint8_t config = 0;
   uint8_t shift = 4 * (pin % 2);
@@ -146,25 +142,15 @@ void MAX6956::dump_config() {
   ESP_LOGCONFIG(TAG, "MAX6956");
 
   if (brightness_mode_ == MAX6956CURRENTMODE::GLOBAL) {
-    ESP_LOGCONFIG(TAG, "current mode: global");
-    ESP_LOGCONFIG(TAG, "global brightness: %u", global_brightness_);
+    ESP_LOGCONFIG(TAG,
+                  "  Current mode: global\n"
+                  "  Brightness: %u",
+                  global_brightness_);
   } else {
-    ESP_LOGCONFIG(TAG, "current mode: segment");
+    ESP_LOGCONFIG(TAG, "  Current mode: segment");
   }
 }
 
-/**************************************
- *    MAX6956GPIOPin                  *
- **************************************/
-void MAX6956GPIOPin::setup() { pin_mode(flags_); }
-void MAX6956GPIOPin::pin_mode(gpio::Flags flags) { this->parent_->pin_mode(this->pin_, flags); }
-bool MAX6956GPIOPin::digital_read() { return this->parent_->digital_read(this->pin_) != this->inverted_; }
-void MAX6956GPIOPin::digital_write(bool value) { this->parent_->digital_write(this->pin_, value != this->inverted_); }
-std::string MAX6956GPIOPin::dump_summary() const {
-  char buffer[32];
-  snprintf(buffer, sizeof(buffer), "%u via Max6956", pin_);
-  return buffer;
-}
+}  // namespace esphome::max6956
 
-}  // namespace max6956
-}  // namespace esphome
+ESPHOME_EXPANDER_PIN_SUMMARY(esphome::max6956::MAX6956, "%u via Max6956")

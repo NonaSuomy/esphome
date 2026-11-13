@@ -5,8 +5,7 @@
 
 #include <vector>
 
-namespace esphome {
-namespace lightwaverf {
+namespace esphome::lightwaverf {
 
 // LxTx.h
 //
@@ -25,7 +24,7 @@ class LwTx {
   // Allows changing basic tick counts from their defaults
   void lwtx_set_tick_counts(uint8_t low_count, uint8_t high_count, uint8_t trail_count, uint8_t gap_count);
 
-  // Allws multiplying the gap period for creating very large gaps
+  // Allows multiplying the gap period for creating very large gaps
   void lwtx_set_gap_multiplier(uint8_t gap_multiplier);
 
   // determines whether incoming data or should be translated from nibble data
@@ -46,7 +45,7 @@ class LwTx {
   // Allows changing basic tick counts from their defaults
   void lw_timer_start();
 
-  // Allws multiplying the gap period for creating very large gaps
+  // Allows multiplying the gap period for creating very large gaps
   void lw_timer_stop();
 
   // These set the pulse durationlws in ticks. ESP uses 330uSec base tick, else use 140uSec
@@ -62,8 +61,8 @@ class LwTx {
   uint8_t tx_repeats = 12;  // Number of repeats of message sent
   uint8_t txon = 1;
   uint8_t txoff = 0;
-  bool tx_msg_active = false;  // set true to activate message sending
-  bool tx_translate = true;    // Set false to send raw data
+  volatile bool tx_msg_active = false;  // set true to activate message sending
+  bool tx_translate = true;             // Set false to send raw data
 
   uint8_t tx_buf[TX_MSGLEN];  // the message buffer during reception
   uint8_t tx_repeat = 0;      // counter for repeats
@@ -90,5 +89,4 @@ class LwTx {
   uint32_t duty_off_;
 };
 
-}  // namespace lightwaverf
-}  // namespace esphome
+}  // namespace esphome::lightwaverf

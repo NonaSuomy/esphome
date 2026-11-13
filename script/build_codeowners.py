@@ -8,6 +8,7 @@ from esphome.config import get_component, get_platform
 from esphome.const import KEY_CORE, KEY_TARGET_FRAMEWORK, KEY_TARGET_PLATFORM
 from esphome.core import CORE
 from esphome.helpers import write_file_if_changed
+from esphome.loader import ComponentManifest
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -31,6 +32,7 @@ BASE = """
 pyproject.toml @esphome/core
 esphome/*.py @esphome/core
 esphome/core/* @esphome/core
+.github/** @esphome/core
 
 # Integrations
 """.strip()
@@ -38,10 +40,11 @@ esphome/core/* @esphome/core
 parts = [BASE]
 
 # Fake some directory so that get_component works
-CORE.config_path = str(root)
+CORE.config_path = root
 CORE.data[KEY_CORE] = {KEY_TARGET_FRAMEWORK: None, KEY_TARGET_PLATFORM: None}
 
 codeowners = defaultdict(list)
+components: list[tuple[str, Path, ComponentManifest]] = []
 
 for path in components_dir.iterdir():
     if not path.is_dir():
@@ -57,10 +60,20 @@ for path in components_dir.iterdir():
         )
         sys.exit(1)
 
+    components.append((name, path, comp))
+
+platform_components = {
+    name for name, _, comp in components if comp.is_platform_component
+}
+
+for name, path, comp in components:
     codeowners[f"esphome/components/{name}/*"].extend(comp.codeowners)
 
     for platform_path in path.iterdir():
         platform_name = platform_path.stem
+        if platform_name not in platform_components:
+            # Helper modules and scripts are not platforms, so don't import them
+            continue
         platform = get_platform(platform_name, name)
         if platform is None:
             continue
@@ -81,7 +94,7 @@ for path in components_dir.iterdir():
 
 
 for path, owners in sorted(codeowners.items()):
-    owners = sorted(set(owners))
+    owners = sorted(set(owners), key=str.casefold)
     if not owners:
         continue
     for owner in owners:

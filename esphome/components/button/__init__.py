@@ -1,7 +1,6 @@
 from esphome import automation
 from esphome.automation import maybe_simple_id
 import esphome.codegen as cg
-from esphome.components import mqtt, web_server
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_DEVICE_CLASS,
@@ -10,18 +9,31 @@ from esphome.const import (
     CONF_ID,
     CONF_MQTT_ID,
     CONF_ON_PRESS,
-    CONF_TRIGGER_ID,
-    CONF_WEB_SERVER,
     DEVICE_CLASS_EMPTY,
     DEVICE_CLASS_IDENTIFY,
     DEVICE_CLASS_RESTART,
     DEVICE_CLASS_UPDATE,
+    ENTITY_CATEGORY_CONFIG,
+    ENTITY_CATEGORY_DIAGNOSTIC,
+    ICON_DATABASE,
+    ICON_RESTART,
+    ICON_RESTART_ALERT,
 )
-from esphome.core import CORE, coroutine_with_priority
-from esphome.cpp_generator import MockObjClass
-from esphome.cpp_helpers import setup_entity
+from esphome.core import CORE, ID, CoroPriority, coroutine_with_priority, entity_helpers
+from esphome.core.entity_helpers import (
+    ApplyEntity,
+    SubEntities,
+    entity_duplicate_validator,
+    mqtt_component_class,
+    queue_entity_register,
+    setup_device_class,
+    setup_entity,
+)
+from esphome.cpp_generator import MockObj, MockObjClass
+from esphome.types import ConfigType, SafeExpType
 
 CODEOWNERS = ["@esphome/core"]
+DOMAIN = "button"
 IS_PLATFORM_COMPONENT = True
 
 DEVICE_CLASSES = [
@@ -34,41 +46,37 @@ DEVICE_CLASSES = [
 button_ns = cg.esphome_ns.namespace("button")
 Button = button_ns.class_("Button", cg.EntityBase)
 ButtonPtr = Button.operator("ptr")
-
-PressAction = button_ns.class_("PressAction", automation.Action)
-
-ButtonPressTrigger = button_ns.class_(
-    "ButtonPressTrigger", automation.Trigger.template()
-)
+ApplyButton = button_ns.class_("ApplyButton", Button)
 
 validate_device_class = cv.one_of(*DEVICE_CLASSES, lower=True, space="_")
 
 
-BUTTON_SCHEMA = (
-    cv.ENTITY_BASE_SCHEMA.extend(web_server.WEBSERVER_SORTING_SCHEMA)
+_BUTTON_SCHEMA = (
+    cv.ENTITY_BASE_SCHEMA.extend(entity_helpers.WEBSERVER_SORTING_SCHEMA)
     .extend(cv.MQTT_COMMAND_COMPONENT_SCHEMA)
     .extend(
         {
-            cv.OnlyWith(CONF_MQTT_ID, "mqtt"): cv.declare_id(mqtt.MQTTButtonComponent),
-            cv.Optional(CONF_DEVICE_CLASS): validate_device_class,
-            cv.Optional(CONF_ON_PRESS): automation.validate_automation(
-                {
-                    cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(ButtonPressTrigger),
-                }
+            cv.OnlyWith(CONF_MQTT_ID, "mqtt"): cv.declare_id(
+                mqtt_component_class("MQTTButtonComponent")
             ),
+            cv.Optional(
+                CONF_DEVICE_CLASS, visibility=cv.Visibility.ADVANCED
+            ): validate_device_class,
+            cv.Optional(CONF_ON_PRESS): automation.validate_automation({}),
         }
     )
 )
 
-_UNDEF = object()
+
+_BUTTON_SCHEMA.add_extra(entity_duplicate_validator("button"))
 
 
 def button_schema(
     class_: MockObjClass,
     *,
-    icon: str = _UNDEF,
-    entity_category: str = _UNDEF,
-    device_class: str = _UNDEF,
+    icon: str = cv.UNDEFINED,
+    entity_category: str = cv.UNDEFINED,
+    device_class: str = cv.UNDEFINED,
 ) -> cv.Schema:
     schema = {cv.GenerateID(): cv.declare_id(class_)}
 
@@ -77,41 +85,82 @@ def button_schema(
         (CONF_ENTITY_CATEGORY, entity_category, cv.entity_category),
         (CONF_DEVICE_CLASS, device_class, validate_device_class),
     ]:
-        if default is not _UNDEF:
+        if default is not cv.UNDEFINED:
             schema[cv.Optional(key, default=default)] = validator
 
-    return BUTTON_SCHEMA.extend(schema)
+    return _BUTTON_SCHEMA.extend(schema)
 
 
-async def setup_button_core_(var, config):
-    await setup_entity(var, config)
+def factory_reset_button_schema(class_: MockObjClass) -> cv.Schema:
+    """Schema for a button that resets the connected module to factory settings.
 
-    for conf in config.get(CONF_ON_PRESS, []):
-        trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID], var)
-        await automation.build_automation(trigger, [], conf)
-
-    if device_class := config.get(CONF_DEVICE_CLASS):
-        cg.add(var.set_device_class(device_class))
-
-    if mqtt_id := config.get(CONF_MQTT_ID):
-        mqtt_ = cg.new_Pvariable(mqtt_id, var)
-        await mqtt.register_mqtt_component(mqtt_, config)
-
-    if web_server_config := config.get(CONF_WEB_SERVER):
-        await web_server.add_entity_config(var, web_server_config)
+    For a sensor or radio module's own reset, not the ESPHome node.
+    """
+    return button_schema(
+        class_,
+        device_class=DEVICE_CLASS_RESTART,
+        entity_category=ENTITY_CATEGORY_CONFIG,
+        icon=ICON_RESTART_ALERT,
+    )
 
 
-async def register_button(var, config):
+def restart_button_schema(class_: MockObjClass) -> cv.Schema:
+    """Schema for a button that restarts the connected module.
+
+    For a sensor or radio module's own restart, not the ESPHome node; the core
+    restart button uses the config category instead of diagnostic.
+    """
+    return button_schema(
+        class_,
+        device_class=DEVICE_CLASS_RESTART,
+        entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+        icon=ICON_RESTART,
+    )
+
+
+def query_button_schema(class_: MockObjClass) -> cv.Schema:
+    """Schema for a button that reads the settings back from the connected module."""
+    return button_schema(
+        class_, entity_category=ENTITY_CATEGORY_DIAGNOSTIC, icon=ICON_DATABASE
+    )
+
+
+_CALLBACK_AUTOMATIONS = (
+    automation.CallbackAutomation(CONF_ON_PRESS, "add_on_press_callback"),
+)
+
+
+@setup_entity("button")
+async def setup_button_core_(var: MockObj, config: ConfigType) -> None:
+    await automation.build_callback_automations(var, config, _CALLBACK_AUTOMATIONS)
+
+    setup_device_class(config)
+
+    await entity_helpers.setup_entity_integrations(var, config)
+
+
+async def register_button(var: MockObj, config: ConfigType) -> None:
     if not CORE.has_id(config[CONF_ID]):
         var = cg.Pvariable(config[CONF_ID], var)
-    cg.add(cg.App.register_button(var))
+    queue_entity_register("button", config)
+    CORE.register_platform_component("button", var)
     await setup_button_core_(var, config)
 
 
-async def new_button(config, *args):
+async def new_button(config: ConfigType, *args: SafeExpType) -> MockObj:
     var = cg.new_Pvariable(config[CONF_ID], *args)
     await register_button(var, config)
     return var
+
+
+APPLY_ENTITY = ApplyEntity(ApplyButton, ((ButtonPtr, "entity"),))
+
+
+def sub_buttons(
+    config: ConfigType, *, parent: MockObj | ID | None = None
+) -> SubEntities:
+    """Return a SubEntities bound to new_button; ``apply`` statements can use ``entity``."""
+    return SubEntities(new_button, config, parent, APPLY_ENTITY)
 
 
 BUTTON_PRESS_SCHEMA = maybe_simple_id(
@@ -121,13 +170,11 @@ BUTTON_PRESS_SCHEMA = maybe_simple_id(
 )
 
 
-@automation.register_action("button.press", PressAction, BUTTON_PRESS_SCHEMA)
-async def button_press_to_code(config, action_id, template_arg, args):
-    paren = await cg.get_variable(config[CONF_ID])
-    return cg.new_Pvariable(action_id, template_arg, paren)
+automation.register_apply_action(
+    "button.press", BUTTON_PRESS_SCHEMA, automation.ApplyCall("press()")
+)
 
 
-@coroutine_with_priority(100.0)
-async def to_code(config):
+@coroutine_with_priority(CoroPriority.CORE)
+async def to_code(config: ConfigType) -> None:
     cg.add_global(button_ns.using)
-    cg.add_define("USE_BUTTON")

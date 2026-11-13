@@ -1,10 +1,10 @@
 #include "rdm6300.h"
+#include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace rdm6300 {
+namespace esphome::rdm6300 {
 
-static const char *const TAG = "rdm6300";
+ESPHOME_LOG_TAG(TAG, "rdm6300");
 
 static const uint8_t RDM6300_START_BYTE = 0x02;
 static const uint8_t RDM6300_END_BYTE = 0x03;
@@ -33,13 +33,13 @@ void rdm6300::RDM6300Component::loop() {
         this->buffer_[this->read_state_ / 2] += value;
       }
       this->read_state_++;
+    } else if (data == 0x0D || data == 0x0A) {
+      // Skip CR/LF bytes (ID-20LA compatibility)
     } else if (data != RDM6300_END_BYTE) {
       ESP_LOGW(TAG, "Invalid end byte from RDM6300!");
       this->read_state_ = RDM6300_STATE_WAITING_FOR_START;
     } else {
-      uint8_t checksum = 0;
-      for (uint8_t i = 0; i < 5; i++)
-        checksum ^= this->buffer_[i];
+      const uint8_t checksum = xor_bytes(this->buffer_, 5);
       this->read_state_ = RDM6300_STATE_WAITING_FOR_START;
       if (checksum != this->buffer_[5]) {
         ESP_LOGW(TAG, "Checksum from RDM6300 doesn't match! (0x%02X!=0x%02X)", checksum, this->buffer_[5]);
@@ -53,8 +53,9 @@ void rdm6300::RDM6300Component::loop() {
             report = false;
           }
         }
-        for (auto *trig : this->triggers_)
-          trig->process(result);
+#ifdef RDM6300_ON_TAG_COUNT
+        this->tag_automations_.trigger(result);
+#endif
 
         if (report) {
           ESP_LOGD(TAG, "Found new tag with ID %" PRIu32, result);
@@ -64,5 +65,4 @@ void rdm6300::RDM6300Component::loop() {
   }
 }
 
-}  // namespace rdm6300
-}  // namespace esphome
+}  // namespace esphome::rdm6300

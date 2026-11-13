@@ -8,11 +8,20 @@ text_sensor:
       name: Scan Results
     ip_address:
       name: IP Address
+      address_1:
+        name: IP Address 1
     ssid:
       name: SSID
     bssid:
       name: BSSID
     mac_address:
-      name: Mac Address
+      name: MAC Address
     dns_address:
-      name: DNS ADdress
+      name: DNS Address
+    power_save_mode:
+      name: "WiFi Power Save Mode"
+
+sensor:
+  - platform: wifi_info
+    channel:
+      name: Channel

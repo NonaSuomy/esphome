@@ -4,10 +4,9 @@
 
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace template_ {
+namespace esphome::template_ {
 
-static const char *const TAG = "template.date";
+ESPHOME_LOG_TAG(TAG, "template.date");
 
 void TemplateDate::setup() {
   if (this->f_.has_value())
@@ -19,13 +18,12 @@ void TemplateDate::setup() {
     state = this->initial_value_;
   } else {
     datetime::DateEntityRestoreState temp;
-    this->pref_ =
-        global_preferences->make_preference<datetime::DateEntityRestoreState>(194434030U ^ this->get_object_id_hash());
+    this->pref_ = this->make_entity_preference<datetime::DateEntityRestoreState>(194434030U);
     if (this->pref_.load(&temp)) {
       temp.apply(this);
       return;
     } else {
-      // set to inital value if loading from pref failed
+      // set to initial value if loading from pref failed
       state = this->initial_value_;
     }
   }
@@ -40,60 +38,50 @@ void TemplateDate::update() {
   if (!this->f_.has_value())
     return;
 
-  auto val = (*this->f_)();
-  if (!val.has_value())
-    return;
-
-  this->year_ = val->year;
-  this->month_ = val->month;
-  this->day_ = val->day_of_month;
-  this->publish_state();
+  auto val = this->f_();
+  if (val.has_value()) {
+    this->year_ = val->year;
+    this->month_ = val->month;
+    this->day_ = val->day_of_month;
+    this->publish_state();
+  }
 }
 
 void TemplateDate::control(const datetime::DateCall &call) {
-  bool has_year = call.get_year().has_value();
-  bool has_month = call.get_month().has_value();
-  bool has_day = call.get_day().has_value();
+  auto opt_year = call.get_year();
+  auto opt_month = call.get_month();
+  auto opt_day = call.get_day();
+  bool has_year = opt_year.has_value();
+  bool has_month = opt_month.has_value();
+  bool has_day = opt_day.has_value();
 
   ESPTime value = {};
   if (has_year)
-    value.year = *call.get_year();
+    value.year = *opt_year;
 
   if (has_month)
-    value.month = *call.get_month();
+    value.month = *opt_month;
 
   if (has_day)
-    value.day_of_month = *call.get_day();
+    value.day_of_month = *opt_day;
 
-  this->set_trigger_->trigger(value);
+  this->set_trigger_.trigger(value);
 
   if (this->optimistic_) {
     if (has_year)
-      this->year_ = *call.get_year();
+      this->year_ = *opt_year;
     if (has_month)
-      this->month_ = *call.get_month();
+      this->month_ = *opt_month;
     if (has_day)
-      this->day_ = *call.get_day();
+      this->day_ = *opt_day;
     this->publish_state();
   }
 
   if (this->restore_value_) {
     datetime::DateEntityRestoreState temp = {};
-    if (has_year) {
-      temp.year = *call.get_year();
-    } else {
-      temp.year = this->year_;
-    }
-    if (has_month) {
-      temp.month = *call.get_month();
-    } else {
-      temp.month = this->month_;
-    }
-    if (has_day) {
-      temp.day = *call.get_day();
-    } else {
-      temp.day = this->day_;
-    }
+    temp.year = opt_year.value_or(this->year_);
+    temp.month = opt_month.value_or(this->month_);
+    temp.day = opt_day.value_or(this->day_);
 
     this->pref_.save(&temp);
   }
@@ -105,7 +93,6 @@ void TemplateDate::dump_config() {
   LOG_UPDATE_INTERVAL(this);
 }
 
-}  // namespace template_
-}  // namespace esphome
+}  // namespace esphome::template_
 
 #endif  // USE_DATETIME_DATE

@@ -6,46 +6,40 @@ from esphome.const import (
     CONF_DIRECTION_OUTPUT,
     CONF_OSCILLATION_OUTPUT,
     CONF_OUTPUT,
-    CONF_OUTPUT_ID,
     CONF_PRESET_MODES,
     CONF_SPEED,
     CONF_SPEED_COUNT,
 )
+from esphome.types import ConfigType
 
 from .. import speed_ns
 
 SpeedFan = speed_ns.class_("SpeedFan", cg.Component, fan.Fan)
 
-CONFIG_SCHEMA = fan.FAN_SCHEMA.extend(
-    {
-        cv.GenerateID(CONF_OUTPUT_ID): cv.declare_id(SpeedFan),
-        cv.Required(CONF_OUTPUT): cv.use_id(output.FloatOutput),
-        cv.Optional(CONF_OSCILLATION_OUTPUT): cv.use_id(output.BinaryOutput),
-        cv.Optional(CONF_DIRECTION_OUTPUT): cv.use_id(output.BinaryOutput),
-        cv.Optional(CONF_SPEED): cv.invalid(
-            "Configuring individual speeds is deprecated."
-        ),
-        cv.Optional(CONF_SPEED_COUNT, default=100): cv.int_range(min=1),
-        cv.Optional(CONF_PRESET_MODES): validate_preset_modes,
-    }
-).extend(cv.COMPONENT_SCHEMA)
+CONFIG_SCHEMA = (
+    fan.fan_schema(SpeedFan)
+    .extend(
+        {
+            cv.Required(CONF_OUTPUT): cv.use_id(output.FloatOutput),
+            cv.Optional(CONF_OSCILLATION_OUTPUT): cv.use_id(output.BinaryOutput),
+            cv.Optional(CONF_DIRECTION_OUTPUT): cv.use_id(output.BinaryOutput),
+            cv.Optional(CONF_SPEED): cv.invalid(
+                "Configuring individual speeds is deprecated."
+            ),
+            cv.Optional(CONF_SPEED_COUNT, default=100): fan.validate_speed_count,
+            cv.Optional(CONF_PRESET_MODES): validate_preset_modes,
+        }
+    )
+    .extend(cv.COMPONENT_SCHEMA)
+)
 
 
-async def to_code(config):
-    var = cg.new_Pvariable(config[CONF_OUTPUT_ID], config[CONF_SPEED_COUNT])
+async def to_code(config: ConfigType) -> None:
+    var = await fan.new_fan(config, config[CONF_SPEED_COUNT])
     await cg.register_component(var, config)
-    await fan.register_fan(var, config)
 
-    output_ = await cg.get_variable(config[CONF_OUTPUT])
-    cg.add(var.set_output(output_))
+    await cg.add_variable(var.set_output, config[CONF_OUTPUT])
+    await cg.add_variable(var.set_oscillating, config.get(CONF_OSCILLATION_OUTPUT))
+    await cg.add_variable(var.set_direction, config.get(CONF_DIRECTION_OUTPUT))
 
-    if CONF_OSCILLATION_OUTPUT in config:
-        oscillation_output = await cg.get_variable(config[CONF_OSCILLATION_OUTPUT])
-        cg.add(var.set_oscillating(oscillation_output))
-
-    if CONF_DIRECTION_OUTPUT in config:
-        direction_output = await cg.get_variable(config[CONF_DIRECTION_OUTPUT])
-        cg.add(var.set_direction(direction_output))
-
-    if CONF_PRESET_MODES in config:
-        cg.add(var.set_preset_modes(config[CONF_PRESET_MODES]))
+    fan.set_preset_modes(var, config.get(CONF_PRESET_MODES, []))

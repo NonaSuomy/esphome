@@ -19,7 +19,7 @@
 
 namespace {
 
-constexpr char TAG[] = "shelly_dimmer";
+ESPHOME_LOG_TAG(TAG, "shelly_dimmer");
 
 constexpr uint8_t SHELLY_DIMMER_ACK_TIMEOUT = 200;  // ms
 constexpr uint8_t SHELLY_DIMMER_MAX_RETRIES = 3;
@@ -52,12 +52,11 @@ constexpr float VOLTAGE_SCALING_FACTOR = 347800;
 constexpr float CURRENT_SCALING_FACTOR = 1448;
 
 // Essentially std::size() for pre c++17
-template<typename T, size_t N> constexpr size_t size(const T (&/*unused*/)[N]) noexcept { return N; }
+template<typename T, size_t N> constexpr size_t size(const T (& /*unused*/)[N]) noexcept { return N; }
 
 }  // Anonymous namespace
 
-namespace esphome {
-namespace shelly_dimmer {
+namespace esphome::shelly_dimmer {
 
 /// Computes a crappy checksum as defined by the Shelly Dimmer protocol.
 uint16_t shelly_dimmer_checksum(const uint8_t *buf, int len) {
@@ -86,11 +85,9 @@ void ShellyDimmer::handle_firmware() {
 
     this->reset_normal_boot_();
     this->send_command_(SHELLY_DIMMER_PROTO_CMD_VERSION, nullptr, 0);
-    if (!is_running_configured_version()) {
-      ESP_LOGE(TAG, "STM32 firmware upgrade already performed, but version is still incorrect");
-      this->mark_failed();
+    if (!this->setup_check(is_running_configured_version(),
+                           LOG_STR("STM32 firmware upgrade already performed, but version is still incorrect")))
       return;
-    }
 #else
     ESP_LOGW(TAG, "Firmware version mismatch, put 'update: true' in the yaml to flash an update.");
 #endif
@@ -100,8 +97,6 @@ void ShellyDimmer::handle_firmware() {
 void ShellyDimmer::setup() {
   this->pin_nrst_->setup();
   this->pin_boot0_->setup();
-
-  ESP_LOGI(TAG, "Initializing Shelly Dimmer...");
 
   this->handle_firmware();
 
@@ -115,22 +110,20 @@ void ShellyDimmer::setup() {
 void ShellyDimmer::update() { this->send_command_(SHELLY_DIMMER_PROTO_CMD_POLL, nullptr, 0); }
 
 void ShellyDimmer::dump_config() {
-  ESP_LOGCONFIG(TAG, "ShellyDimmer:");
+  ESP_LOGCONFIG(TAG,
+                "ShellyDimmer:\n"
+                "  Leading Edge: %s\n"
+                "  Warmup Brightness: %d\n"
+                "  Minimum Brightness: %d\n"
+                "  Maximum Brightness: %d\n"
+                "  STM32 current firmware version: %d.%d\n"
+                "  STM32 required firmware version: %d.%d",
+                YESNO(this->leading_edge_), this->warmup_brightness_, this->min_brightness_, this->max_brightness_,
+                this->version_major_, this->version_minor_, USE_SHD_FIRMWARE_MAJOR_VERSION,
+                USE_SHD_FIRMWARE_MINOR_VERSION);
   LOG_PIN("  NRST Pin: ", this->pin_nrst_);
   LOG_PIN("  BOOT0 Pin: ", this->pin_boot0_);
-
-  ESP_LOGCONFIG(TAG, "  Leading Edge: %s", YESNO(this->leading_edge_));
-  ESP_LOGCONFIG(TAG, "  Warmup Brightness: %d", this->warmup_brightness_);
-  // ESP_LOGCONFIG(TAG, "  Warmup Time: %d", this->warmup_time_);
-  // ESP_LOGCONFIG(TAG, "  Fade Rate: %d", this->fade_rate_);
-  ESP_LOGCONFIG(TAG, "  Minimum Brightness: %d", this->min_brightness_);
-  ESP_LOGCONFIG(TAG, "  Maximum Brightness: %d", this->max_brightness_);
-
   LOG_UPDATE_INTERVAL(this);
-
-  ESP_LOGCONFIG(TAG, "  STM32 current firmware version: %d.%d ", this->version_major_, this->version_minor_);
-  ESP_LOGCONFIG(TAG, "  STM32 required firmware version: %d.%d", USE_SHD_FIRMWARE_MAJOR_VERSION,
-                USE_SHD_FIRMWARE_MINOR_VERSION);
 
   if (this->version_major_ != USE_SHD_FIRMWARE_MAJOR_VERSION ||
       this->version_minor_ != USE_SHD_FIRMWARE_MINOR_VERSION) {
@@ -192,8 +185,8 @@ bool ShellyDimmer::upgrade_firmware_() {
       break;
     }
 
-    std::memcpy(buffer, p, BUFFER_SIZE);
-    p += BUFFER_SIZE;
+    std::memcpy(buffer, p, len);
+    p += len;
 
     if (stm32_write_memory(stm32, addr, buffer, len) != STM32_ERR_OK) {
       ESP_LOGW(TAG, "Failed to write to STM32 flash memory");
@@ -212,7 +205,7 @@ bool ShellyDimmer::upgrade_firmware_() {
 
 uint16_t ShellyDimmer::convert_brightness_(float brightness) {
   // Special case for zero as only zero means turn off completely.
-  if (brightness == 0.0) {
+  if (brightness == 0.0f) {
     return 0;
   }
 
@@ -268,7 +261,10 @@ void ShellyDimmer::send_settings_() {
 }
 
 bool ShellyDimmer::send_command_(uint8_t cmd, const uint8_t *const payload, uint8_t len) {
-  ESP_LOGD(TAG, "Sending command: 0x%02x (%d bytes) payload 0x%s", cmd, len, format_hex(payload, len).c_str());
+  // Buffer for hex formatting: max frame size * 2 + null (covers any payload)
+  char hex_buf[SHELLY_DIMMER_PROTO_MAX_FRAME_SIZE * 2 + 1];
+  ESP_LOGD(TAG, "Sending command: 0x%02x (%d bytes) payload 0x%s", cmd, len,
+           format_hex_to(hex_buf, sizeof(hex_buf), payload, len));
 
   // Prepare a command frame.
   uint8_t frame[SHELLY_DIMMER_PROTO_MAX_FRAME_SIZE];
@@ -310,9 +306,8 @@ size_t ShellyDimmer::frame_command_(uint8_t *data, uint8_t cmd, const uint8_t *c
   }
 
   // Calculate checksum for the payload.
-  const uint16_t csum = shelly_dimmer_checksum(data + 1, 3 + len);
-  data[pos++] = static_cast<uint8_t>(csum >> 8);
-  data[pos++] = static_cast<uint8_t>(csum & 0xff);
+  put_be16(data + pos, shelly_dimmer_checksum(data + 1, 3 + len));
+  pos += 2;
   data[pos++] = SHELLY_DIMMER_PROTO_END_BYTE;
   return pos;
 }
@@ -341,7 +336,7 @@ int ShellyDimmer::handle_byte_(uint8_t c) {
 
   if (pos == 4 + payload_len + 1) {
     // Verify checksum.
-    const uint16_t csum = (this->buffer_[pos - 1] << 8 | c);
+    const uint16_t csum = encode_uint16(this->buffer_[pos - 1], c);
     const uint16_t csum_verify = shelly_dimmer_checksum(&this->buffer_[1], 3 + payload_len);
     if (csum != csum_verify) {
       return -1;
@@ -403,7 +398,7 @@ bool ShellyDimmer::handle_frame_() {
   // Handle response.
   switch (cmd) {
     case SHELLY_DIMMER_PROTO_CMD_POLL: {
-      if (payload_len < 16) {
+      if (payload_len < 17) {
         return false;
       }
 
@@ -434,24 +429,20 @@ bool ShellyDimmer::handle_frame_() {
         current = CURRENT_SCALING_FACTOR / static_cast<float>(current_raw);
       }
 
-      ESP_LOGI(TAG, "Got dimmer data:");
-      ESP_LOGI(TAG, "  HW version: %d", hw_version);
-      ESP_LOGI(TAG, "  Brightness: %d", brightness);
-      ESP_LOGI(TAG, "  Fade rate:  %d", fade_rate);
-      ESP_LOGI(TAG, "  Power:      %f W", power);
-      ESP_LOGI(TAG, "  Voltage:    %f V", voltage);
-      ESP_LOGI(TAG, "  Current:    %f A", current);
+      ESP_LOGI(TAG,
+               "Got dimmer data:\n"
+               "  HW version: %d\n"
+               "  Brightness: %d\n"
+               "  Fade rate:  %d\n"
+               "  Power:      %f W\n"
+               "  Voltage:    %f V\n"
+               "  Current:    %f A",
+               hw_version, brightness, fade_rate, power, voltage, current);
 
       // Update sensors.
-      if (this->power_sensor_ != nullptr) {
-        this->power_sensor_->publish_state(power);
-      }
-      if (this->voltage_sensor_ != nullptr) {
-        this->voltage_sensor_->publish_state(voltage);
-      }
-      if (this->current_sensor_ != nullptr) {
-        this->current_sensor_->publish_state(current);
-      }
+      PUBLISH_STATE(this->power_sensor_, power);
+      PUBLISH_STATE(this->voltage_sensor_, voltage);
+      PUBLISH_STATE(this->current_sensor_, current);
 
       return true;
     }
@@ -483,10 +474,7 @@ void ShellyDimmer::reset_(bool boot0) {
   // Wait 50ms for the STM32 to reset.
   delay(50);  // NOLINT
 
-  // Clear receive buffer.
-  while (this->available()) {
-    this->read();
-  }
+  this->discard_available();
 
   this->pin_nrst_->digital_write(true);
   // Wait 50ms for the STM32 to boot.
@@ -521,7 +509,6 @@ void ShellyDimmer::reset_dfu_boot_() {
   this->reset_(true);
 }
 
-}  // namespace shelly_dimmer
-}  // namespace esphome
+}  // namespace esphome::shelly_dimmer
 
 #endif  // USE_ESP8266

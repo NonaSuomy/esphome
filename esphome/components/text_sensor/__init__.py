@@ -1,6 +1,6 @@
 from esphome import automation
 import esphome.codegen as cg
-from esphome.components import mqtt, web_server
+from esphome.config_helpers import filter_source_files_from_defines
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_DEVICE_CLASS,
@@ -13,16 +13,25 @@ from esphome.const import (
     CONF_ON_RAW_VALUE,
     CONF_ON_VALUE,
     CONF_STATE,
+    CONF_TIMEOUT,
     CONF_TO,
-    CONF_TRIGGER_ID,
-    CONF_WEB_SERVER,
+    CONF_VALUE,
     DEVICE_CLASS_DATE,
     DEVICE_CLASS_EMPTY,
     DEVICE_CLASS_TIMESTAMP,
 )
-from esphome.core import CORE, coroutine_with_priority
-from esphome.cpp_generator import MockObjClass
-from esphome.cpp_helpers import setup_entity
+from esphome.core import CORE, ID, CoroPriority, coroutine_with_priority, entity_helpers
+from esphome.core.entity_helpers import (
+    FollowEntity,
+    SubEntities,
+    entity_duplicate_validator,
+    mqtt_component_class,
+    queue_entity_register,
+    setup_device_class,
+    setup_entity,
+)
+from esphome.cpp_generator import MockObj, MockObjClass
+from esphome.types import ConfigType
 from esphome.util import Registry
 
 DEVICE_CLASSES = [
@@ -32,45 +41,56 @@ DEVICE_CLASSES = [
 ]
 
 
+DOMAIN = "text_sensor"
 IS_PLATFORM_COMPONENT = True
 
 text_sensor_ns = cg.esphome_ns.namespace("text_sensor")
 TextSensor = text_sensor_ns.class_("TextSensor", cg.EntityBase)
 TextSensorPtr = TextSensor.operator("ptr")
 
-TextSensorStateTrigger = text_sensor_ns.class_(
-    "TextSensorStateTrigger", automation.Trigger.template(cg.std_string)
-)
-TextSensorStateRawTrigger = text_sensor_ns.class_(
-    "TextSensorStateRawTrigger", automation.Trigger.template(cg.std_string)
-)
-TextSensorPublishAction = text_sensor_ns.class_(
-    "TextSensorPublishAction", automation.Action
-)
-TextSensorStateCondition = text_sensor_ns.class_(
-    "TextSensorStateCondition", automation.Condition
-)
-
 FILTER_REGISTRY = Registry()
 validate_filters = cv.validate_registry("filter", FILTER_REGISTRY)
 
 # Filters
 Filter = text_sensor_ns.class_("Filter")
-LambdaFilter = text_sensor_ns.class_("LambdaFilter", Filter)
 ToUpperFilter = text_sensor_ns.class_("ToUpperFilter", Filter)
 ToLowerFilter = text_sensor_ns.class_("ToLowerFilter", Filter)
 AppendFilter = text_sensor_ns.class_("AppendFilter", Filter)
 PrependFilter = text_sensor_ns.class_("PrependFilter", Filter)
 SubstituteFilter = text_sensor_ns.class_("SubstituteFilter", Filter)
 MapFilter = text_sensor_ns.class_("MapFilter", Filter)
+ThrottleFilter = text_sensor_ns.class_("ThrottleFilter", Filter)
+ThrottleWithPriorityFilter = text_sensor_ns.class_(
+    "ThrottleWithPriorityFilter", ThrottleFilter
+)
+TimeoutFilterBase = text_sensor_ns.class_("TimeoutFilterBase", Filter, cg.Component)
+TimeoutFilterLast = text_sensor_ns.class_("TimeoutFilterLast", TimeoutFilterBase)
+TimeoutFilterConfigured = text_sensor_ns.class_(
+    "TimeoutFilterConfigured", TimeoutFilterBase
+)
+TimeoutThrottleFilter = text_sensor_ns.class_(
+    "TimeoutThrottleFilter", TimeoutFilterLast
+)
+Substitution = text_sensor_ns.struct("Substitution")
+ApplyFilter = text_sensor_ns.class_("ApplyFilter", Filter)
+# The value is modified in place; returning false stops the chain
+APPLY_FILTER = automation.ApplyFilterDomain(
+    FILTER_REGISTRY, ApplyFilter, cg.bool_, ((cg.std_string.operator("ref"), "x"),)
+)
 
 
-@FILTER_REGISTRY.register("lambda", LambdaFilter, cv.returning_lambda)
+@FILTER_REGISTRY.register("lambda", ApplyFilter, cv.returning_lambda)
 async def lambda_filter_to_code(config, filter_id):
     lambda_ = await cg.process_lambda(
         config, [(cg.std_string, "x")], return_type=cg.optional.template(cg.std_string)
     )
-    return cg.new_Pvariable(filter_id, lambda_)
+    # The value is replaced by the result or dropped, so it is moved into the lambda
+    return APPLY_FILTER.new(
+        filter_id,
+        [
+            f"return text_sensor::apply_lambda_filter_result(x, {lambda_}(std::move(x)));"
+        ],
+    )
 
 
 @FILTER_REGISTRY.register("to_upper", ToUpperFilter, {})
@@ -106,120 +126,222 @@ def validate_mapping(value):
     )(value)
 
 
+def _substitution_table(config: list[ConfigType]) -> MockObj:
+    """Shared PROGMEM Substitution table, ended by an empty pair so filters store no count."""
+    pairs = [
+        cg.StructInitializer(
+            Substitution, ("from", conf[CONF_FROM]), ("to", conf[CONF_TO])
+        )
+        for conf in config
+    ]
+    end = cg.RawExpression("nullptr")
+    pairs.append(cg.StructInitializer(Substitution, ("from", end), ("to", end)))
+    return cg.shared_progmem_array(
+        "text_sensor_substitutions", Substitution, cg.ArrayInitializer(*pairs)
+    )
+
+
 @FILTER_REGISTRY.register(
     "substitute", SubstituteFilter, cv.ensure_list(validate_mapping)
 )
-async def substitute_filter_to_code(config, filter_id):
-    from_strings = [conf[CONF_FROM] for conf in config]
-    to_strings = [conf[CONF_TO] for conf in config]
-    return cg.new_Pvariable(filter_id, from_strings, to_strings)
-
-
 @FILTER_REGISTRY.register("map", MapFilter, cv.ensure_list(validate_mapping))
-async def map_filter_to_code(config, filter_id):
-    map_ = cg.std_ns.class_("map").template(cg.std_string, cg.std_string)
-    return cg.new_Pvariable(
-        filter_id, map_([(item[CONF_FROM], item[CONF_TO]) for item in config])
+async def substitution_filter_to_code(
+    config: list[ConfigType], filter_id: ID
+) -> MockObj:
+    return cg.new_Pvariable(filter_id, _substitution_table(config))
+
+
+@FILTER_REGISTRY.register(
+    "throttle", ThrottleFilter, cv.positive_time_period_milliseconds
+)
+async def throttle_filter_to_code(config: ConfigType, filter_id: ID) -> MockObj:
+    return cg.new_Pvariable(filter_id, config)
+
+
+THROTTLE_WITH_PRIORITY_SCHEMA = cv.maybe_simple_value(
+    {
+        cv.Required(CONF_TIMEOUT): cv.positive_time_period_milliseconds,
+        cv.Optional(CONF_VALUE, default=[]): cv.ensure_list(cv.string),
+    },
+    key=CONF_TIMEOUT,
+)
+
+
+@FILTER_REGISTRY.register(
+    "throttle_with_priority", ThrottleWithPriorityFilter, THROTTLE_WITH_PRIORITY_SCHEMA
+)
+async def throttle_with_priority_filter_to_code(
+    config: ConfigType, filter_id: ID
+) -> MockObj:
+    if not (values := config[CONF_VALUE]):
+        filter_id = filter_id.copy()
+        filter_id.type = ThrottleFilter
+        return cg.new_Pvariable(filter_id, config[CONF_TIMEOUT])
+    return cg.new_Pvariable(filter_id, config[CONF_TIMEOUT], _priority_table(values))
+
+
+def _priority_table(values: list[str]) -> MockObj:
+    """Shared PROGMEM list of priority texts, ended by nullptr; nullptr without any."""
+    if not values:
+        return cg.nullptr
+    return cg.shared_progmem_array(
+        "text_sensor_priorities",
+        cg.const_char_ptr,
+        cg.ArrayInitializer(*values, cg.nullptr),
     )
+
+
+def timeout_throttle_filters(priority: str, period_ms: int = 1000) -> list[ConfigType]:
+    """Default filters for a text entity: resend the last value after a pause, at most one value a period,
+    `priority` at once. Built as one filter, like sensor.TIMEOUT_THROTTLE_FILTERS."""
+    period = cv.TimePeriod(milliseconds=period_ms)
+    return [
+        {"timeout": {CONF_TIMEOUT: period, CONF_VALUE: "last"}},
+        {"throttle_with_priority": {CONF_TIMEOUT: period, CONF_VALUE: [priority]}},
+    ]
+
+
+TIMEOUT_SCHEMA = cv.maybe_simple_value(
+    {
+        cv.Required(CONF_TIMEOUT): cv.positive_time_period_milliseconds,
+        cv.Optional(CONF_VALUE, default="last"): cv.string,
+    },
+    key=CONF_TIMEOUT,
+)
+
+
+@FILTER_REGISTRY.register("timeout", TimeoutFilterBase, TIMEOUT_SCHEMA)
+async def timeout_filter_to_code(config: ConfigType, filter_id: ID) -> MockObj:
+    filter_id = filter_id.copy()
+    args = [config[CONF_TIMEOUT]]
+    # "last" is a keyword, so a timeout cannot send that literal text
+    if (value := config[CONF_VALUE]) == "last":
+        filter_id.type = TimeoutFilterLast
+    else:
+        filter_id.type = TimeoutFilterConfigured
+        args.append(value)
+    var = cg.new_Pvariable(filter_id, *args)
+    await cg.register_component(var, {})
+    return var
 
 
 validate_device_class = cv.one_of(*DEVICE_CLASSES, lower=True, space="_")
 
-TEXT_SENSOR_SCHEMA = (
-    cv.ENTITY_BASE_SCHEMA.extend(web_server.WEBSERVER_SORTING_SCHEMA)
+_TEXT_SENSOR_SCHEMA = (
+    cv.ENTITY_BASE_SCHEMA.extend(entity_helpers.WEBSERVER_SORTING_SCHEMA)
     .extend(cv.MQTT_COMPONENT_SCHEMA)
     .extend(
         {
-            cv.OnlyWith(CONF_MQTT_ID, "mqtt"): cv.declare_id(mqtt.MQTTTextSensor),
+            cv.OnlyWith(CONF_MQTT_ID, "mqtt"): cv.declare_id(
+                mqtt_component_class("MQTTTextSensor")
+            ),
             cv.GenerateID(): cv.declare_id(TextSensor),
-            cv.Optional(CONF_DEVICE_CLASS): validate_device_class,
-            cv.Optional(CONF_FILTERS): validate_filters,
-            cv.Optional(CONF_ON_VALUE): automation.validate_automation(
-                {
-                    cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(
-                        TextSensorStateTrigger
-                    ),
-                }
-            ),
-            cv.Optional(CONF_ON_RAW_VALUE): automation.validate_automation(
-                {
-                    cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(
-                        TextSensorStateRawTrigger
-                    ),
-                }
-            ),
+            cv.Optional(
+                CONF_DEVICE_CLASS, visibility=cv.Visibility.ADVANCED
+            ): validate_device_class,
+            cv.Optional(
+                CONF_FILTERS, visibility=cv.Visibility.ADVANCED
+            ): validate_filters,
+            cv.Optional(CONF_ON_VALUE): automation.validate_automation({}),
+            cv.Optional(CONF_ON_RAW_VALUE): automation.validate_automation({}),
         }
     )
 )
 
-_UNDEF = object()
+
+_TEXT_SENSOR_SCHEMA.add_extra(entity_duplicate_validator("text_sensor"))
 
 
 def text_sensor_schema(
-    class_: MockObjClass = _UNDEF,
+    class_: MockObjClass = cv.UNDEFINED,
     *,
-    icon: str = _UNDEF,
-    entity_category: str = _UNDEF,
-    device_class: str = _UNDEF,
+    device_class: str = cv.UNDEFINED,
+    entity_category: str = cv.UNDEFINED,
+    icon: str = cv.UNDEFINED,
+    filters: list = cv.UNDEFINED,
 ) -> cv.Schema:
-    schema = TEXT_SENSOR_SCHEMA
-    if class_ is not _UNDEF:
-        schema = schema.extend({cv.GenerateID(): cv.declare_id(class_)})
-    if icon is not _UNDEF:
-        schema = schema.extend({cv.Optional(CONF_ICON, default=icon): cv.icon})
-    if device_class is not _UNDEF:
-        schema = schema.extend(
-            {
-                cv.Optional(
-                    CONF_DEVICE_CLASS, default=device_class
-                ): validate_device_class
-            }
-        )
-    if entity_category is not _UNDEF:
-        schema = schema.extend(
-            {
-                cv.Optional(
-                    CONF_ENTITY_CATEGORY, default=entity_category
-                ): cv.entity_category
-            }
-        )
-    return schema
+    schema = {}
+
+    if class_ is not cv.UNDEFINED:
+        schema[cv.GenerateID()] = cv.declare_id(class_)
+
+    for key, default, validator in [
+        (CONF_ICON, icon, cv.icon),
+        (CONF_DEVICE_CLASS, device_class, validate_device_class),
+        (CONF_ENTITY_CATEGORY, entity_category, cv.entity_category),
+        (CONF_FILTERS, filters, validate_filters),
+    ]:
+        if default is not cv.UNDEFINED:
+            schema[cv.Optional(key, default=default)] = validator
+
+    return _TEXT_SENSOR_SCHEMA.extend(schema)
 
 
 async def build_filters(config):
     return await cg.build_registry_list(FILTER_REGISTRY, config)
 
 
-async def setup_text_sensor_core_(var, config):
-    await setup_entity(var, config)
+def _timeout_throttle_pair(first: ConfigType, second: ConfigType) -> tuple | None:
+    """Period and priority texts of a `timeout` (value `last`) directly followed by a
+    `throttle_with_priority` with the same period, or None."""
+    if (timeout := first.get(CONF_TIMEOUT)) is None or (
+        throttle := second.get("throttle_with_priority")
+    ) is None:
+        return None
+    if timeout[CONF_VALUE] != "last" or timeout[CONF_TIMEOUT] != throttle[CONF_TIMEOUT]:
+        return None
+    return timeout[CONF_TIMEOUT], throttle[CONF_VALUE]
 
-    if (device_class := config.get(CONF_DEVICE_CLASS)) is not None:
-        cg.add(var.set_device_class(device_class))
+
+def _timeout_throttle_merge(first: ConfigType, second: ConfigType) -> tuple | None:
+    if (pair := _timeout_throttle_pair(first, second)) is None:
+        return None
+    period, values = pair
+    return TimeoutThrottleFilter, [period, _priority_table(values)]
+
+
+async def _build_chain_filters(config: list[ConfigType]) -> list:
+    """Like build_filters, but merges a `timeout` + `throttle_with_priority` pair into one filter."""
+    return await cg.build_registry_list_merged(
+        FILTER_REGISTRY, config, _timeout_throttle_merge
+    )
+
+
+_CALLBACK_AUTOMATIONS = (
+    automation.CallbackAutomation(
+        CONF_ON_VALUE, "add_on_state_callback", [(cg.std_string, "x")]
+    ),
+    automation.CallbackAutomation(
+        CONF_ON_RAW_VALUE, "add_on_raw_state_callback", [(cg.std_string, "x")]
+    ),
+)
+
+
+@coroutine_with_priority(CoroPriority.AUTOMATION)
+async def _build_text_sensor_automations(var, config):
+    await automation.build_callback_automations(var, config, _CALLBACK_AUTOMATIONS)
+
+
+@setup_entity("text_sensor")
+async def setup_text_sensor_core_(var, config):
+    setup_device_class(config)
 
     if config.get(CONF_FILTERS):  # must exist and not be empty
-        filters = await build_filters(config[CONF_FILTERS])
-        cg.add(var.set_filters(filters))
+        cg.add_define("USE_TEXT_SENSOR_FILTER")
+        filters = await _build_chain_filters(config[CONF_FILTERS])
+        for filter_ in filters:
+            cg.add(var.add_filter(filter_))
 
-    for conf in config.get(CONF_ON_VALUE, []):
-        trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID], var)
-        await automation.build_automation(trigger, [(cg.std_string, "x")], conf)
+    CORE.add_job(_build_text_sensor_automations, var, config)
 
-    for conf in config.get(CONF_ON_RAW_VALUE, []):
-        trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID], var)
-        await automation.build_automation(trigger, [(cg.std_string, "x")], conf)
-
-    if (mqtt_id := config.get(CONF_MQTT_ID)) is not None:
-        mqtt_ = cg.new_Pvariable(mqtt_id, var)
-        await mqtt.register_mqtt_component(mqtt_, config)
-
-    if web_server_config := config.get(CONF_WEB_SERVER):
-        await web_server.add_entity_config(var, web_server_config)
+    await entity_helpers.setup_entity_integrations(var, config)
 
 
 async def register_text_sensor(var, config):
     if not CORE.has_id(config[CONF_ID]):
         var = cg.Pvariable(config[CONF_ID], var)
-    cg.add(cg.App.register_text_sensor(var))
+    queue_entity_register("text_sensor", config)
+    CORE.register_platform_component("text_sensor", var)
     await setup_text_sensor_core_(var, config)
 
 
@@ -229,25 +351,45 @@ async def new_text_sensor(config, *args):
     return var
 
 
-@coroutine_with_priority(100.0)
+def sub_text_sensors(
+    config: ConfigType, *, parent: MockObj | ID | None = None
+) -> SubEntities:
+    """Return a SubEntities bound to new_text_sensor."""
+    return SubEntities(new_text_sensor, config, parent)
+
+
+# Makes a plain text sensor follow another text sensor: follow_text_sensor(entity, source)
+follow_text_sensor = FollowEntity(
+    "add_on_state_callback", ((cg.std_string_ref.operator("const"), "x"),), "x"
+)
+
+
+def request_filter_reset() -> None:
+    """Compile ``TextSensor::detach_filters()``/``attach_filters()`` and ``Filter::reset_chain()``.
+
+    Call from the to_code of a component that uses them.
+    """
+    cg.add_define("USE_TEXT_SENSOR_FILTER")
+    cg.add_define("USE_TEXT_SENSOR_FILTER_RESET")
+
+
+@coroutine_with_priority(CoroPriority.CORE)
 async def to_code(config):
-    cg.add_define("USE_TEXT_SENSOR")
     cg.add_global(text_sensor_ns.using)
 
 
-@automation.register_condition(
+automation.register_apply_condition(
     "text_sensor.state",
-    TextSensorStateCondition,
     cv.Schema(
         {
             cv.Required(CONF_ID): cv.use_id(TextSensor),
             cv.Required(CONF_STATE): cv.templatable(cv.string_strict),
         }
     ),
+    automation.ApplyCall("state == {}", ((CONF_STATE, cg.std_string),)),
 )
-async def text_sensor_state_to_code(config, condition_id, template_arg, args):
-    paren = await cg.get_variable(config[CONF_ID])
-    var = cg.new_Pvariable(condition_id, template_arg, paren)
-    templ = await cg.templatable(config[CONF_STATE], args, cg.std_string)
-    cg.add(var.set_state(templ))
-    return var
+
+
+FILTER_SOURCE_FILES = filter_source_files_from_defines(
+    {"filter.cpp": "USE_TEXT_SENSOR_FILTER"}
+)

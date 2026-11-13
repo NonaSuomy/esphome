@@ -1,15 +1,20 @@
 #include "ndef_message.h"
 #include <cinttypes>
 
-namespace esphome {
-namespace nfc {
+namespace esphome::nfc {
 
-static const char *const TAG = "nfc.ndef_message";
+ESPHOME_LOG_TAG(TAG, "nfc.ndef_message");
 
-NdefMessage::NdefMessage(std::vector<uint8_t> &data) {
+NdefMessage::NdefMessage(const std::span<const uint8_t> data) {
   ESP_LOGV(TAG, "Building NdefMessage with %zu bytes", data.size());
-  uint8_t index = 0;
-  while (index <= data.size()) {
+  size_t index = 0;
+  while (index < data.size()) {
+    // Minimum record: TNF byte + type length byte + payload length (1 or 4 bytes)
+    if (index + 2 >= data.size()) {
+      ESP_LOGE(TAG, "Truncated record header; aborting");
+      break;
+    }
+
     uint8_t tnf_byte = data[index++];
     bool me = tnf_byte & 0x40;      // Message End bit (is set if this is the last record of the message)
     bool sr = tnf_byte & 0x10;      // Short record bit (is set if payload size is less or equal to 255 bytes)
@@ -23,6 +28,10 @@ NdefMessage::NdefMessage(std::vector<uint8_t> &data) {
     if (sr) {
       payload_length = data[index++];
     } else {
+      if (index + 4 > data.size()) {
+        ESP_LOGE(TAG, "Truncated payload length; aborting");
+        break;
+      }
       payload_length = (static_cast<uint32_t>(data[index]) << 24) | (static_cast<uint32_t>(data[index + 1]) << 16) |
                        (static_cast<uint32_t>(data[index + 2]) << 8) | static_cast<uint32_t>(data[index + 3]);
       index += 4;
@@ -30,22 +39,33 @@ NdefMessage::NdefMessage(std::vector<uint8_t> &data) {
 
     uint8_t id_length = 0;
     if (il) {
+      if (index >= data.size()) {
+        ESP_LOGE(TAG, "Truncated ID length; aborting");
+        break;
+      }
       id_length = data[index++];
     }
 
     ESP_LOGVV(TAG, "Lengths: type=%d, payload=%" PRIu32 ", id=%d", type_length, payload_length, id_length);
 
+    if (index + type_length > data.size()) {
+      ESP_LOGE(TAG, "Truncated type; aborting");
+      break;
+    }
     std::string type_str(data.begin() + index, data.begin() + index + type_length);
-
     index += type_length;
 
-    std::string id_str = "";
+    std::string id_str;
     if (il) {
+      if (index + id_length > data.size()) {
+        ESP_LOGE(TAG, "Truncated ID; aborting");
+        break;
+      }
       id_str = std::string(data.begin() + index, data.begin() + index + id_length);
       index += id_length;
     }
 
-    if ((data.begin() + index > data.end()) || (data.begin() + index + payload_length > data.end())) {
+    if (payload_length > data.size() - index) {
       ESP_LOGE(TAG, "Corrupt record encountered; NdefMessage constructor aborting");
       break;
     }
@@ -84,7 +104,7 @@ bool NdefMessage::add_record(std::unique_ptr<NdefRecord> record) {
     ESP_LOGE(TAG, "Too many records. Max: %d", MAX_NDEF_RECORDS);
     return false;
   }
-  this->records_.emplace_back(std::move(record));
+  this->records_.emplace_next() = std::move(record);
   return true;
 }
 
@@ -106,5 +126,4 @@ std::vector<uint8_t> NdefMessage::encode() {
   return data;
 }
 
-}  // namespace nfc
-}  // namespace esphome
+}  // namespace esphome::nfc

@@ -5,11 +5,11 @@
 #include <vector>
 #include "esphome/core/component.h"
 #include "esphome/core/automation.h"
+#include "esphome/core/string_ref.h"
 #include "uart.h"
 #include "uart_component.h"
 
-namespace esphome {
-namespace uart {
+namespace esphome::uart {
 
 /// The UARTDebugger class adds debugging support to a UART bus.
 ///
@@ -18,7 +18,7 @@ namespace uart {
 /// 'appropriate time' means exactly, is determined by a number of
 /// configurable constraints. E.g. when a given number of bytes is gathered
 /// and/or when no more data has been seen for a given time interval.
-class UARTDebugger : public Component, public Trigger<UARTDirection, std::vector<uint8_t>> {
+class UARTDebugger final : public Component, public Trigger<UARTDirection, std::vector<uint8_t>, StringRef> {
  public:
   explicit UARTDebugger(UARTComponent *parent);
   void loop() override;
@@ -36,11 +36,15 @@ class UARTDebugger : public Component, public Trigger<UARTDirection, std::vector
   /// this timeout, logging will be triggered.
   void set_after_timeout(uint32_t timeout) { this->after_timeout_ = timeout; }
 
-  /// Add a delimiter byte. This can be called multiple times to setup a
-  /// multi-byte delimiter (a typical example would be '\r\n').
-  /// When the constructed byte sequence is found in the data stream,
-  /// logging will be triggered.
-  void add_delimiter_byte(uint8_t byte) { this->after_delimiter_.push_back(byte); }
+  /// Set a delimiter byte sequence (a typical example would be '\r\n').
+  /// When the sequence is found in the data stream, logging will be triggered.
+  /// `delimiter` is a codegen PROGMEM table that must outlive the debugger.
+  void set_after_delimiter(const uint8_t *delimiter, uint8_t len) {
+    this->after_delimiter_ = delimiter;
+    this->after_delimiter_len_ = len;
+  }
+
+  void set_debug_prefix(const char *prefix) { this->debug_prefix_ = StringRef(prefix); }
 
  protected:
   UARTDirection for_direction_;
@@ -49,9 +53,11 @@ class UARTDebugger : public Component, public Trigger<UARTDirection, std::vector
   size_t after_bytes_;
   uint32_t after_timeout_;
   uint32_t last_time_{};
-  std::vector<uint8_t> after_delimiter_{};
-  size_t after_delimiter_pos_{};
+  const uint8_t *after_delimiter_{nullptr};
+  uint8_t after_delimiter_len_{0};
+  uint8_t after_delimiter_pos_{0};
   bool is_triggering_{false};
+  StringRef debug_prefix_{};
 
   bool is_my_direction_(UARTDirection direction);
   bool is_recursive_();
@@ -70,7 +76,7 @@ class UARTDebugger : public Component, public Trigger<UARTDirection, std::vector
 /// debugger is used to reverse engineer a serial protocol, for which no
 /// specific UARTDevice implementation exists (yet), but for which the
 /// incoming bytes must be read to drive the debugger.
-class UARTDummyReceiver : public Component, public UARTDevice {
+class UARTDummyReceiver final : public Component, public UARTDevice {
  public:
   UARTDummyReceiver(UARTComponent *parent) : UARTDevice(parent) {}
   void loop() override;
@@ -82,20 +88,22 @@ class UARTDebug {
  public:
   /// Log the bytes as hex values, separated by the provided separator
   /// character.
-  static void log_hex(UARTDirection direction, std::vector<uint8_t> bytes, uint8_t separator);
+  static void log_hex(UARTDirection direction, std::vector<uint8_t> bytes, uint8_t separator,
+                      StringRef prefix = StringRef());
 
   /// Log the bytes as string values, escaping unprintable characters.
-  static void log_string(UARTDirection direction, std::vector<uint8_t> bytes);
+  static void log_string(UARTDirection direction, std::vector<uint8_t> bytes, StringRef prefix = StringRef());
 
   /// Log the bytes as integer values, separated by the provided separator
   /// character.
-  static void log_int(UARTDirection direction, std::vector<uint8_t> bytes, uint8_t separator);
+  static void log_int(UARTDirection direction, std::vector<uint8_t> bytes, uint8_t separator,
+                      StringRef prefix = StringRef());
 
   /// Log the bytes as '<binary> (<hex>)' values, separated by the provided
   /// separator.
-  static void log_binary(UARTDirection direction, std::vector<uint8_t> bytes, uint8_t separator);
+  static void log_binary(UARTDirection direction, std::vector<uint8_t> bytes, uint8_t separator,
+                         StringRef prefix = StringRef());
 };
 
-}  // namespace uart
-}  // namespace esphome
+}  // namespace esphome::uart
 #endif

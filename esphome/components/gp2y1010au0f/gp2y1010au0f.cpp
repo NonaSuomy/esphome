@@ -4,24 +4,28 @@
 
 #include <cinttypes>
 
-namespace esphome {
-namespace gp2y1010au0f {
+namespace esphome::gp2y1010au0f {
 
-static const char *const TAG = "gp2y1010au0f";
+ESPHOME_LOG_TAG(TAG, "gp2y1010au0f");
+
+static constexpr uint32_t READ_TIMEOUT_ID = 0;
+
 static const float MIN_VOLTAGE = 0.0f;
 static const float MAX_VOLTAGE = 4.0f;
 
 void GP2Y1010AU0FSensor::dump_config() {
   LOG_SENSOR("", "Sharp GP2Y1010AU0F PM2.5 Sensor", this);
-  ESP_LOGCONFIG(TAG, "  Sampling duration: %" PRId32 " ms", this->sample_duration_);
-  ESP_LOGCONFIG(TAG, "  ADC voltage multiplier: %.3f", this->voltage_multiplier_);
+  ESP_LOGCONFIG(TAG,
+                "  Sampling duration: %" PRId32 " ms\n"
+                "  ADC voltage multiplier: %.3f",
+                this->sample_duration_, this->voltage_multiplier_);
   LOG_UPDATE_INTERVAL(this);
 }
 
 void GP2Y1010AU0FSensor::update() {
   is_sampling_ = true;
 
-  this->set_timeout("read", this->sample_duration_, [this]() {
+  this->set_timeout(READ_TIMEOUT_ID, this->sample_duration_, [this]() {
     this->is_sampling_ = false;
     if (this->num_samples_ == 0)
       return;
@@ -63,5 +67,4 @@ void GP2Y1010AU0FSensor::loop() {
   this->sample_sum_ += read_voltage;
 }
 
-}  // namespace gp2y1010au0f
-}  // namespace esphome
+}  // namespace esphome::gp2y1010au0f

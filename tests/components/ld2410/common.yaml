@@ -1,14 +1,10 @@
-uart:
-  - id: uart_ld2410
-    tx_pin: ${tx_pin}
-    rx_pin: ${rx_pin}
-    baud_rate: 9600
-
 ld2410:
   id: my_ld2410
+  background_correction_duration: 60s
 
 binary_sensor:
   - platform: ld2410
+    id: ld2410_binary
     has_target:
       name: presence
     has_moving_target:
@@ -17,18 +13,24 @@ binary_sensor:
       name: still
     out_pin_presence_status:
       name: out pin presence status
+    calibration:
+      name: calibration running
 
 button:
   - platform: ld2410
+    id: ld2410_button
     factory_reset:
       name: factory reset
     restart:
       name: restart
     query_params:
       name: query params
+    background_correction:
+      name: calibrate radar
 
 number:
   - platform: ld2410
+    id: ld2410_number
     light_threshold:
       name: light threshold
     timeout:
@@ -85,6 +87,7 @@ number:
 
 select:
   - platform: ld2410
+    id: ld2410_select
     distance_resolution:
       name: distance resolution
     baud_rate:
@@ -96,6 +99,7 @@ select:
 
 sensor:
   - platform: ld2410
+    id: ld2410_sensor
     light:
       name: light
     moving_distance:
@@ -156,6 +160,7 @@ sensor:
 
 switch:
   - platform: ld2410
+    id: ld2410_switch
     engineering_mode:
       name: control ld2410 engineering mode
     bluetooth:
@@ -163,7 +168,10 @@ switch:
 
 text_sensor:
   - platform: ld2410
+    id: ld2410_textsensor
     version:
-      name: presenece sensor version
+      name: presence sensor version
     mac_address:
-      name: presenece sensor mac address
+      name: presence sensor mac address
+    calibration_result:
+      name: presence sensor calibration result

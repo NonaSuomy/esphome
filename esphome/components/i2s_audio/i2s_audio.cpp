@@ -1,34 +1,98 @@
 #include "i2s_audio.h"
 
-#ifdef USE_ESP32
+#if defined(USE_ESP32) && defined(USE_I2S_AUDIO_FULL_DUPLEX)
 
 #include "esphome/core/log.h"
 
-namespace esphome {
-namespace i2s_audio {
+namespace esphome::i2s_audio {
 
-static const char *const TAG = "i2s_audio";
-
-#if defined(USE_ESP_IDF) && (ESP_IDF_VERSION_MAJOR >= 5)
-static const uint8_t I2S_NUM_MAX = SOC_I2S_NUM;  // because IDF 5+ took this away :(
-#endif
+ESPHOME_LOG_TAG(TAG, "i2s_audio");
 
 void I2SAudioComponent::setup() {
-  static i2s_port_t next_port_num = I2S_NUM_0;
-
-  if (next_port_num >= I2S_NUM_MAX) {
-    ESP_LOGE(TAG, "Too many I2S Audio components!");
-    this->mark_failed();
+  if (!this->is_full_duplex())
     return;
+
+  // ESP-IDF only shares the bit and word clocks between channels allocated in the same call, and deleting either
+  // channel ends the pairing. Allocate both once here and keep them for the lifetime of the device.
+  i2s_chan_config_t chan_cfg{};
+  i2s_std_config_t tx_cfg{};
+  i2s_std_config_t rx_cfg{};
+  this->audio_out_->build_full_duplex_config(chan_cfg, tx_cfg);
+  this->audio_in_->build_full_duplex_config(rx_cfg);
+
+  this->dma_desc_num_ = chan_cfg.dma_desc_num;
+  esp_err_t err = i2s_new_channel(&chan_cfg, &this->tx_handle_, &this->rx_handle_);
+  if (err == ESP_OK) {
+    // The first initialized channel drives the shared clocks. Use RX so the microphone runs on its own.
+    err = i2s_channel_init_std_mode(this->rx_handle_, &rx_cfg);
   }
-
-  this->port_ = next_port_num;
-  next_port_num = (i2s_port_t) (next_port_num + 1);
-
-  ESP_LOGCONFIG(TAG, "Setting up I2S Audio...");
+  if (err == ESP_OK) {
+    err = i2s_channel_init_std_mode(this->tx_handle_, &tx_cfg);
+  }
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Full duplex channel setup failed: %s", esp_err_to_name(err));
+    if (this->tx_handle_ != nullptr) {
+      i2s_del_channel(this->tx_handle_);
+      this->tx_handle_ = nullptr;
+    }
+    if (this->rx_handle_ != nullptr) {
+      i2s_del_channel(this->rx_handle_);
+      this->rx_handle_ = nullptr;
+    }
+    this->mark_failed();
+  }
 }
 
-}  // namespace i2s_audio
-}  // namespace esphome
+i2s_chan_handle_t I2SAudioComponent::acquire_(bool &in_use, i2s_chan_handle_t handle) {
+  if (handle == nullptr)
+    return nullptr;
+  in_use = true;
+  if (!this->update_rx_channel_()) {
+    in_use = false;
+    return nullptr;
+  }
+  return handle;
+}
 
-#endif  // USE_ESP32
+i2s_chan_handle_t I2SAudioComponent::acquire_rx_channel() { return this->acquire_(this->rx_in_use_, this->rx_handle_); }
+
+void I2SAudioComponent::release_rx_channel() {
+  this->rx_in_use_ = false;
+  this->update_rx_channel_();
+}
+
+i2s_chan_handle_t I2SAudioComponent::acquire_tx_channel() {
+  // Speakers sharing the bus take turns; a second one must not get the channel while the first is playing
+  if (this->tx_in_use_)
+    return nullptr;
+  return this->acquire_(this->tx_in_use_, this->tx_handle_);
+}
+
+void I2SAudioComponent::release_tx_channel() {
+  // The speaker task may have left the channel disabled already, so an invalid state error is expected here
+  i2s_channel_disable(this->tx_handle_);
+  this->tx_in_use_ = false;
+  this->update_rx_channel_();
+}
+
+bool I2SAudioComponent::update_rx_channel_() {
+  const bool needed = this->rx_in_use_ || this->tx_in_use_;
+  if (needed == this->rx_enabled_)
+    return true;
+
+  if (needed) {
+    this->audio_in_->full_duplex_rx_enabling(this->rx_handle_, this->dma_desc_num_);
+  }
+  esp_err_t err = needed ? i2s_channel_enable(this->rx_handle_) : i2s_channel_disable(this->rx_handle_);
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Failed to %s RX channel: %s", needed ? LOG_STR_LITERAL("enable") : LOG_STR_LITERAL("disable"),
+             esp_err_to_name(err));
+    return false;
+  }
+  this->rx_enabled_ = needed;
+  return true;
+}
+
+}  // namespace esphome::i2s_audio
+
+#endif  // USE_ESP32 && USE_I2S_AUDIO_FULL_DUPLEX

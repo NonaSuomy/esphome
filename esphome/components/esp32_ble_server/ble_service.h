@@ -13,23 +13,25 @@
 #include <esp_gattc_api.h>
 #include <esp_gatts_api.h>
 
-namespace esphome {
-namespace esp32_ble_server {
+namespace esphome::esp32_ble_server {
 
 class BLEServer;
 
 using namespace esp32_ble;
 
-class BLEService {
+class BLEService final {
  public:
   BLEService(ESPBTUUID uuid, uint16_t num_handles, uint8_t inst_id, bool advertise);
   ~BLEService();
   BLECharacteristic *get_characteristic(ESPBTUUID uuid);
   BLECharacteristic *get_characteristic(uint16_t uuid);
 
-  BLECharacteristic *create_characteristic(const std::string &uuid, esp_gatt_char_prop_t properties);
-  BLECharacteristic *create_characteristic(uint16_t uuid, esp_gatt_char_prop_t properties);
-  BLECharacteristic *create_characteristic(ESPBTUUID uuid, esp_gatt_char_prop_t properties);
+  BLECharacteristic *create_characteristic(const std::string &uuid, esp_gatt_char_prop_t properties,
+                                           esp_gatt_perm_t permissions = ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE);
+  BLECharacteristic *create_characteristic(uint16_t uuid, esp_gatt_char_prop_t properties,
+                                           esp_gatt_perm_t permissions = ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE);
+  BLECharacteristic *create_characteristic(ESPBTUUID uuid, esp_gatt_char_prop_t properties,
+                                           esp_gatt_perm_t permissions = ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE);
 
   ESPBTUUID get_uuid() { return this->uuid_; }
   uint8_t get_inst_id() { return this->inst_id_; }
@@ -49,6 +51,7 @@ class BLEService {
   bool is_created() { return this->state_ == CREATED; }
   bool is_running() { return this->state_ == RUNNING; }
   bool is_starting() { return this->state_ == STARTING; }
+  bool is_stopped() { return this->state_ == STOPPED; }
   bool is_deleted() { return this->state_ == DELETED; }
 
  protected:
@@ -80,7 +83,6 @@ class BLEService {
   } state_{INIT};
 };
 
-}  // namespace esp32_ble_server
-}  // namespace esphome
+}  // namespace esphome::esp32_ble_server
 
 #endif

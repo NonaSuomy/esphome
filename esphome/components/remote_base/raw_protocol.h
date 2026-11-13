@@ -6,8 +6,7 @@
 #include <cinttypes>
 #include <vector>
 
-namespace esphome {
-namespace remote_base {
+namespace esphome::remote_base {
 
 class RawBinarySensor : public RemoteReceiverBinarySensorBase {
  public:
@@ -32,44 +31,34 @@ class RawBinarySensor : public RemoteReceiverBinarySensorBase {
   size_t len_;
 };
 
-class RawTrigger : public Trigger<RawTimings>, public Component, public RemoteReceiverListener {
+class RawTrigger final : public Trigger<RawTimings>, public RemoteReceiverListener {
  protected:
   bool on_receive(RemoteReceiveData src) override {
-    this->trigger(src.get_raw_data());
+    if (const RawTimings *timings = src.get_raw_vector()) {
+      this->trigger(*timings);
+      return false;
+    }
+    // A receiver dispatching from its own buffer: x is a vector, so copy the frame into one kept here
+    RawTimingsView data = src.get_raw_data();
+    this->timings_.assign(data.begin(), data.end());
+    this->trigger(this->timings_);
     return false;
   }
+
+  RawTimings timings_;
 };
 
-template<typename... Ts> class RawAction : public RemoteTransmitterActionBase<Ts...> {
- public:
-  void set_code_template(std::function<RawTimings(Ts...)> func) { this->code_func_ = func; }
-  void set_code_static(const int32_t *code, size_t len) {
-    this->code_static_ = code;
-    this->code_static_len_ = len;
-  }
-  TEMPLATABLE_VALUE(uint32_t, carrier_frequency);
-
-  void encode(RemoteTransmitData *dst, Ts... x) override {
-    if (this->code_static_ != nullptr) {
-      for (size_t i = 0; i < this->code_static_len_; i++) {
-        auto val = this->code_static_[i];
-        if (val < 0) {
-          dst->space(static_cast<uint32_t>(-val));
-        } else {
-          dst->mark(static_cast<uint32_t>(val));
-        }
-      }
+/// Appends constant timings, marks positive and spaces negative; the table may be in flash
+inline void encode_raw_timings(RemoteTransmitData *dst, const int32_t *data, size_t len) {
+  for (size_t i = 0; i < len; i++) {
+    auto val = data[i];
+    if (val < 0) {
+      dst->space(static_cast<uint32_t>(-val));
     } else {
-      dst->set_data(this->code_func_(x...));
+      dst->mark(static_cast<uint32_t>(val));
     }
-    dst->set_carrier_frequency(this->carrier_frequency_.value(x...));
   }
-
- protected:
-  std::function<RawTimings(Ts...)> code_func_{nullptr};
-  const int32_t *code_static_{nullptr};
-  int32_t code_static_len_{0};
-};
+}
 
 class RawDumper : public RemoteReceiverDumperBase {
  public:
@@ -77,5 +66,4 @@ class RawDumper : public RemoteReceiverDumperBase {
   bool is_secondary() override { return true; }
 };
 
-}  // namespace remote_base
-}  // namespace esphome
+}  // namespace esphome::remote_base

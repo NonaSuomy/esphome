@@ -3,12 +3,12 @@
 //  - Official Datasheet: https://ww1.microchip.com/downloads/en/DeviceDoc/2101.pdf
 
 #include "esphome/core/log.h"
+#include "esphome/core/helpers.h"
 #include "emc2101.h"
 
-namespace esphome {
-namespace emc2101 {
+namespace esphome::emc2101 {
 
-static const char *const TAG = "EMC2101";
+ESPHOME_LOG_TAG(TAG, "EMC2101");
 
 static const uint8_t EMC2101_CHIP_ID = 0x16;      // EMC2101 default device id from part id
 static const uint8_t EMC2101_ALT_CHIP_ID = 0x28;  // EMC2101 alternate device id from part id
@@ -16,7 +16,7 @@ static const uint8_t EMC2101_ALT_CHIP_ID = 0x28;  // EMC2101 alternate device id
 // EMC2101 registers from the datasheet. We only define what we use.
 static const uint8_t EMC2101_REGISTER_INTERNAL_TEMP = 0x00;      // The internal temperature register
 static const uint8_t EMC2101_REGISTER_EXTERNAL_TEMP_MSB = 0x01;  // high byte for the external temperature reading
-static const uint8_t EMC2101_REGISTER_DAC_CONV_RATE = 0x04;      // DAC convesion rate config
+static const uint8_t EMC2101_REGISTER_DAC_CONV_RATE = 0x04;      // DAC conversion rate config
 static const uint8_t EMC2101_REGISTER_EXTERNAL_TEMP_LSB = 0x10;  // low byte for the external temperature reading
 static const uint8_t EMC2101_REGISTER_CONFIG = 0x03;             // configuration register
 static const uint8_t EMC2101_REGISTER_TACH_LSB = 0x46;           // Tach RPM data low byte
@@ -57,13 +57,11 @@ static const uint8_t EMC2101_POLARITY_BIT = 1 << 4;
 float Emc2101Component::get_setup_priority() const { return setup_priority::HARDWARE; }
 
 void Emc2101Component::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up Emc2101 sensor...");
-
   // make sure we're talking to the right chip
   uint8_t chip_id = reg(EMC2101_REGISTER_WHOAMI).get();
   if ((chip_id != EMC2101_CHIP_ID) && (chip_id != EMC2101_ALT_CHIP_ID)) {
     ESP_LOGE(TAG, "Wrong chip ID %02X", chip_id);
-    this->mark_failed();
+    this->mark_failed(LOG_STR("Wrong chip ID"));
     return;
   }
 
@@ -74,7 +72,7 @@ void Emc2101Component::setup() {
     config |= EMC2101_DAC_BIT;
   }
   if (this->inverted_) {
-    config |= EMC2101_POLARITY_BIT;
+    reg(EMC2101_REGISTER_FAN_CONFIG) |= EMC2101_POLARITY_BIT;
   }
 
   if (this->dac_mode_) {  // DAC mode configurations
@@ -93,15 +91,14 @@ void Emc2101Component::setup() {
 void Emc2101Component::dump_config() {
   ESP_LOGCONFIG(TAG, "Emc2101 component:");
   LOG_I2C_DEVICE(this);
-  if (this->is_failed()) {
-    ESP_LOGE(TAG, "Communication with EMC2101 failed!");
-  }
-  ESP_LOGCONFIG(TAG, "  Mode: %s", this->dac_mode_ ? "DAC" : "PWM");
+  ESP_LOGCONFIG(TAG, "  Mode: %s", this->dac_mode_ ? LOG_STR_LITERAL("DAC") : LOG_STR_LITERAL("PWM"));
   if (this->dac_mode_) {
     ESP_LOGCONFIG(TAG, "  DAC Conversion Rate: %X", this->dac_conversion_rate_);
   } else {
-    ESP_LOGCONFIG(TAG, "  PWM Resolution: %02X", this->pwm_resolution_);
-    ESP_LOGCONFIG(TAG, "  PWM Divider: %02X", this->pwm_divider_);
+    ESP_LOGCONFIG(TAG,
+                  "  PWM Resolution: %02X\n"
+                  "  PWM Divider: %02X",
+                  this->pwm_resolution_, this->pwm_divider_);
   }
   ESP_LOGCONFIG(TAG, "  Inverted: %s", YESNO(this->inverted_));
 }
@@ -110,7 +107,7 @@ void Emc2101Component::set_duty_cycle(float value) {
   uint8_t duty_cycle = remap(value, 0.0f, 1.0f, (uint8_t) 0, this->max_output_value_);
   ESP_LOGD(TAG, "Setting duty fan setting to %02X", duty_cycle);
   if (!this->write_byte(EMC2101_REGISTER_FAN_SETTING, duty_cycle)) {
-    ESP_LOGE(TAG, "Communication with EMC2101 failed!");
+    ESP_LOGE(TAG, ESP_LOG_MSG_COMM_FAIL);
     this->status_set_warning();
     return;
   }
@@ -119,7 +116,7 @@ void Emc2101Component::set_duty_cycle(float value) {
 float Emc2101Component::get_duty_cycle() {
   uint8_t duty_cycle;
   if (!this->read_byte(EMC2101_REGISTER_FAN_SETTING, &duty_cycle)) {
-    ESP_LOGE(TAG, "Communication with EMC2101 failed!");
+    ESP_LOGE(TAG, ESP_LOG_MSG_COMM_FAIL);
     this->status_set_warning();
     return NAN;
   }
@@ -129,7 +126,7 @@ float Emc2101Component::get_duty_cycle() {
 float Emc2101Component::get_internal_temperature() {
   uint8_t temperature;
   if (!this->read_byte(EMC2101_REGISTER_INTERNAL_TEMP, &temperature)) {
-    ESP_LOGE(TAG, "Communication with EMC2101 failed!");
+    ESP_LOGE(TAG, ESP_LOG_MSG_COMM_FAIL);
     this->status_set_warning();
     return NAN;
   }
@@ -141,29 +138,28 @@ float Emc2101Component::get_external_temperature() {
   uint8_t lsb, msb;
   if (!this->read_byte(EMC2101_REGISTER_EXTERNAL_TEMP_MSB, &msb) ||
       !this->read_byte(EMC2101_REGISTER_EXTERNAL_TEMP_LSB, &lsb)) {
-    ESP_LOGE(TAG, "Communication with EMC2101 failed!");
+    ESP_LOGE(TAG, ESP_LOG_MSG_COMM_FAIL);
     this->status_set_warning();
     return NAN;
   }
 
-  // join msb and lsb (5 least significant bits are not used)
-  uint16_t raw = (msb << 8 | lsb) >> 5;
-  return raw * 0.125;
+  // join msb and lsb (5 least significant bits are not used); msb is signed, so read as int16_t
+  int16_t raw = static_cast<int16_t>(encode_uint16(msb, lsb)) >> 5;
+  return raw * 0.125f;
 }
 
 float Emc2101Component::get_speed() {
   // Read **LSB** first to match 'Data Read Interlock' behavior from 6.1 of datasheet
   uint8_t lsb, msb;
   if (!this->read_byte(EMC2101_REGISTER_TACH_LSB, &lsb) || !this->read_byte(EMC2101_REGISTER_TACH_MSB, &msb)) {
-    ESP_LOGE(TAG, "Communication with EMC2101 failed!");
+    ESP_LOGE(TAG, ESP_LOG_MSG_COMM_FAIL);
     this->status_set_warning();
     return NAN;
   }
 
   // calculate RPMs
-  uint16_t tach = msb << 8 | lsb;
+  uint16_t tach = encode_uint16(msb, lsb);
   return tach == 0xFFFF ? 0.0f : 5400000.0f / tach;
 }
 
-}  // namespace emc2101
-}  // namespace esphome
+}  // namespace esphome::emc2101

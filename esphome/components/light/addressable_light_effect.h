@@ -1,14 +1,15 @@
 #pragma once
 
+#include <type_traits>
 #include <utility>
-#include <vector>
 
 #include "esphome/core/component.h"
+#include "esphome/core/hal.h"
+#include "esphome/core/helpers.h"
 #include "esphome/components/light/light_state.h"
 #include "esphome/components/light/addressable_light.h"
 
-namespace esphome {
-namespace light {
+namespace esphome::light {
 
 inline static int16_t sin16_c(uint16_t theta) {
   static const uint16_t BASE[] = {0, 6393, 12539, 18204, 23170, 27245, 30273, 32137};
@@ -30,7 +31,7 @@ inline static uint8_t half_sin8(uint8_t v) { return sin16_c(uint16_t(v) * 128u) 
 
 class AddressableLightEffect : public LightEffect {
  public:
-  explicit AddressableLightEffect(const std::string &name) : LightEffect(name) {}
+  explicit AddressableLightEffect(const char *name) : LightEffect(name) {}
   void start_internal() override {
     this->get_addressable_()->set_effect_active(true);
     this->get_addressable_()->clear_effect_data();
@@ -44,16 +45,22 @@ class AddressableLightEffect : public LightEffect {
     this->apply(*this->get_addressable_(), current_color);
   }
 
+  /// Get effect index specifically for addressable effects.
+  /// Can be used by effects to modify behavior based on their position in the list.
+  uint32_t get_effect_index() const { return this->get_index(); }
+
+  /// Check if this is the currently running addressable effect.
+  bool is_current_effect() const { return this->is_active() && this->get_addressable_()->is_effect_active(); }
+
  protected:
   AddressableLight *get_addressable_() const { return (AddressableLight *) this->state_->get_output(); }
 };
 
 class AddressableLambdaLightEffect : public AddressableLightEffect {
  public:
-  AddressableLambdaLightEffect(const std::string &name,
-                               std::function<void(AddressableLight &, Color, bool initial_run)> f,
+  AddressableLambdaLightEffect(const char *name, void (*f)(AddressableLight &, Color, bool initial_run),
                                uint32_t update_interval)
-      : AddressableLightEffect(name), f_(std::move(f)), update_interval_(update_interval) {}
+      : AddressableLightEffect(name), f_(f), update_interval_(update_interval) {}
   void start() override { this->initial_run_ = true; }
   void apply(AddressableLight &it, const Color &current_color) override {
     const uint32_t now = millis();
@@ -66,7 +73,7 @@ class AddressableLambdaLightEffect : public AddressableLightEffect {
   }
 
  protected:
-  std::function<void(AddressableLight &, Color, bool initial_run)> f_;
+  void (*f_)(AddressableLight &, Color, bool initial_run);
   uint32_t update_interval_;
   uint32_t last_run_{0};
   bool initial_run_;
@@ -74,7 +81,7 @@ class AddressableLambdaLightEffect : public AddressableLightEffect {
 
 class AddressableRainbowLightEffect : public AddressableLightEffect {
  public:
-  explicit AddressableRainbowLightEffect(const std::string &name) : AddressableLightEffect(name) {}
+  explicit AddressableRainbowLightEffect(const char *name) : AddressableLightEffect(name) {}
   void apply(AddressableLight &it, const Color &current_color) override {
     ESPHSVColor hsv;
     hsv.value = 255;
@@ -96,17 +103,28 @@ class AddressableRainbowLightEffect : public AddressableLightEffect {
   uint16_t width_{50};
 };
 
+/// One wipe color. Codegen keeps the colors in a flash table, so it is read with progmem_memcpy.
 struct AddressableColorWipeEffectColor {
   uint8_t r, g, b, w;
-  bool random;
-  size_t num_leds;
+  uint8_t random_slot;  ///< index into the effect's random colors, or NO_RANDOM_SLOT
   bool gradient;
+  uint32_t num_leds;
 };
+static_assert(std::is_trivially_copyable_v<AddressableColorWipeEffectColor>,
+              "AddressableColorWipeEffectColor is copied out of flash");
+static_assert(sizeof(AddressableColorWipeEffectColor) % sizeof(uint32_t) == 0,
+              "AddressableColorWipeEffectColor must be whole words for ESP8266 flash reads");
+static constexpr uint8_t NO_RANDOM_SLOT = 0xFF;
 
 class AddressableColorWipeEffect : public AddressableLightEffect {
  public:
-  explicit AddressableColorWipeEffect(const std::string &name) : AddressableLightEffect(name) {}
-  void set_colors(const std::vector<AddressableColorWipeEffectColor> &colors) { this->colors_ = colors; }
+  explicit AddressableColorWipeEffect(const char *name) : AddressableLightEffect(name) {}
+  /// Codegen only: point at the generated flash table of colors, which must outlive the effect.
+  /// Random colors keep their current value in a RAM array, one slot per random entry.
+  void set_colors(const AddressableColorWipeEffectColor *colors, size_t count, Color *random_colors) {
+    this->colors_ = {colors, count};
+    this->random_colors_ = random_colors;
+  }
   void set_add_led_interval(uint32_t add_led_interval) { this->add_led_interval_ = add_led_interval; }
   void set_reverse(bool reverse) { this->reverse_ = reverse; }
   void apply(AddressableLight &it, const Color &current_color) override {
@@ -119,12 +137,11 @@ class AddressableColorWipeEffect : public AddressableLightEffect {
     } else {
       it.shift_right(1);
     }
-    const AddressableColorWipeEffectColor &color = this->colors_[this->at_color_];
-    Color esp_color = Color(color.r, color.g, color.b, color.w);
+    const AddressableColorWipeEffectColor color = this->entry_(this->at_color_);
+    Color esp_color = this->color_of_(color);
     if (color.gradient) {
       size_t next_color_index = (this->at_color_ + 1) % this->colors_.size();
-      const AddressableColorWipeEffectColor &next_color = this->colors_[next_color_index];
-      const Color next_esp_color = Color(next_color.r, next_color.g, next_color.b, next_color.w);
+      const Color next_esp_color = this->color_of_(this->entry_(next_color_index));
       uint8_t gradient = 255 * ((float) this->leds_added_ / color.num_leds);
       esp_color = esp_color.gradient(next_esp_color, gradient);
     }
@@ -136,19 +153,32 @@ class AddressableColorWipeEffect : public AddressableLightEffect {
     if (++this->leds_added_ >= color.num_leds) {
       this->leds_added_ = 0;
       this->at_color_ = (this->at_color_ + 1) % this->colors_.size();
-      AddressableColorWipeEffectColor &new_color = this->colors_[this->at_color_];
-      if (new_color.random) {
+      const AddressableColorWipeEffectColor new_color = this->entry_(this->at_color_);
+      if (new_color.random_slot != NO_RANDOM_SLOT) {
         Color c = Color::random_color();
-        new_color.r = c.r;
-        new_color.g = c.g;
-        new_color.b = c.b;
+        Color &slot = this->random_colors_[new_color.random_slot];
+        slot.r = c.r;
+        slot.g = c.g;
+        slot.b = c.b;
       }
     }
     it.schedule_show();
   }
 
  protected:
-  std::vector<AddressableColorWipeEffectColor> colors_;
+  AddressableColorWipeEffectColor entry_(size_t index) const {
+    AddressableColorWipeEffectColor entry;
+    progmem_memcpy(&entry, &this->colors_[index], sizeof(entry));
+    return entry;
+  }
+  Color color_of_(const AddressableColorWipeEffectColor &entry) const {
+    if (entry.random_slot != NO_RANDOM_SLOT)
+      return this->random_colors_[entry.random_slot];
+    return Color(entry.r, entry.g, entry.b, entry.w);
+  }
+
+  ConstVector<AddressableColorWipeEffectColor> colors_;
+  Color *random_colors_{nullptr};
   size_t at_color_{0};
   uint32_t last_add_{0};
   uint32_t add_led_interval_{};
@@ -158,7 +188,7 @@ class AddressableColorWipeEffect : public AddressableLightEffect {
 
 class AddressableScanEffect : public AddressableLightEffect {
  public:
-  explicit AddressableScanEffect(const std::string &name) : AddressableLightEffect(name) {}
+  explicit AddressableScanEffect(const char *name) : AddressableLightEffect(name) {}
   void set_move_interval(uint32_t move_interval) { this->move_interval_ = move_interval; }
   void set_scan_width(uint32_t scan_width) { this->scan_width_ = scan_width; }
   void apply(AddressableLight &it, const Color &current_color) override {
@@ -166,12 +196,27 @@ class AddressableScanEffect : public AddressableLightEffect {
     if (now - this->last_move_ < this->move_interval_)
       return;
 
-    if (direction_) {
+    const auto num_leds = static_cast<uint32_t>(it.size());
+    if (this->scan_width_ >= num_leds) {
+      it.all() = current_color;
+      it.schedule_show();
+      this->last_move_ = now;
+      return;
+    }
+
+    const uint32_t max_pos = num_leds - this->scan_width_;
+    if (this->at_led_ >= max_pos) {
+      this->at_led_ = max_pos;
+      this->direction_ = false;
+    }
+
+    if (this->direction_) {
       this->at_led_++;
-      if (this->at_led_ == it.size() - this->scan_width_)
+      if (this->at_led_ >= max_pos)
         this->direction_ = false;
     } else {
-      this->at_led_--;
+      if (this->at_led_ > 0)
+        this->at_led_--;
       if (this->at_led_ == 0)
         this->direction_ = true;
     }
@@ -195,7 +240,7 @@ class AddressableScanEffect : public AddressableLightEffect {
 
 class AddressableTwinkleEffect : public AddressableLightEffect {
  public:
-  explicit AddressableTwinkleEffect(const std::string &name) : AddressableLightEffect(name) {}
+  explicit AddressableTwinkleEffect(const char *name) : AddressableLightEffect(name) {}
   void apply(AddressableLight &addressable, const Color &current_color) override {
     const uint32_t now = millis();
     uint8_t pos_add = 0;
@@ -237,7 +282,7 @@ class AddressableTwinkleEffect : public AddressableLightEffect {
 
 class AddressableRandomTwinkleEffect : public AddressableLightEffect {
  public:
-  explicit AddressableRandomTwinkleEffect(const std::string &name) : AddressableLightEffect(name) {}
+  explicit AddressableRandomTwinkleEffect(const char *name) : AddressableLightEffect(name) {}
   void apply(AddressableLight &it, const Color &current_color) override {
     const uint32_t now = millis();
     uint8_t pos_add = 0;
@@ -286,7 +331,7 @@ class AddressableRandomTwinkleEffect : public AddressableLightEffect {
 
 class AddressableFireworksEffect : public AddressableLightEffect {
  public:
-  explicit AddressableFireworksEffect(const std::string &name) : AddressableLightEffect(name) {}
+  explicit AddressableFireworksEffect(const char *name) : AddressableLightEffect(name) {}
   void start() override {
     auto &it = *this->get_addressable_();
     it.all() = Color::BLACK;
@@ -304,6 +349,8 @@ class AddressableFireworksEffect : public AddressableLightEffect {
         target *= 170;
       view = target;
     }
+    if (it.size() < 2)
+      return;
     int last = it.size() - 1;
     it[0].set(it[0].get() + (it[1].get() * 128));
     for (int i = 1; i < last; i++) {
@@ -335,7 +382,7 @@ class AddressableFireworksEffect : public AddressableLightEffect {
 
 class AddressableFlickerEffect : public AddressableLightEffect {
  public:
-  explicit AddressableFlickerEffect(const std::string &name) : AddressableLightEffect(name) {}
+  explicit AddressableFlickerEffect(const char *name) : AddressableLightEffect(name) {}
   void apply(AddressableLight &it, const Color &current_color) override {
     const uint32_t now = millis();
     const uint8_t intensity = this->intensity_;
@@ -365,5 +412,4 @@ class AddressableFlickerEffect : public AddressableLightEffect {
   uint8_t intensity_{13};
 };
 
-}  // namespace light
-}  // namespace esphome
+}  // namespace esphome::light

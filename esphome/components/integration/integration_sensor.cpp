@@ -1,16 +1,15 @@
 #include "integration_sensor.h"
+#include "esphome/core/hal.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
-#include "esphome/core/hal.h"
 
-namespace esphome {
-namespace integration {
+namespace esphome::integration {
 
-static const char *const TAG = "integration";
+ESPHOME_LOG_TAG(TAG, "integration");
 
 void IntegrationSensor::setup() {
   if (this->restore_) {
-    this->pref_ = global_preferences->make_preference<float>(this->get_object_id_hash());
+    this->pref_ = this->make_entity_preference<float>();
     float preference_value = 0;
     this->pref_.load(&preference_value);
     this->result_ = preference_value;
@@ -19,7 +18,7 @@ void IntegrationSensor::setup() {
   this->last_update_ = millis();
 
   this->publish_and_save_(this->result_);
-  this->sensor_->add_on_state_callback([this](float state) { this->process_sensor_value_(state); });
+  this->source_sensor_->add_on_state_callback([this](float state) { this->process_sensor_value_(state); });
 }
 void IntegrationSensor::dump_config() { LOG_SENSOR("", "Integration Sensor", this); }
 void IntegrationSensor::process_sensor_value_(float value) {
@@ -47,5 +46,4 @@ void IntegrationSensor::process_sensor_value_(float value) {
   this->publish_and_save_(this->result_ + area);
 }
 
-}  // namespace integration
-}  // namespace esphome
+}  // namespace esphome::integration

@@ -2,11 +2,10 @@
 
 #include "esphome/core/component.h"
 #include "esphome/core/entity_base.h"
-#include "esphome/core/preferences.h"
 #include "esphome/core/helpers.h"
+#include "esphome/core/preferences.h"
 
-namespace esphome {
-namespace switch_ {
+namespace esphome::switch_ {
 
 #define SUB_SWITCH(name) \
  protected: \
@@ -15,13 +14,18 @@ namespace switch_ {
  public: \
   void set_##name##_switch(switch_::Switch *s) { this->name##_switch_ = s; }
 
-// bit0: on/off. bit1: persistent. bit2: inverted. bit3: disabled
-const int RESTORE_MODE_ON_MASK = 0x01;
-const int RESTORE_MODE_PERSISTENT_MASK = 0x02;
-const int RESTORE_MODE_INVERTED_MASK = 0x04;
-const int RESTORE_MODE_DISABLED_MASK = 0x08;
+// bit0: on/off. bit1: persistent. bit2: inverted. bit3: disabled.
+// bit4: restore from flash. bit5: restore from RTC memory (neither: platform default).
+// Code generation ors the storage bit into the restore mode passed to set_restore_mode().
+constexpr int RESTORE_MODE_ON_MASK = 0x01;
+constexpr int RESTORE_MODE_PERSISTENT_MASK = 0x02;
+constexpr int RESTORE_MODE_INVERTED_MASK = 0x04;
+constexpr int RESTORE_MODE_DISABLED_MASK = 0x08;
+constexpr int RESTORE_MODE_STORAGE_FLASH_MASK = 0x10;
+constexpr int RESTORE_MODE_STORAGE_RTC_MASK = 0x20;
+constexpr int RESTORE_MODE_STORAGE_MASK = RESTORE_MODE_STORAGE_FLASH_MASK | RESTORE_MODE_STORAGE_RTC_MASK;
 
-enum SwitchRestoreMode {
+enum SwitchRestoreMode : uint8_t {
   SWITCH_ALWAYS_OFF = !RESTORE_MODE_ON_MASK,
   SWITCH_ALWAYS_ON = RESTORE_MODE_ON_MASK,
   SWITCH_RESTORE_DEFAULT_OFF = RESTORE_MODE_PERSISTENT_MASK,
@@ -36,7 +40,7 @@ enum SwitchRestoreMode {
  * A switch is basically just a combination of a binary sensor (for reporting switch values)
  * and a write_state method that writes a state to the hardware.
  */
-class Switch : public EntityBase, public EntityBase_DeviceClass {
+class Switch : public EntityBase {
  public:
   explicit Switch();
 
@@ -49,12 +53,20 @@ class Switch : public EntityBase, public EntityBase_DeviceClass {
    */
   void publish_state(bool state);
 
-  /// The current reported state of the binary sensor.
-  bool state;
-
   /// Indicates whether or not state is to be retrieved from flash and how
   SwitchRestoreMode restore_mode{SWITCH_RESTORE_DEFAULT_OFF};
 
+  /// The current reported state of the binary sensor.
+  bool state;
+
+  /** Control this switch using a boolean state value.
+   *
+   * This method provides a unified interface for setting the switch state based on a boolean parameter.
+   * It automatically calls turn_on() when state is true or turn_off() when state is false.
+   *
+   * @param target_state The desired state: true to turn the switch ON, false to turn it OFF.
+   */
+  void control(bool target_state);
   /** Turn this switch on. This is called by the front-end.
    *
    * For implementing switches, please override write_state.
@@ -80,13 +92,15 @@ class Switch : public EntityBase, public EntityBase_DeviceClass {
    *
    * @param inverted Whether to invert this switch.
    */
-  void set_inverted(bool inverted);
+  void set_inverted(bool inverted) { this->inverted_ = inverted; }
 
   /** Set callback for state changes.
    *
    * @param callback The void(bool) callback.
    */
-  void add_on_state_callback(std::function<void(bool)> &&callback);
+  template<typename F> void add_on_state_callback(F &&callback) {
+    this->state_callback_.add(std::forward<F>(callback));
+  }
 
   /** Returns the initial state of the switch, as persisted previously,
     or empty if never persisted.
@@ -100,6 +114,13 @@ class Switch : public EntityBase, public EntityBase_DeviceClass {
    * state.
    */
   optional<bool> get_initial_state_with_restore_mode();
+  /// get_initial_state_with_restore_mode() with inverted applied: the level write_state() takes.
+  optional<bool> get_initial_write_state();
+
+  /// Drive the switch to the state its restore mode yields, through control(), so inversion and
+  /// write_state() apply; a disabled restore mode drives \p when_disabled, or nothing without one.
+  void restore();
+  void restore(bool when_disabled);
 
   /** Return whether this switch uses an assumed state - i.e. if both the ON/OFF actions should be displayed in Home
    * Assistant because the real state is unknown.
@@ -108,7 +129,7 @@ class Switch : public EntityBase, public EntityBase_DeviceClass {
    */
   virtual bool assumed_state();
 
-  bool is_inverted() const;
+  bool is_inverted() const { return this->inverted_; }
 
   void set_restore_mode(SwitchRestoreMode restore_mode) { this->restore_mode = restore_mode; }
 
@@ -123,14 +144,29 @@ class Switch : public EntityBase, public EntityBase_DeviceClass {
    */
   virtual void write_state(bool state) = 0;
 
-  CallbackManager<void(bool)> state_callback_{};
-  bool inverted_{false};
-  Deduplicator<bool> publish_dedup_;
+  // Pointer first (4 bytes)
   ESPPreferenceObject rtc_;
+
+  // LazyCallbackManager (4 bytes on 32-bit - nullptr when empty)
+  LazyCallbackManager<void(bool)> state_callback_{};
+
+  // Small types grouped together
+  Deduplicator<bool> publish_dedup_;  // 3 bytes (bool has_value_ + bool value_unknown_ + bool last_value_)
+  bool inverted_{false};              // 1 byte
+  // Total: 4 bytes, no padding
 };
 
 #define LOG_SWITCH(prefix, type, obj) log_switch((TAG), (prefix), LOG_STR_LITERAL(type), (obj))
 void log_switch(const char *tag, const char *prefix, const char *type, Switch *obj);
 
-}  // namespace switch_
-}  // namespace esphome
+/// Calls the codegen-generated Fn(this, state) on a state write; the hub and any publish are baked into Fn.
+template<auto Fn> class ApplySwitch final : public Switch {
+ public:
+  // Not "= default": placement new would zero-fill .bss that is already zero.
+  ApplySwitch() {}
+
+ protected:
+  void write_state(bool state) override { Fn(this, state); }
+};
+
+}  // namespace esphome::switch_

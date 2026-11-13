@@ -1,26 +1,40 @@
 """Helpers for config validation using voluptuous."""
 
-from contextlib import contextmanager
-from dataclasses import dataclass
+from __future__ import annotations
+
+from collections.abc import Callable
+from contextlib import contextmanager, suppress
+import copy
 from datetime import datetime
-from ipaddress import AddressValueError, IPv4Address, ip_address
+from ipaddress import (
+    AddressValueError,
+    IPv4Address,
+    IPv4Network,
+    IPv6Address,
+    IPv6Network,
+    ip_address,
+    ip_network,
+)
 import logging
+import math
 import os
+from pathlib import Path
 import re
 from string import ascii_letters, digits
+import typing
 import uuid as uuid_
 
 import voluptuous as vol
 
 from esphome import core
 import esphome.codegen as cg
-from esphome.config_helpers import Extend, Remove
 from esphome.const import (
     ALLOWED_NAME_CHARS,
     CONF_AVAILABILITY,
     CONF_COMMAND_RETAIN,
     CONF_COMMAND_TOPIC,
     CONF_DAY,
+    CONF_DEVICE_ID,
     CONF_DISABLED_BY_DEFAULT,
     CONF_DISCOVERY,
     CONF_ENTITY_CATEGORY,
@@ -42,6 +56,7 @@ from esphome.const import (
     CONF_SETUP_PRIORITY,
     CONF_STATE_TOPIC,
     CONF_SUBSCRIBE_QOS,
+    CONF_TOOLCHAIN,
     CONF_TOPIC,
     CONF_TYPE,
     CONF_TYPE_ID,
@@ -56,27 +71,43 @@ from esphome.const import (
     KEY_CORE,
     KEY_FRAMEWORK_VERSION,
     KEY_TARGET_FRAMEWORK,
-    KEY_TARGET_PLATFORM,
     PLATFORM_ESP32,
     PLATFORM_ESP8266,
-    PLATFORM_RP2040,
+    PLATFORM_NRF52,
+    PLATFORM_RP2,
+    SCHEDULER_DONT_RUN,
     TYPE_GIT,
     TYPE_LOCAL,
-    VALID_SUBSTITUTIONS_CHARACTERS,
+    UNIT_CELSIUS,
+    UNIT_FAHRENHEIT,
+    UNIT_KELVIN,
+    Framework,
+    Toolchain,
     __version__ as ESPHOME_VERSION,
 )
 from esphome.core import (
     CORE,
     HexInt,
     Lambda,
+    TemperatureWithUnit,
     TimePeriod,
     TimePeriodMicroseconds,
     TimePeriodMilliseconds,
     TimePeriodMinutes,
     TimePeriodNanoseconds,
     TimePeriodSeconds,
+    Version,
 )
-from esphome.helpers import add_class_to_obj, list_starts_with
+from esphome.cpp_types import TEMPERATURE_UNITS
+from esphome.enum import StrEnum
+from esphome.expression import SUBSTITUTION_VARIABLE_PROG as VARIABLE_PROG
+from esphome.helpers import (
+    FALSY_BOOL_STRINGS,
+    TRUTHY_BOOL_STRINGS,
+    add_class_to_obj,
+    docs_url,
+    list_starts_with,
+)
 from esphome.schema_extractors import (
     SCHEMA_EXTRACT,
     schema_extractor,
@@ -84,31 +115,72 @@ from esphome.schema_extractors import (
     schema_extractor_registry,
     schema_extractor_typed,
 )
-from esphome.util import parse_esphome_version
-from esphome.voluptuous_schema import _Schema
-from esphome.yaml_util import make_data_base
+
+# Deprecated re-export for external components; remove before 2027.2.0
+# pylint: disable-next=unused-import
+from esphome.util import parse_esphome_version  # noqa: F401
+from esphome.voluptuous_schema import KeyInvalid, _Schema
+from esphome.yaml_util import (
+    Sensitive,
+    SensitiveHexInt,
+    SensitiveInt,
+    SensitiveStr,
+    make_data_base,
+)
+
+if typing.TYPE_CHECKING:
+    from esphome.types import ConfigType
 
 _LOGGER = logging.getLogger(__name__)
 
-# pylint: disable=consider-using-f-string
-VARIABLE_PROG = re.compile(
-    f"\\$([{VALID_SUBSTITUTIONS_CHARACTERS}]+|\\{{[{VALID_SUBSTITUTIONS_CHARACTERS}]*\\}})"
-)
+
+class _CachedDirectCall:
+    """Compile the sub-validators once when the validator is called directly.
+
+    voluptuous compiles a new Schema for every sub-validator on each direct
+    call (``cv.positive_time_period_milliseconds(value)``); inside a compiled
+    schema the validator is already compiled once, so only direct calls change.
+    """
+
+    validators: tuple
+    _direct_schemas: list[vol.Schema] | None = None
+
+    def __call__(self, v: typing.Any) -> typing.Any:
+        # _exec comes from vol.All / vol.Any, which follow this mixin in the MRO
+        return self._exec(self._direct_calls(), v)  # pylint: disable=no-member
+
+    def _direct_calls(self) -> typing.Iterator[vol.Schema]:
+        # Compiled on first use, so a short-circuiting Any never compiles the later branches
+        if (schemas := self._direct_schemas) is None:
+            schemas = self._direct_schemas = []
+        for i, val in enumerate(self.validators):
+            if i == len(schemas):
+                schemas.append(vol.Schema(val))
+            yield schemas[i]
+
 
 # pylint: disable=invalid-name
 
+
+class All(_CachedDirectCall, vol.All):
+    """vol.All that keeps its compiled sub-validators between direct calls."""
+
+
+class Any(_CachedDirectCall, vol.Any):
+    """vol.Any that keeps its compiled sub-validators between direct calls."""
+
+
 Schema = _Schema
-All = vol.All
 Coerce = vol.Coerce
 Range = vol.Range
 Invalid = vol.Invalid
 MultipleInvalid = vol.MultipleInvalid
-Any = vol.Any
 Lower = vol.Lower
 Upper = vol.Upper
 Length = vol.Length
 Exclusive = vol.Exclusive
 Inclusive = vol.Inclusive
+Unique = vol.Unique
 ALLOW_EXTRA = vol.ALLOW_EXTRA
 UNDEFINED = vol.UNDEFINED
 RequiredFieldInvalid = vol.RequiredFieldInvalid
@@ -116,8 +188,28 @@ RequiredFieldInvalid = vol.RequiredFieldInvalid
 # the rest of the error path is relative to the root config path
 ROOT_CONFIG_PATH = object()
 
+
+def ByteLength(*, max: int) -> Callable[[str], str]:
+    """Validate that the UTF-8 byte length of a string does not exceed max.
+
+    Use instead of Length() when the limit must apply to encoded bytes,
+    not characters (e.g. for protobuf length-varint constraints).
+    """
+
+    def validator(value: str) -> str:
+        byte_len = len(str(value).encode("utf-8"))
+        if byte_len > max:
+            raise Invalid(
+                f"String is too long ({byte_len} bytes, max {max}). "
+                f"Multibyte characters count as multiple bytes."
+            )
+        return value
+
+    return validator
+
+
 RESERVED_IDS = [
-    # C++ keywords http://en.cppreference.com/w/cpp/keyword
+    # C++ keywords https://en.cppreference.com/w/cpp/keyword
     "alarm",
     "alignas",
     "alignof",
@@ -230,10 +322,92 @@ RESERVED_IDS = [
     "open",
     "setup",
     "loop",
+    "spi0",
+    "spi1",
     "uart0",
     "uart1",
     "uart2",
+    # ESP32 ROM functions
+    "crc16_be",
+    "crc16_le",
+    "crc32_be",
+    "crc32_le",
+    "crc8_be",
+    "crc8_le",
+    "dbg_state",
+    "debug_timer",
+    "one_bits",
+    "recv_packet",
+    "send_packet",
+    "check_pos",
+    "software_reset",
+    # Generated by core for the looping components list
+    "looping_components_storage",
 ]
+# For membership tests; RESERVED_IDS stays a list for existing users.
+RESERVED_IDS_SET = frozenset(RESERVED_IDS)
+
+
+class Visibility(StrEnum):
+    """Schema-driven UI hint for visual editors.
+
+    The values describe how a schema-aware editor (e.g. the
+    device-builder dashboard catalog via
+    ``script/build_language_schema.py``) should render the field.
+    They do NOT affect validation — the YAML still accepts the key
+    the same way. ESPHome itself ignores the value at runtime;
+    consumers downstream of the schema dump act on it.
+
+    Three points along a single axis of "how prominently to surface
+    this", from least to most hidden:
+
+    - ``UI`` — always render on the editor's main form. Use to
+      promote an ``Optional`` that would otherwise fall through to
+      the advanced disclosure (see the default rule below): the
+      "headline" config a user reaches for first (e.g. a sensor's
+      ``name`` or its primary pin/address).
+    - ``ADVANCED`` — render under the editor's "advanced settings"
+      disclosure. Use for fields whose default is right for ~all
+      users (e.g. ``update_interval`` on time platforms — 15 min is
+      universally correct, but power users can still tune the YAML
+      directly).
+    - ``YAML_ONLY`` — never render in a visual editor. Use for
+      knobs that are dangerous to expose in a UI even as advanced
+      (``setup_priority`` is the canonical example — casual UI
+      tweaks can break boot). The YAML escape hatch stays
+      available for the rare power-user override.
+
+    Default when unset (``visibility=None``): resolved by the
+    consumer, not encoded on the marker. A schema-aware editor
+    treats an ``Optional`` with no setting as ``ADVANCED`` (most
+    optional knobs have sensible defaults and would clutter the
+    form), and a ``Required`` with no setting as ``UI`` (a required
+    field needs the user's attention). Pass an explicit value to
+    override either default — most commonly ``UI`` to keep a
+    high-value ``Optional`` on the main form.
+
+    The single-axis shape encodes the strictness ladder
+    (``UI`` < ``ADVANCED`` < ``YAML_ONLY``) at the type level —
+    there's no way to set a contradictory state.
+
+    Per-field; the dumper walks recursively into nested schemas
+    and emits each field's setting independently, omitting the key
+    when unset so the dump stays compact and the per-field default
+    is the consumer's to apply. Cascading semantics — "a stricter
+    parent makes its descendants at-least as strict" — belong on the
+    consumer side: the schema marker is faithfully what the field
+    author wrote, and a consumer that cares about effective
+    visibility walks the parent chain and takes the strictest
+    setting. Inner fields can declare their own visibility; an inner
+    ``YAML_ONLY`` under an ``ADVANCED`` parent stays ``YAML_ONLY``,
+    and the consumer's cascade keeps a ``UI`` sibling under an
+    ``ADVANCED`` parent at ``ADVANCED`` regardless of its own
+    (less-strict) setting.
+    """
+
+    UI = "ui"
+    ADVANCED = "advanced"
+    YAML_ONLY = "yaml_only"
 
 
 class Optional(vol.Optional):
@@ -250,22 +424,95 @@ class Optional(vol.Optional):
     In ESPHome, all configuration defaults should be defined with the Optional class
     during config validation - specifically *not* in the C++ code or the code generation
     phase.
+
+    See :class:`Visibility` for the ``visibility`` kwarg — a UI
+    hint for schema-driven editors that doesn't affect validation.
+    Left unset, an ``Optional`` is treated as ``Visibility.ADVANCED``
+    by schema-aware editors; pass ``Visibility.UI`` to keep it on the
+    main form.
     """
 
-    def __init__(self, key, default=UNDEFINED):
+    def __init__(
+        self,
+        key,
+        default=UNDEFINED,
+        *,
+        visibility: Visibility | None = None,
+    ):
         super().__init__(key, default=default)
+        self.visibility: Visibility | None = visibility
 
 
 class Required(vol.Required):
     """Define a field to be required to be set. The validated configuration is guaranteed
     to contain this key.
 
-    All required values should be acceessed with the `config[CONF_<KEY>]` syntax in code
+    All required values should be accessed with the `config[CONF_<KEY>]` syntax in code
     - *not* the `config.get(CONF_<KEY>)` syntax.
+
+    See :class:`Visibility` for the ``visibility`` kwarg — a UI
+    hint for schema-driven editors that doesn't affect validation.
+    Required fields rarely need it: left unset, a ``Required`` is
+    treated as on the main form (``Visibility.UI``) by schema-aware
+    editors, since a required field needs the user's attention. The
+    kwarg is exposed for symmetry so consumers can apply uniform
+    logic across key markers.
     """
 
-    def __init__(self, key, msg=None):
+    def __init__(
+        self,
+        key,
+        msg=None,
+        *,
+        visibility: Visibility | None = None,
+    ):
         super().__init__(key, msg=msg)
+        self.visibility: Visibility | None = visibility
+
+
+def with_visibility(schema: Schema, visibility: Visibility, *keys: str) -> Schema:
+    """Return a copy of ``schema`` with the given ``keys`` re-marked at ``visibility``.
+
+    Lets a platform override the editor :class:`Visibility` of fields it
+    inherits from a shared schema builder — without that builder needing a
+    visibility parameter of its own. The canonical use is a ``template``
+    platform promoting the value metadata its user is expected to define
+    (``device_class``, ``unit_of_measurement``, …) onto the main form:
+
+        CONFIG_SCHEMA = cv.with_visibility(
+            sensor.sensor_schema(TemplateSensor),
+            cv.Visibility.UI,
+            CONF_DEVICE_CLASS, CONF_UNIT_OF_MEASUREMENT,
+        )
+
+    The original marker's key, default and validator are preserved; only the
+    visibility changes, and the input ``schema`` is left untouched. Raises if
+    a requested key is not present so typos fail at schema-build time.
+    """
+    wanted = {str(k) for k in keys}
+    overrides = {}
+    for marker, validator in schema.schema.items():
+        if str(marker) in wanted:
+            marker = copy.copy(marker)
+            marker.visibility = visibility
+            overrides[marker] = validator
+    if missing := wanted - {str(m) for m in overrides}:
+        raise ValueError(f"with_visibility: keys not in schema: {sorted(missing)}")
+    return schema.extend(overrides)
+
+
+class SourceTraceInvalid(Invalid):
+    """An error whose message is followed by where the bad value came from.
+
+    ``detail`` is the message without that trace, for output that already
+    gives the location.
+    """
+
+    def __init__(
+        self, detail: str, source_trace: str, path: list[typing.Hashable] | None = None
+    ) -> None:
+        super().__init__(f"{detail}\n{source_trace}", path)
+        self.detail = detail
 
 
 class FinalExternalInvalid(Invalid):
@@ -336,16 +583,99 @@ def string_strict(value):
     )
 
 
+# Substring fallbacks for fields whose validator isn't explicitly wrapped in
+# ``cv.sensitive``. Frontends and dump tooling should prefer the explicit
+# marker; this list exists so we still mask obvious leaks in unmigrated or
+# third-party schemas. Kept here as the single source of truth.
+SENSITIVE_KEY_FRAGMENTS: frozenset[str] = frozenset(
+    {
+        "password",
+        "passcode",
+        "secret",
+        "token",
+        "api_key",
+        "apikey",
+        "psk",
+    }
+)
+
+
+class SensitiveValidator:
+    """Marker wrapper that flags a field as containing sensitive data (passwords,
+    encryption keys, PSKs, tokens). Frontends and dump tooling detect this marker
+    to mask the value; validation behavior is delegated to the inner validator.
+    """
+
+    def __init__(self, inner: Callable[[typing.Any], typing.Any]) -> None:
+        self.inner = inner
+
+    def __call__(self, value: typing.Any) -> typing.Any:
+        validated = self.inner(value)
+        # Already-tagged values are returned as-is so nested cv.sensitive is
+        # idempotent; bool is an int subclass and must stay bool.
+        if isinstance(validated, (Sensitive, bool)):
+            return validated
+        if isinstance(validated, str):
+            return SensitiveStr(validated)
+        if isinstance(validated, int):
+            return (SensitiveHexInt if isinstance(validated, HexInt) else SensitiveInt)(
+                validated
+            )
+        if isinstance(validated, Lambda):
+            # Marked, not masked: the dumper keeps the lambda representer.
+            return add_class_to_obj(validated, Sensitive)
+        return validated
+
+    def __repr__(self) -> str:
+        # Mirror the inner validator's repr so ``build_language_schema``'s
+        # ``known_schemas``/``extended_schemas`` dedup (keyed on ``repr(schema)``)
+        # treats two wrappers around the same inner as identical, and so
+        # voluptuous error messages stay readable.
+        return repr(self.inner)
+
+
+def sensitive(
+    inner: Callable[[typing.Any], typing.Any] = string,
+) -> SensitiveValidator:
+    """Mark a field as sensitive so that frontends mask it and dump tooling redacts it.
+
+    Validation behavior is identical to ``inner`` (defaults to ``cv.string``).
+    """
+    return SensitiveValidator(inner)
+
+
 def icon(value):
     """Validate that a given config value is a valid icon."""
+    from esphome.core.config import ICON_MAX_LENGTH
+
     value = string_strict(value)
     if not value:
         return value
-    if re.match("^[\\w\\-]+:[\\w\\-]+$", value):
-        return value
-    raise Invalid(
-        'Icons must match the format "[icon pack]:[icon]", e.g. "mdi:home-assistant"'
-    )
+    if not re.match("^[\\w\\-]+:[\\w\\-]+$", value):
+        raise Invalid(
+            'Icons must match the format "[icon pack]:[icon]", e.g. "mdi:home-assistant"'
+        )
+    byte_len = len(value.encode("utf-8"))
+    if byte_len > ICON_MAX_LENGTH:
+        raise Invalid(
+            f"Icon string is too long ({byte_len} bytes, max {ICON_MAX_LENGTH}). "
+            "Icons are stored in PROGMEM with a 64-byte buffer limit."
+        )
+    return value
+
+
+@schema_extractor("use_id")
+def sub_device_id(value: str | None) -> core.ID | None:
+    # Lazy import to avoid circular imports
+    from esphome.core.config import Device
+
+    if value == SCHEMA_EXTRACT:
+        return Device
+
+    if not value:
+        return None
+
+    return use_id(Device)(value)
 
 
 def boolean(value):
@@ -362,9 +692,9 @@ def boolean(value):
         return value
     if isinstance(value, str):
         value = value.lower()
-        if value in ("true", "yes", "on", "enable"):
+        if value in TRUTHY_BOOL_STRINGS:
             return True
-        if value in ("false", "no", "off", "disable"):
+        if value in FALSY_BOOL_STRINGS:
             return False
     raise Invalid(
         f"Expected boolean value, but cannot convert {value} to a boolean. Please use 'true' or 'false'"
@@ -415,6 +745,13 @@ def hex_int(value):
     return HexInt(int_(value))
 
 
+def int_to_hex_string(value: int | str) -> str:
+    """Convert an integer to a hex string (e.g. 64 -> '0x40'). Pass-through strings."""
+    if isinstance(value, int):
+        return f"0x{value:X}"
+    return value
+
+
 def int_(value):
     """Validate that the config option is an integer.
 
@@ -436,8 +773,9 @@ def int_(value):
     try:
         return int(value, base)
     except ValueError:
-        # pylint: disable=raise-missing-from
-        raise Invalid(f"Expected integer, but cannot parse {value} as an integer")
+        raise Invalid(
+            f"Expected integer, but cannot parse {value} as an integer"
+        ) from None
 
 
 def int_range(min=None, max=None, min_included=True, max_included=True):
@@ -507,7 +845,7 @@ def validate_id_name(value):
             raise Invalid(
                 f"IDs must only consist of upper/lowercase characters, the underscorecharacter and numbers. The character '{char}' cannot be used"
             )
-    if value in RESERVED_IDS:
+    if value in RESERVED_IDS_SET:
         raise Invalid(f"ID '{value}' is reserved internally and cannot be used")
     if value in CORE.loaded_integrations:
         raise Invalid(
@@ -555,12 +893,6 @@ def declare_id(type):
         if value is None:
             return core.ID(None, is_declaration=True, type=type)
 
-        if isinstance(value, Extend):
-            raise Invalid(f"Source for extension of ID '{value.value}' was not found.")
-
-        if isinstance(value, Remove):
-            raise Invalid(f"Source for Removal of ID '{value.value}' was not found.")
-
         return core.ID(validate_id_name(value), is_declaration=True, type=type)
 
     return validator
@@ -602,16 +934,27 @@ def only_on(platforms):
     return validator_
 
 
-def only_with_framework(frameworks):
+def only_with_framework(
+    frameworks: Framework | str | list[Framework | str], suggestions=None
+):
     """Validate that this option can only be specified on the given frameworks."""
     if not isinstance(frameworks, list):
         frameworks = [frameworks]
 
+    frameworks = [Framework(framework) for framework in frameworks]
+
+    if suggestions is None:
+        suggestions = {}
+
     def validator_(obj):
         if CORE.target_framework not in frameworks:
-            raise Invalid(
-                f"This feature is only available with frameworks {frameworks}"
-            )
+            err_str = f"This feature is only available with framework(s) {', '.join([framework.value for framework in frameworks])}"
+            if suggestion := suggestions.get(CORE.target_framework):
+                (component, docs_path) = suggestion
+                err_str += f"\nPlease use '{component}'"
+                if docs_path:
+                    err_str += f": {docs_url(path=f'components/{docs_path}')}"
+            raise Invalid(err_str)
         return obj
 
     return validator_
@@ -619,9 +962,40 @@ def only_with_framework(frameworks):
 
 only_on_esp32 = only_on(PLATFORM_ESP32)
 only_on_esp8266 = only_on(PLATFORM_ESP8266)
-only_on_rp2040 = only_on(PLATFORM_RP2040)
-only_with_arduino = only_with_framework("arduino")
-only_with_esp_idf = only_with_framework("esp-idf")
+only_on_nrf52 = only_on(PLATFORM_NRF52)
+only_on_rp2 = only_on(PLATFORM_RP2)
+
+# CORE.data key for the "deprecation warning already fired this run" flag.
+# Deduped via CORE.data (cleared between runs) to match the framework-alias
+# pattern; one warning per `esphome config|compile|run` invocation is enough.
+_ONLY_ON_RP2040_DEPRECATED_KEY = "_cv_only_on_rp2040_deprecated_warned"
+
+
+def only_on_rp2040(obj):
+    """Deprecated — kept as a back-compat shim for external custom components.
+
+    Pre-RP2350, this was the family check for the RP2 platform; with RP2350
+    landing under the same target platform, the variant axis is now exposed
+    by the rp2 component itself. New code should use one of:
+
+    * :func:`only_on_rp2` — family-level gate (matches the esp32 pattern;
+      same semantics as the pre-RP2350 ``only_on_rp2040``).
+    * ``rp2.only_on_variant(supported=[VARIANT_RP2040])`` — variant-level
+      gate, rejects RP2350 boards on the rp2 platform.
+
+    Scheduled for removal in 2027.7.0.
+    """
+    if not CORE.data.get(_ONLY_ON_RP2040_DEPRECATED_KEY):
+        _LOGGER.warning(
+            "cv.only_on_rp2040 is deprecated; use cv.only_on_rp2 for the "
+            "family gate, or rp2.only_on_variant(supported=[VARIANT_RP2040]) "
+            "for the variant gate. Removed in 2027.7.0."
+        )
+        CORE.data[_ONLY_ON_RP2040_DEPRECATED_KEY] = True
+    return only_on_rp2(obj)
+
+
+only_with_arduino = only_with_framework(Framework.ARDUINO)
 
 
 # Adapted from:
@@ -665,9 +1039,10 @@ def has_at_most_one_key(*keys):
         if not isinstance(obj, dict):
             raise Invalid("expected dictionary")
 
-        number = sum(k in keys for k in obj)
-        if number > 1:
-            raise Invalid(f"Cannot specify more than one of {', '.join(keys)}.")
+        used = set(obj) & set(keys)
+        if len(used) > 1:
+            msg = "Cannot specify more than one of '" + "', '".join(used) + "'."
+            raise MultipleInvalid([Invalid(msg, path=[k]) for k in used])
         return obj
 
     return validate
@@ -686,6 +1061,123 @@ def has_none_or_all_keys(*keys):
         return obj
 
     return validate
+
+
+def _as_tuple(value: typing.Any) -> tuple:
+    return tuple(value) if isinstance(value, (list, tuple)) else (value,)
+
+
+def _quote_value(value: typing.Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)):
+        return str(value)
+    return f"'{value}'"
+
+
+def _key_constraint(
+    record: dict[str, typing.Any],
+    passes: Callable[[dict], bool],
+    message: Callable[[dict], str],
+    hint: str | None,
+) -> Callable[[typing.Any], typing.Any]:
+    """Reject each of ``record["keys"]`` that is set when *passes* fails.
+
+    The schema dump appends *record* to the schema's ``constraints`` list.
+    """
+    suffix = f". {hint}" if hint else ""
+
+    @schema_extractor("key_constraint")
+    def validate(obj: typing.Any) -> typing.Any:
+        if obj is SCHEMA_EXTRACT:
+            return copy.deepcopy(record)
+        if not isinstance(obj, dict):
+            raise Invalid("expected dictionary")
+        if passes(obj):
+            return obj
+        if errors := [
+            Invalid(f"'{key}' {message(obj)}{suffix}", path=[key])
+            for key in record["keys"]
+            if key in obj
+        ]:
+            raise MultipleInvalid(errors)
+        return obj
+
+    return validate
+
+
+def only_when(
+    keys: str | list[str] | tuple[str, ...],
+    selector: str,
+    values: typing.Any,
+    *,
+    negate: bool = False,
+    hint: str | None = None,
+) -> Callable[[typing.Any], typing.Any]:
+    """Allow *keys* only when *selector* is one of *values* (none of them with *negate*).
+
+    Place it after the schema in ``cv.All`` so the selector's default counts. *hint* is
+    added to the error. Prefer ``cv.typed_schema`` when most of the schema depends on
+    the selector.
+    """
+    keys = _as_tuple(keys)
+    values = _as_tuple(values)
+    assert all(isinstance(v, (str, int, float, bool)) for v in values)
+    shown = " or ".join(_quote_value(v) for v in values)
+    message = f"is only valid when '{selector}' is {'not ' if negate else ''}{shown}"
+
+    # The bool tag keeps True from matching 1
+    wanted = [(isinstance(v, bool), v) for v in values]
+
+    def passes(obj: dict) -> bool:
+        actual = obj.get(selector)
+        return ((isinstance(actual, bool), actual) in wanted) != negate
+
+    return _key_constraint(
+        {
+            "type": "only_when",
+            "keys": list(keys),
+            "selector": selector,
+            "values": list(values),
+            "negate": negate,
+        },
+        passes,
+        lambda obj: message,
+        hint,
+    )
+
+
+def key_requires(
+    keys: str | list[str] | tuple[str, ...],
+    *required: str,
+    any_of: bool = False,
+    hint: str | None = None,
+) -> Callable[[typing.Any], typing.Any]:
+    """Allow *keys* only when all of *required* are set (any one of them with *any_of*).
+
+    Place it after the schema in ``cv.All``. *hint* is added to the error.
+    """
+    assert required
+    check = any if any_of else all
+
+    def message(obj: dict) -> str:
+        # Name only the missing keys when all are required
+        if any_of:
+            return f"requires {' or '.join(_quote_value(key) for key in required)}"
+        missing = (_quote_value(key) for key in required if key not in obj)
+        return f"requires {' and '.join(missing)}"
+
+    return _key_constraint(
+        {
+            "type": "key_requires",
+            "keys": list(_as_tuple(keys)),
+            "required": list(required),
+            "any_of": any_of,
+        },
+        lambda obj: check(key in obj for key in required),
+        message,
+        hint,
+    )
 
 
 TIME_PERIOD_ERROR = (
@@ -720,8 +1212,7 @@ def time_period_str_colon(value):
     try:
         parsed = [int(x) for x in value.split(":")]
     except ValueError:
-        # pylint: disable=raise-missing-from
-        raise Invalid(TIME_PERIOD_ERROR.format(value))
+        raise Invalid(TIME_PERIOD_ERROR.format(value)) from None
 
     if len(parsed) == 2:
         hour, minute = parsed
@@ -818,8 +1309,27 @@ def time_period_in_minutes_(value):
 
 def update_interval(value):
     if value == "never":
-        return 4294967295  # uint32_t max
-    return positive_time_period_milliseconds(value)
+        return TimePeriodMilliseconds(milliseconds=SCHEDULER_DONT_RUN)
+    result = positive_time_period_milliseconds(value)
+    # 0ms was historically (mis)used as a pseudo-loop() mechanism for
+    # PollingComponents. Under the hood it calls set_interval(0), which
+    # causes Scheduler::call() to spin (WDT reset in the field). Coerce
+    # to 1ms so existing configs keep working at ~1kHz instead of
+    # spinning. Don't hard-fail so configs don't break on upgrade;
+    # authors should migrate to HighFrequencyLoopRequester (C++) for
+    # true run-every-loop behaviour.
+    if result.total_milliseconds == 0:
+        _LOGGER.warning(
+            "update_interval of 0ms is not supported - coercing to 1ms. "
+            "A literal 0ms schedule would spin the main loop (the scheduled "
+            "item would always be due, so the scheduler would never yield "
+            "back) and trigger a watchdog reset. Set update_interval to a "
+            "non-zero value such as 1ms or higher. (Custom C++ components "
+            "that need true run-every-loop behaviour should override loop() "
+            "with HighFrequencyLoopRequester instead.)"
+        )
+        return TimePeriodMilliseconds(milliseconds=1)
+    return result
 
 
 time_period = Any(time_period_str_unit, time_period_str_colon, time_period_dict)
@@ -921,10 +1431,11 @@ def date_time(date: bool, time: bool):
                 format += "%p"
 
         try:
-            date_obj = datetime.strptime(value, format)
+            # The generated format never includes %z/%Z, so this parses a
+            # naive wall-clock date/time by design.
+            date_obj = datetime.strptime(value, format)  # noqa: DTZ007
         except ValueError as err:
-            # pylint: disable=raise-missing-from
-            raise Invalid(f"Invalid {exc_message}: {err}")
+            raise Invalid(f"Invalid {exc_message}: {err}") from err
 
         return_value = {}
         if date:
@@ -954,28 +1465,67 @@ def mac_address(value):
         try:
             parts_int.append(int(part, 16))
         except ValueError:
-            # pylint: disable=raise-missing-from
-            raise Invalid("MAC Address parts must be hexadecimal values from 00 to FF")
+            raise Invalid(
+                "MAC Address parts must be hexadecimal values from 00 to FF"
+            ) from None
 
     return core.MACAddress(*parts_int)
 
 
-def bind_key(value):
-    value = string_strict(value)
-    parts = [value[i : i + 2] for i in range(0, len(value), 2)]
-    if len(parts) != 16:
-        raise Invalid("Bind key must consist of 16 hexadecimal numbers")
-    parts_int = []
-    if any(len(part) != 2 for part in parts):
-        raise Invalid("Bind key must be format XX")
-    for part in parts:
-        try:
-            parts_int.append(int(part, 16))
-        except ValueError:
-            # pylint: disable=raise-missing-from
-            raise Invalid("Bind key must be hex values from 00 to FF")
+_BIND_KEY_MISSING = object()
 
-    return "".join(f"{part:02X}" for part in parts_int)
+
+class BindKeyValidator(SensitiveValidator):
+    """Sensitive validator for a 16-byte hex bind/encryption key.
+
+    Use bare as a validator (``cv.bind_key``) for the default error wording, or
+    call it with a custom ``name`` (``cv.bind_key(name="Decryption key")``) to
+    get a validator with tailored error messages. Either way the value is marked
+    sensitive so frontends mask it and dump tooling redacts it.
+    """
+
+    def __init__(self, name: str = "Bind key") -> None:
+        self._name = name
+        super().__init__(self._validate)
+
+    def _validate(self, value: typing.Any) -> str:
+        value = string_strict(value)
+        parts = [value[i : i + 2] for i in range(0, len(value), 2)]
+        if len(parts) != 16:
+            raise Invalid(f"{self._name} must consist of 16 hexadecimal numbers")
+        parts_int = []
+        if any(len(part) != 2 for part in parts):
+            raise Invalid(f"{self._name} must be format XX")
+        for part in parts:
+            try:
+                parts_int.append(int(part, 16))
+            except ValueError:
+                raise Invalid(
+                    f"{self._name} must be hex values from 00 to FF"
+                ) from None
+
+        return "".join(f"{part:02X}" for part in parts_int)
+
+    def __call__(
+        self, value: typing.Any = _BIND_KEY_MISSING, *, name: str | None = None
+    ) -> typing.Any:
+        if value is _BIND_KEY_MISSING:
+            # Factory usage: return a validator with customized error wording.
+            return BindKeyValidator(name if name is not None else self._name)
+        if name is not None and name != self._name:
+            # Direct validation with a one-off custom name.
+            return BindKeyValidator(name)(value)
+        return super().__call__(value)
+
+    def __repr__(self) -> str:
+        # ``self.inner`` is a bound method of this instance, so the inherited
+        # ``SensitiveValidator.__repr__`` (which returns ``repr(self.inner)``)
+        # would recurse infinitely. Provide a stable, name-keyed repr instead so
+        # ``build_language_schema`` dedup and voluptuous errors stay sane.
+        return f"bind_key({self._name!r})"
+
+
+bind_key = BindKeyValidator()
 
 
 def uuid(value):
@@ -983,29 +1533,38 @@ def uuid(value):
 
 
 METRIC_SUFFIXES = {
-    "E": 1e18,
-    "P": 1e15,
-    "T": 1e12,
-    "G": 1e9,
-    "M": 1e6,
-    "k": 1e3,
-    "da": 10,
-    "d": 1e-1,
-    "c": 1e-2,
-    "m": 0.001,
-    "µ": 1e-6,
-    "u": 1e-6,
-    "n": 1e-9,
-    "p": 1e-12,
-    "f": 1e-15,
-    "a": 1e-18,
-    "": 1,
+    "Q": 1e30,  # Quetta
+    "R": 1e27,  # Ronna
+    "Y": 1e24,  # Yotta
+    "Z": 1e21,  # Zetta
+    "E": 1e18,  # Exa
+    "P": 1e15,  # Peta
+    "T": 1e12,  # Tera
+    "G": 1e9,  # Giga
+    "M": 1e6,  # Mega
+    "k": 1e3,  # Kilo
+    "h": 1e2,  # Hecto
+    "da": 1e1,  # Deca
+    "": 1e0,  # No prefix
+    "d": 1e-1,  # Deci
+    "c": 1e-2,  # Centi
+    "m": 1e-3,  # Milli
+    "µ": 1e-6,  # Micro
+    "u": 1e-6,  # Micro (same as µ)
+    "n": 1e-9,  # Nano
+    "p": 1e-12,  # Pico
+    "f": 1e-15,  # Femto
+    "a": 1e-18,  # Atto
+    "z": 1e-21,  # Zepto
+    "y": 1e-24,  # Yocto
+    "r": 1e-27,  # Ronto
+    "q": 1e-30,  # Quecto
 }
 
 
 def float_with_unit(quantity, regex_suffix, optional_unit=False):
     pattern = re.compile(
-        f"^([-+]?[0-9]*\\.?[0-9]*)\\s*(\\w*?){regex_suffix}$", re.UNICODE
+        f"^([-+]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+))\\s*(\\w*?){regex_suffix}$", re.UNICODE
     )
 
     def validator(value):
@@ -1019,16 +1578,21 @@ def float_with_unit(quantity, regex_suffix, optional_unit=False):
         if match is None:
             raise Invalid(f"Expected {quantity} with unit, got {value}")
 
-        mantissa = float(match.group(1))
         if match.group(2) not in METRIC_SUFFIXES:
             raise Invalid(f"Invalid {quantity} suffix {match.group(2)}")
 
-        multiplier = METRIC_SUFFIXES[match.group(2)]
-        return mantissa * multiplier
+        # Parse the scaled decimal in one go: "91uA" is then the same float as the
+        # literal 91e-6, which a product of two floats is not always.
+        exponent = round(math.log10(METRIC_SUFFIXES[match.group(2)]))
+        try:
+            return float(f"{match.group(1)}e{exponent}")
+        except ValueError as err:
+            raise Invalid(f"Expected {quantity} with unit, got {value}") from err
 
     return validator
 
 
+bps = float_with_unit("bits per second", "(bps|bits/s|bit/s)?")
 frequency = float_with_unit("frequency", "(Hz|HZ|hz)?")
 resistance = float_with_unit("resistance", "(Ω|Ω|ohm|Ohm|OHM)?")
 current = float_with_unit("current", "(a|A|amp|Amp|amps|Amps|ampere|Ampere)?")
@@ -1036,54 +1600,74 @@ voltage = float_with_unit("voltage", "(v|V|volt|Volts)?")
 distance = float_with_unit("distance", "(m)")
 framerate = float_with_unit("framerate", "(FPS|fps|Fps|FpS|Hz)")
 angle = float_with_unit("angle", "(°|deg)", optional_unit=True)
-_temperature_c = float_with_unit("temperature", "(°C|° C|°|C)?")
-_temperature_k = float_with_unit("temperature", "(° K|° K|K)?")
-_temperature_f = float_with_unit("temperature", "(°F|° F|F)?")
+_temperature_c = float_with_unit("temperature", "(°C|° C|C|°)?")
+_temperature_c_strict = float_with_unit("temperature", "(°C|° C|C)")
+_temperature_k = float_with_unit("temperature", "(°K|° K|K)")
+_temperature_f = float_with_unit("temperature", "(°F|° F|F)")
 decibel = float_with_unit("decibel", "(dB|dBm|db|dbm)", optional_unit=True)
 pressure = float_with_unit("pressure", "(bar|Bar)", optional_unit=True)
 
 
-def temperature(value):
-    err = None
-    try:
-        return _temperature_c(value)
-    except Invalid as orig_err:
-        err = orig_err
+class TemperatureUnitValue(str):
+    """A unit from temperature_unit(): the platform took the option, so the entity reports in it."""
 
-    try:
-        kelvin = _temperature_k(value)
-        return kelvin - 273.15
-    except Invalid:
-        pass
-
-    try:
-        fahrenheit = _temperature_f(value)
-        return (fahrenheit - 32) * (5 / 9)
-    except Invalid:
-        pass
-
-    raise err
+    __slots__ = ()
 
 
-def temperature_delta(value):
-    err = None
-    try:
-        return _temperature_c(value)
-    except Invalid as orig_err:
-        err = orig_err
+def temperature_unit(value: Any) -> TemperatureUnitValue:
+    """Validate the unit an entity reports its temperatures in."""
+    return TemperatureUnitValue(one_of(*TEMPERATURE_UNITS)(value))
 
-    try:
-        return _temperature_k(value)
-    except Invalid:
-        pass
 
-    try:
-        fahrenheit = _temperature_f(value)
-        return fahrenheit * (5 / 9)
-    except Invalid:
-        pass
+def temperature_with_unit(value: Any) -> TemperatureWithUnit:
+    """Parse a temperature and keep the unit written with it; the unit is None when there is none."""
+    for validator, unit in (
+        (_temperature_k, UNIT_KELVIN),
+        (_temperature_f, UNIT_FAHRENHEIT),
+        (_temperature_c_strict, UNIT_CELSIUS),
+    ):
+        try:
+            return TemperatureWithUnit(validator(value), unit)
+        except Invalid:
+            pass
+    return TemperatureWithUnit(_temperature_c(value), None)
 
-    raise err
+
+# unit = celsius * scale + offset
+_TEMPERATURE_SCALES = {
+    UNIT_CELSIUS: (1.0, 0.0),
+    UNIT_FAHRENHEIT: (9 / 5, 32.0),
+    UNIT_KELVIN: (1.0, 273.15),
+}
+
+
+templatable_temperature = templatable(temperature_with_unit)
+
+
+def convert_temperature(
+    value: float, unit: str | None, to_unit: str, *, delta: bool = False
+) -> float:
+    """Convert a temperature, or with ``delta`` a temperature difference, between units.
+
+    A value written without a unit is taken to be in ``to_unit`` already.
+    """
+    if unit is None or unit == to_unit:
+        return value
+    scale, offset = _TEMPERATURE_SCALES[unit]
+    to_scale, to_offset = _TEMPERATURE_SCALES[to_unit]
+    if delta:
+        return value / scale * to_scale
+    return (value - offset) / scale * to_scale + to_offset
+
+
+def temperature(value: Any) -> float:
+    """Parse a temperature in °C, K or °F into degrees Celsius."""
+    return convert_temperature(*temperature_with_unit(value), UNIT_CELSIUS)
+
+
+def temperature_delta(value: Any) -> float:
+    """Parse a temperature difference in °C, K or °F into Celsius degrees."""
+    return convert_temperature(*temperature_with_unit(value), UNIT_CELSIUS, delta=True)
 
 
 _color_temperature_mireds = float_with_unit("Color Temperature", r"(mireds|Mireds)")
@@ -1094,7 +1678,10 @@ def color_temperature(value):
     try:
         val = _color_temperature_mireds(value)
     except Invalid:
-        val = 1000000.0 / _color_temperature_kelvin(value)
+        kelvin = _color_temperature_kelvin(value)
+        if kelvin == 0:
+            raise Invalid("Color temperature cannot be 0 K") from None
+        val = 1000000.0 / kelvin
     if val < 0:
         raise Invalid("Color temperature cannot be negative")
     return val
@@ -1119,6 +1706,13 @@ def validate_bytes(value):
 
 
 def hostname(value):
+    """Validate that the value is a valid hostname.
+
+    Maximum length is 63 characters per RFC 1035.
+
+    Note: If this limit is changed, update MAX_NAME_WITH_SUFFIX_SIZE in
+    esphome/core/helpers.h to accommodate the new maximum length.
+    """
     value = string(value)
     if re.match(r"^[a-z0-9-]{1,63}$", value, re.IGNORECASE) is not None:
         return value
@@ -1155,8 +1749,10 @@ def ssid(value):
     value = string_strict(value)
     if not value:
         raise Invalid("SSID can't be empty.")
-    if len(value) > 32:
-        raise Invalid("SSID can't be longer than 32 characters")
+    # 802.11 limits the SSID to 32 octets, and the C++ components compare the
+    # UTF-8 byte length against that limit, so measure bytes here as well
+    if (size := len(value.encode("utf-8"))) > 32:
+        raise Invalid(f"SSID can't be longer than 32 bytes (got {size} bytes in UTF-8)")
     return value
 
 
@@ -1168,12 +1764,18 @@ def ipv4address(value):
     return address
 
 
+def ipv6address(value):
+    try:
+        address = IPv6Address(value)
+    except AddressValueError as exc:
+        raise Invalid(f"{value} is not a valid IPv6 address") from exc
+    return address
+
+
 def ipv4address_multi_broadcast(value):
     address = ipv4address(value)
     if not (address.is_multicast or (address == IPv4Address("255.255.255.255"))):
-        raise Invalid(
-            f"{value} is not a multicasst address nor local broadcast address"
-        )
+        raise Invalid(f"{value} is not a multicast address nor local broadcast address")
     return address
 
 
@@ -1183,6 +1785,33 @@ def ipaddress(value):
     except ValueError as exc:
         raise Invalid(f"{value} is not a valid IP address") from exc
     return address
+
+
+def ipv4network(value):
+    """Validate that the value is a valid IPv4 network."""
+    try:
+        network = IPv4Network(value, strict=False)
+    except ValueError as exc:
+        raise Invalid(f"{value} is not a valid IPv4 network") from exc
+    return network
+
+
+def ipv6network(value):
+    """Validate that the value is a valid IPv6 network."""
+    try:
+        network = IPv6Network(value, strict=False)
+    except ValueError as exc:
+        raise Invalid(f"{value} is not a valid IPv6 network") from exc
+    return network
+
+
+def ipnetwork(value):
+    """Validate that the value is a valid IP network."""
+    try:
+        network = ip_network(value, strict=False)
+    except ValueError as exc:
+        raise Invalid(f"{value} is not a valid IP network") from exc
+    return network
 
 
 def _valid_topic(value):
@@ -1249,8 +1878,7 @@ def mqtt_qos(value):
     try:
         value = int(value)
     except (TypeError, ValueError):
-        # pylint: disable=raise-missing-from
-        raise Invalid(f"MQTT Quality of Service must be integer, got {value}")
+        raise Invalid(f"MQTT Quality of Service must be integer, got {value}") from None
     return one_of(0, 1, 2)(value)
 
 
@@ -1260,6 +1888,17 @@ def requires_component(comp):
     def validator(value):
         if comp not in CORE.loaded_integrations:
             raise Invalid(f"This option requires component {comp}")
+        return value
+
+    return validator
+
+
+def conflicts_with_component(comp):
+    """Validate that this option cannot be specified when the component `comp` is loaded."""
+
+    def validator(value):
+        if comp in CORE.loaded_integrations:
+            raise Invalid(f"This option is not compatible with component {comp}")
         return value
 
     return validator
@@ -1276,17 +1915,53 @@ hex_uint64_t = hex_int_range(min=0, max=18446744073709551615)
 i2c_address = hex_uint8_t
 
 
-def percentage(value):
+def percentage(value: object) -> float:
     """Validate that the value is a percentage.
 
-    The resulting value is an integer in the range 0.0 to 1.0.
+    The resulting value is a float in the range 0.0 to 1.0.
     """
-    value = possibly_negative_percentage(value)
+    value = _parse_percentage(value)
     return zero_to_one_float(value)
 
 
-def possibly_negative_percentage(value):
-    has_percent_sign = False
+def possibly_negative_percentage(value: object) -> float:
+    """Validate that the value is a possibly negative percentage.
+
+    The resulting value is a float in the range -1.0 to 1.0.
+    """
+    value = _parse_percentage(value)
+    return negative_one_to_one_float(value)
+
+
+def unbounded_percentage(value: object) -> float:
+    """Validate that the value is a percentage, allowing values above 100%.
+
+    The resulting value is a non-negative float with no upper bound.
+    For example, "150%" returns 1.5 and "50%" returns 0.5.
+    """
+    value = _parse_percentage(value)
+    if value < 0:
+        raise Invalid("Percentage must not be negative")
+    return value
+
+
+def unbounded_possibly_negative_percentage(value: object) -> float:
+    """Validate that the value is a possibly negative percentage without bounds.
+
+    The resulting value is an unbounded float.
+    For example, "200%" returns 2.0 and "-150%" returns -1.5.
+    """
+    return _parse_percentage(value)
+
+
+def _parse_percentage(value: object) -> float:
+    """Parse a percentage string or number into a float.
+
+    Handles both "50%" style strings and raw float values.
+    Values without a percent sign above 1.0 or below -1.0 are rejected
+    to prevent user mistakes (e.g. writing 50 instead of 50%).
+    """
+    has_percent_sign: bool = False
     if isinstance(value, str):
         try:
             if value.endswith("%"):
@@ -1295,30 +1970,22 @@ def possibly_negative_percentage(value):
             else:
                 value = float(value)
         except ValueError:
-            # pylint: disable=raise-missing-from
-            raise Invalid("invalid number")
+            raise Invalid("invalid number") from None
     try:
-        if value > 1:
-            msg = "Percentage must not be higher than 100%."
-            if not has_percent_sign:
-                msg += " Please put a percent sign after the number!"
-            raise Invalid(msg)
-        if value < -1:
-            msg = "Percentage must not be smaller than -100%."
-            if not has_percent_sign:
-                msg += " Please put a percent sign after the number!"
-            raise Invalid(msg)
+        if not has_percent_sign and (value > 1 or value < -1):
+            raise Invalid(
+                "Percentage value must use a percent sign for values "
+                "outside -1.0 to 1.0. Please put a percent sign after the number!"
+            )
     except TypeError:
-        raise Invalid(  # pylint: disable=raise-missing-from
-            "Expected percentage or float between -1.0 and 1.0"
-        )
-    return negative_one_to_one_float(value)
+        raise Invalid("Expected percentage or float") from None
+    return float(value)
 
 
-def percentage_int(value):
-    if isinstance(value, str) and value.endswith("%"):
-        value = int(value[:-1].rstrip())
-    return value
+def percentage_int(value: object) -> int:
+    if isinstance(value, str):
+        return int_(value.strip().removesuffix("%"))
+    return int_(value)
 
 
 def invalid(message):
@@ -1377,6 +2044,8 @@ def one_of(*values, **kwargs):
       - *int* (``bool``, default=False): Whether to convert the incoming values to integers.
       - *float* (``bool``, default=False): Whether to convert the incoming values to floats.
       - *space* (``str``, default=' '): What to convert spaces in the input string to.
+      - *underscore* (``str``, default='_'): What to convert underscores in the input string to.
+      - *hyphen* (``str``, default='-'): What to convert hyphens in the input string to.
     """
     options = ", ".join(f"'{x}'" for x in values)
     lower = kwargs.pop("lower", False)
@@ -1385,8 +2054,11 @@ def one_of(*values, **kwargs):
     to_int = kwargs.pop("int", False)
     to_float = kwargs.pop("float", False)
     space = kwargs.pop("space", " ")
+    underscore = kwargs.pop("underscore", "_")
+    hyphen = kwargs.pop("hyphen", "-")
     if kwargs:
         raise ValueError
+    separators = str.maketrans({" ": space, "_": underscore, "-": hyphen})
 
     @schema_extractor("one_of")
     def validator(value):
@@ -1395,7 +2067,7 @@ def one_of(*values, **kwargs):
 
         if string_:
             value = string(value)
-            value = value.replace(" ", space)
+            value = value.translate(separators)
         if to_int:
             value = int_(value)
         if to_float:
@@ -1461,13 +2133,46 @@ def lambda_(value):
     return value
 
 
+# 'return' at a statement boundary; only consulted when the source has no
+# semicolon, so ';' is not a boundary. Migration use only, see
+# looks_like_returning_lambda.
+LAMBDA_RETURN_STATEMENT_PROG = re.compile(r"(?:^|[:{})\n])\s*return\b")
+LAMBDA_RETURN_KEYWORD_PROG = re.compile(r"\breturn\b")
+# RESERVED_IDS subset that can begin a return expression; 'this'/'true' would
+# promote prose and infix 'and'/'or' cannot start an expression.
+_CPP_LEADING_WORD_OPERATORS = "not|new|sizeof|delete"
+# Two or more plain words: prose, not C++. A single word is indistinguishable
+# from 'return x'. Migration use only, see looks_like_returning_lambda.
+LAMBDA_PROSE_TAIL_PROG = re.compile(
+    rf"(?!(?:{_CPP_LEADING_WORD_OPERATORS})\b)[A-Za-z']+(?:,?\s+[A-Za-z']+)+[.!?]?"
+)
+
+
+def looks_like_returning_lambda(value: str) -> bool:
+    """Check whether a string looks like C++ lambda source: a semicolon means
+    code, so any return keyword counts; without one, a boundary return whose
+    tail does not read as prose is a return statement missing its semicolon.
+
+    For migrating deprecated implicit lambdas only; new validators must
+    require an explicit !lambda tag instead of guessing.
+    """
+    src = Lambda.comment_remover(value)
+    if ";" in src:
+        return LAMBDA_RETURN_KEYWORD_PROG.search(src) is not None
+    for match in LAMBDA_RETURN_STATEMENT_PROG.finditer(src):
+        tail = src[match.end() :].split("\n", 1)[0].strip()
+        if not LAMBDA_PROSE_TAIL_PROG.fullmatch(tail):
+            return True
+    return False
+
+
 def returning_lambda(value):
     """Coerce this configuration option to a lambda.
 
     Additionally, make sure the lambda returns something.
     """
     value = lambda_(value)
-    if "return" not in value.value:
+    if LAMBDA_RETURN_KEYWORD_PROG.search(Lambda.comment_remover(value.value)) is None:
         raise Invalid(
             "Lambda doesn't contain a 'return' statement, but the lambda "
             "is expected to return a value. \n"
@@ -1484,90 +2189,79 @@ def dimensions(value):
         try:
             width, height = int(value[0]), int(value[1])
         except ValueError:
-            # pylint: disable=raise-missing-from
-            raise Invalid("Width and height dimensions must be integers")
+            raise Invalid("Width and height dimensions must be integers") from None
         if width <= 0 or height <= 0:
             raise Invalid("Width and height must at least be 1")
         return [width, height]
-    value = string(value)
-    match = re.match(r"\s*([0-9]+)\s*[xX]\s*([0-9]+)\s*", value)
+    if not isinstance(value, str):
+        raise Invalid(
+            "Dimensions must be a string (WIDTHxHEIGHT). Got a number instead, try quoting the value."
+        )
+    match = re.fullmatch(r"\s*([0-9]+)\s*[xX]\s*([0-9]+)\s*", value)
     if not match:
         raise Invalid(
-            "Invalid value '{}' for dimensions. Only WIDTHxHEIGHT is allowed."
+            f"Invalid value '{value}' for dimensions. Only WIDTHxHEIGHT is allowed."
         )
     return dimensions([match.group(1), match.group(2)])
 
 
-def directory(value):
-    import json
+def _remap_bundle_path(value: str) -> Path | None:
+    """Resolve a path from the machine an extracted bundle was created on.
 
-    value = string(value)
+    An absolute path in a config compiled from an extracted bundle may point
+    at the machine the bundle was created on; the bundle ships the file at
+    its config-relative location instead.
+    """
+    from esphome.bundle import remap_bundle_path
+
+    return remap_bundle_path(value)
+
+
+def _declaring_document(value: str) -> Path | None:
+    """Return the on-disk YAML file *value* was loaded from, absolute, or None."""
+    esp_range = getattr(value, "esp_range", None)
+    if esp_range is None:
+        return None
+    document = Path(esp_range.start_mark.document).absolute()
+    return document if document.is_file() else None
+
+
+def _existing_path(value: str, kind: str, is_kind: Callable[[Path], bool]) -> Path:
+    """Resolve *value* to a *kind* entry: config dir, then declaring document, then bundle remap."""
     path = CORE.relative_config_path(value)
-
-    if CORE.vscode and (
-        not CORE.ace or os.path.abspath(path) == os.path.abspath(CORE.config_path)
-    ):
-        print(
-            json.dumps(
-                {
-                    "type": "check_directory_exists",
-                    "path": path,
-                }
+    if is_kind(path):
+        return path
+    candidates = [path]
+    tried_document: Path | None = None
+    if (document := _declaring_document(value)) is not None:
+        beside_document = document.parent / Path(value).expanduser()
+        if os.path.normpath(beside_document) != os.path.normpath(path):
+            candidates.append(beside_document)
+            tried_document = document
+    if (remapped := _remap_bundle_path(value)) is not None:
+        candidates.append(remapped)
+    for candidate in candidates:
+        if is_kind(candidate):
+            return candidate
+    for candidate in candidates:
+        if candidate.exists():
+            raise Invalid(
+                f"Path '{candidate}' is not a {kind} (full path: {candidate.resolve()})."
             )
-        )
-        data = json.loads(input())
-        assert data["type"] == "directory_exists_response"
-        if data["content"]:
-            return value
-        raise Invalid(
-            f"Could not find directory '{path}'. Please make sure it exists (full path: {os.path.abspath(path)})."
-        )
-
-    if not os.path.exists(path):
-        raise Invalid(
-            f"Could not find directory '{path}'. Please make sure it exists (full path: {os.path.abspath(path)})."
-        )
-    if not os.path.isdir(path):
-        raise Invalid(
-            f"Path '{path}' is not a directory (full path: {os.path.abspath(path)})."
-        )
-    return value
+    also = (
+        f" Also looked next to {tried_document}." if tried_document is not None else ""
+    )
+    raise Invalid(
+        f"Could not find {kind} '{path}'. Please make sure it exists (full path: {path.resolve()}).{also}"
+    )
 
 
-def file_(value):
-    import json
+def directory(value: object) -> Path:
+    return _existing_path(string(value), "directory", Path.is_dir)
 
-    value = string(value)
-    path = CORE.relative_config_path(value)
 
-    if CORE.vscode and (
-        not CORE.ace or os.path.abspath(path) == os.path.abspath(CORE.config_path)
-    ):
-        print(
-            json.dumps(
-                {
-                    "type": "check_file_exists",
-                    "path": path,
-                }
-            )
-        )
-        data = json.loads(input())
-        assert data["type"] == "file_exists_response"
-        if data["content"]:
-            return value
-        raise Invalid(
-            f"Could not find file '{path}'. Please make sure it exists (full path: {os.path.abspath(path)})."
-        )
-
-    if not os.path.exists(path):
-        raise Invalid(
-            f"Could not find file '{path}'. Please make sure it exists (full path: {os.path.abspath(path)})."
-        )
-    if not os.path.isfile(path):
-        raise Invalid(
-            f"Path '{path}' is not a file (full path: {os.path.abspath(path)})."
-        )
-    return value
+def file_(value: object) -> Path:
+    return _existing_path(string(value), "file", Path.is_file)
 
 
 ENTITY_ID_CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789_"
@@ -1581,7 +2275,10 @@ def entity_id(value):
     value = string_strict(value).lower()
     if value.count(".") != 1:
         raise Invalid("Entity ID must have exactly one dot in it")
-    for x in value.split("."):
+    parts = value.split(".")
+    if not all(parts):
+        raise Invalid("Entity ID must be of the form '<domain>.<object_id>'")
+    for x in parts:
         for c in x:
             if c not in ENTITY_ID_CHARACTERS:
                 raise Invalid(f"Invalid character for entity ID: {c}")
@@ -1600,7 +2297,7 @@ def extract_keys(schema):
         elif isinstance(skey, vol.Marker) and isinstance(skey.schema, str):
             keys.append(skey.schema)
         else:
-            raise ValueError()
+            raise ValueError
     keys.sort()
     return keys
 
@@ -1615,6 +2312,9 @@ def typed_schema(schemas, **kwargs):
         assert isinstance(enum_mapping, dict)
         assert set(enum_mapping.keys()) == set(schemas.keys())
     key_validator = one_of(*schemas, **kwargs)
+    # Compiled schema per type, built on first use; the source schema is kept
+    # to notice an entry that was replaced in ``schemas`` afterwards.
+    compiled: dict[str, tuple[typing.Any, Schema]] = {}
 
     def validator(value):
         if not isinstance(value, dict):
@@ -1627,7 +2327,11 @@ def typed_schema(schemas, **kwargs):
         if enum_mapping is not None:
             key_v = add_class_to_obj(key_v, core.EnumValue)
             key_v.enum_value = enum_mapping[key_v]
-        value = Schema(schemas[key_v])(value)
+        source = schemas[key_v]
+        cached = compiled.get(key_v)
+        if cached is None or cached[0] is not source:
+            cached = compiled[key_v] = (source, Schema(source))
+        value = cached[1](value)
         value[key] = key_v
         return value
 
@@ -1646,7 +2350,24 @@ def _get_default_key(*args):
 
 
 class SplitDefault(Optional):
-    """Mark this key to have a split default for ESP8266/ESP32."""
+    """Mark this key to have a split default per target platform / variant / framework.
+
+    Defaults are passed as kwargs keyed on the platform identifier; the most
+    specific match wins. Lookup order (first hit wins):
+
+    1. ``<platform>_<variant>_<framework>`` — e.g. ``esp32_c3_arduino``,
+       ``rp2_2040_arduino``
+    2. ``<platform>_<variant>``             — e.g. ``esp32_c3``, ``rp2_2040``
+    3. ``<platform>_<framework>``           — e.g. ``esp32_arduino``,
+       ``rp2_arduino``
+    4. ``<platform>``                       — e.g. ``esp32``, ``rp2``
+
+    For ESP32 the variant strips the ``ESP32`` prefix from
+    :data:`esp32.VARIANT_*` constants (``ESP32C3`` → ``c3``). For RP2 the
+    variant strips just ``RP`` (``RP2040`` → ``2040``, ``RP2350`` → ``2350``)
+    so kwargs read naturally — `rp2_2040=...` is the override for the
+    Pico / Pico W and `rp2_2350=...` is the override for the Pico 2.
+    """
 
     def __init__(self, key, **kwargs):
         super().__init__(key)
@@ -1660,8 +2381,7 @@ class SplitDefault(Optional):
     def default(self):
         keys = []
         if CORE.is_esp32:
-            from esphome.components.esp32 import get_esp32_variant
-            from esphome.components.esp32.const import VARIANT_ESP32
+            from esphome.components.esp32 import VARIANT_ESP32, get_esp32_variant
 
             variant = get_esp32_variant().replace(VARIANT_ESP32, "").lower()
             framework = CORE.target_framework.replace("esp-", "")
@@ -1669,6 +2389,27 @@ class SplitDefault(Optional):
                 keys += _get_default_key(variant, framework)
                 keys += _get_default_key(variant)
             keys += _get_default_key(framework)
+        elif CORE.is_rp2:
+            # Strip the "RP" prefix to leave the chip number, mirroring
+            # the ESP32 "platform stripped from variant" convention so
+            # kwargs stay short (``rp2_2040`` rather than ``rp2_rp2040``).
+            # Variant lookup is defensive: validators may run before the
+            # rp2 component's ``set_core_data`` (or in tests that wire a
+            # partial ``CORE.data``); in that case we just skip the
+            # variant-specific keys and fall through to the base
+            # platform/framework defaults.
+            raw_variant = CORE.data.get("rp2", {}).get("variant")
+            framework = CORE.target_framework
+            if raw_variant:
+                variant = raw_variant.removeprefix("RP").lower()
+                keys += _get_default_key(variant, framework)
+                keys += _get_default_key(variant)
+            keys += _get_default_key(framework)
+        elif CORE.is_nrf52:
+            # Strip "NRF" like rp2 strips "RP": ``nrf52_54l15``
+            from esphome.components.nrf52.framework import get_nrf52_variant
+
+            keys += _get_default_key(get_nrf52_variant().removeprefix("NRF").lower())
         keys += _get_default_key()
         for key in keys:
             if self._defaults.get(key) is not None:
@@ -1682,7 +2423,48 @@ class SplitDefault(Optional):
 
 
 class OnlyWith(Optional):
-    """Set the default value only if the given component is loaded."""
+    """Set the default value only if the given component(s) is/are loaded.
+
+    This validator allows configuration keys to have defaults that are only applied
+    when specific component(s) are loaded. Supports both single component names and
+    lists of components.
+
+    Args:
+        key: Configuration key
+        component: Single component name (str) or list of component names.
+                  For lists, ALL components must be loaded for the default to apply.
+        default: Default value to use when condition is met
+
+    Example:
+        # Single component
+        cv.OnlyWith(CONF_MQTT_ID, "mqtt"): cv.declare_id(MQTTComponent)
+
+        # Multiple components (all must be loaded)
+        cv.OnlyWith(CONF_ZIGBEE_ID, ["zigbee", "nrf52"]): cv.use_id(Zigbee)
+    """
+
+    def __init__(self, key, component: str | list[str], default=None) -> None:
+        super().__init__(key)
+        self._component = component
+        self._default = vol.default_factory(default)
+
+    @property
+    def default(self) -> Callable[[], typing.Any] | vol.Undefined:
+        if isinstance(self._component, list):
+            if all(c in CORE.loaded_integrations for c in self._component):
+                return self._default
+        elif self._component in CORE.loaded_integrations:
+            return self._default
+        return vol.UNDEFINED
+
+    @default.setter
+    def default(self, value):
+        # Ignore default set from vol.Optional
+        pass
+
+
+class OnlyWithout(Optional):
+    """Set the default value only if the given component is NOT loaded."""
 
     def __init__(self, key, component, default=None):
         super().__init__(key)
@@ -1691,7 +2473,7 @@ class OnlyWith(Optional):
 
     @property
     def default(self):
-        if self._component in CORE.loaded_integrations:
+        if self._component not in CORE.loaded_integrations:
             return self._default
         return vol.UNDEFINED
 
@@ -1743,7 +2525,7 @@ def validate_registry_entry(name, registry):
         if key is None:
             raise Invalid(f"Key missing from {name}! Got {value}")
         if key not in registry:
-            raise Invalid(f"Unable to find {name} with the name '{key}'", [key])
+            raise KeyInvalid(f"Unable to find {name} with the name '{key}'", [key])
         key2 = next((x for x in value if x != key and x not in ignore_keys), None)
         if key2 is not None:
             raise Invalid(
@@ -1774,7 +2556,7 @@ def validate_registry_entry(name, registry):
 
 def none(value):
     if value in ("none", "None"):
-        return None
+        return
     raise Invalid("Must be none")
 
 
@@ -1804,6 +2586,7 @@ def maybe_simple_value(*validators, **kwargs):
             return validator(value)
         return validator({key: value})
 
+    validate.inner_schema = validator
     return validate
 
 
@@ -1826,14 +2609,25 @@ MQTT_COMPONENT_AVAILABILITY_SCHEMA = Schema(
     }
 )
 
+# Per-entity MQTT plumbing — integration metadata, never a primary UI field.
 MQTT_COMPONENT_SCHEMA = Schema(
     {
-        Optional(CONF_QOS): All(requires_component("mqtt"), mqtt_qos),
-        Optional(CONF_RETAIN): All(requires_component("mqtt"), boolean),
-        Optional(CONF_DISCOVERY): All(requires_component("mqtt"), boolean),
-        Optional(CONF_SUBSCRIBE_QOS): All(requires_component("mqtt"), mqtt_qos),
-        Optional(CONF_STATE_TOPIC): All(requires_component("mqtt"), publish_topic),
-        Optional(CONF_AVAILABILITY): All(
+        Optional(CONF_QOS, visibility=Visibility.ADVANCED): All(
+            requires_component("mqtt"), mqtt_qos
+        ),
+        Optional(CONF_RETAIN, visibility=Visibility.ADVANCED): All(
+            requires_component("mqtt"), boolean
+        ),
+        Optional(CONF_DISCOVERY, visibility=Visibility.ADVANCED): All(
+            requires_component("mqtt"), boolean
+        ),
+        Optional(CONF_SUBSCRIBE_QOS, visibility=Visibility.ADVANCED): All(
+            requires_component("mqtt"), mqtt_qos
+        ),
+        Optional(CONF_STATE_TOPIC, visibility=Visibility.ADVANCED): All(
+            requires_component("mqtt"), templatable(publish_topic)
+        ),
+        Optional(CONF_AVAILABILITY, visibility=Visibility.ADVANCED): All(
             requires_component("mqtt"), Any(None, MQTT_COMPONENT_AVAILABILITY_SCHEMA)
         ),
     }
@@ -1841,10 +2635,50 @@ MQTT_COMPONENT_SCHEMA = Schema(
 
 MQTT_COMMAND_COMPONENT_SCHEMA = MQTT_COMPONENT_SCHEMA.extend(
     {
-        Optional(CONF_COMMAND_TOPIC): All(requires_component("mqtt"), subscribe_topic),
-        Optional(CONF_COMMAND_RETAIN): All(requires_component("mqtt"), boolean),
+        Optional(CONF_COMMAND_TOPIC, visibility=Visibility.ADVANCED): All(
+            requires_component("mqtt"), templatable(subscribe_topic)
+        ),
+        Optional(CONF_COMMAND_RETAIN, visibility=Visibility.ADVANCED): All(
+            requires_component("mqtt"), boolean
+        ),
     }
 )
+
+
+# Unicode FRACTION SLASH (U+2044) - visually similar to '/' but URL-safe
+FRACTION_SLASH = "\u2044"
+
+
+def _validate_no_slash(value):
+    """Validate that a name does not contain '/' characters.
+
+    The '/' character is used as a path separator in web server URLs,
+    so it cannot be used in entity or device names.
+
+    During the deprecation period, '/' is automatically replaced with
+    the visually similar Unicode FRACTION SLASH (U+2044) character.
+    """
+    if "/" in value:
+        # Remove before 2027.7.0
+        new_value = value.replace("/", FRACTION_SLASH)
+        _LOGGER.warning(
+            "'%s' contains '/' which is reserved as a URL path separator. "
+            "Automatically replacing with '%s' (Unicode FRACTION SLASH). "
+            "Please update your configuration. "
+            "This will become an error in ESPHome 2027.7.0.",
+            value,
+            new_value,
+        )
+        return new_value
+    return value
+
+
+# Maximum length for entity, device, and area names
+# This ensures web server URL IDs fit in a 280-byte buffer:
+# domain(20) + "/" + device(120) + "/" + name(120) + null = 263 bytes
+# Note: Must be < 255 because web_server UrlMatch uses uint8_t for length fields
+# Keep in sync with ESPHOME_ENTITY_NAME_MAX_LEN in esphome/core/entity_base.h
+NAME_MAX_LENGTH = 120
 
 
 def _validate_entity_name(value):
@@ -1857,41 +2691,97 @@ def _validate_entity_name(value):
         requires_friendly_name(
             "Name cannot be None when esphome->friendly_name is not set!"
         )(value)
+    if value is not None:
+        # Validate byte length for web server URL and proto encoding compatibility
+        byte_len = len(value.encode("utf-8"))
+        if byte_len > NAME_MAX_LENGTH:
+            raise Invalid(
+                f"Name is too long ({byte_len} bytes). "
+                f"Maximum length is {NAME_MAX_LENGTH} bytes."
+            )
+        # Validate no '/' in name for web server URL compatibility
+        value = _validate_no_slash(value)
     return value
+
+
+def string_no_slash(value):
+    """Validate a string that cannot contain '/' characters.
+
+    Used for device and area names where '/' is reserved as a URL path separator.
+    Use with cv.Length() to also enforce maximum length.
+    """
+    value = string(value)
+    return _validate_no_slash(value)
 
 
 ENTITY_BASE_SCHEMA = Schema(
     {
-        Optional(CONF_NAME): _validate_entity_name,
-        Optional(CONF_INTERNAL): boolean,
-        Optional(CONF_DISABLED_BY_DEFAULT, default=False): boolean,
-        Optional(CONF_ICON): icon,
-        Optional(CONF_ENTITY_CATEGORY): entity_category,
+        # The name is every entity's headline field — keep it on the
+        # main form rather than letting it fall through to advanced.
+        Optional(CONF_NAME, visibility=Visibility.UI): _validate_entity_name,
+        Optional(CONF_INTERNAL, visibility=Visibility.ADVANCED): boolean,
+        Optional(
+            CONF_DISABLED_BY_DEFAULT, default=False, visibility=Visibility.ADVANCED
+        ): boolean,
+        Optional(CONF_ICON, visibility=Visibility.ADVANCED): icon,
+        Optional(CONF_ENTITY_CATEGORY, visibility=Visibility.ADVANCED): entity_category,
+        Optional(CONF_DEVICE_ID, visibility=Visibility.ADVANCED): sub_device_id,
     }
 )
 
 ENTITY_BASE_SCHEMA.add_extra(_entity_base_validator)
 
-COMPONENT_SCHEMA = Schema({Optional(CONF_SETUP_PRIORITY): float_})
+COMPONENT_SCHEMA = Schema(
+    {
+        # ``setup_priority`` controls the relative order in which
+        # components are brought up at boot. Wrong values can break
+        # the boot sequence in subtle ways (e.g. an i2c device set
+        # to higher priority than the bus). Mark it ``YAML_ONLY`` so
+        # visual editors never render it — the YAML escape hatch
+        # stays available for the rare component author who really
+        # needs to override the default.
+        Optional(CONF_SETUP_PRIORITY, visibility=Visibility.YAML_ONLY): float_,
+    }
+)
 
 
-def polling_component_schema(default_update_interval):
+def polling_component_schema(
+    default_update_interval, *, visibility: Visibility | None = None
+):
     """Validate that this component represents a PollingComponent with a configurable
     update_interval.
 
     :param default_update_interval: The default update interval to set for the integration.
+    :param visibility: When set, propagate to the inherited
+        ``update_interval`` field's :class:`Visibility` UI hint. Set
+        this for components whose default cadence is already correct
+        for ~all users (e.g. time platforms — pass
+        ``Visibility.ADVANCED``).
+
+        Only honoured on the optional-default branch. When
+        ``default_update_interval`` is ``None`` the field becomes
+        ``Required`` (the component has no sensible default cadence and
+        needs the user to choose), and hiding a Required field behind
+        an advanced disclosure would be a UX hazard — collapsed-by-default
+        editors could let the user submit without realising the form has
+        an unfilled required field. The kwarg is silently ignored on that
+        path so callers can pass it unconditionally.
     """
     if default_update_interval is None:
+        # Required → don't honour ``visibility``.
+        # See the docstring for the UX rationale.
         return COMPONENT_SCHEMA.extend(
             {
-                Required(CONF_UPDATE_INTERVAL): default_update_interval,
+                Required(CONF_UPDATE_INTERVAL): update_interval,
             }
         )
     assert isinstance(default_update_interval, str)
     return COMPONENT_SCHEMA.extend(
         {
             Optional(
-                CONF_UPDATE_INTERVAL, default=default_update_interval
+                CONF_UPDATE_INTERVAL,
+                default=default_update_interval,
+                visibility=visibility,
             ): update_interval,
         }
     )
@@ -1911,38 +2801,28 @@ def url(value):
     raise Invalid("Expected a file scheme or a URL scheme with host")
 
 
-def git_ref(value):
-    if re.match(r"[a-zA-Z0-9_./-]+", value) is None:
+# Characters git never allows in a branch or tag name (git check-ref-format)
+GIT_REF_PATTERN = r"[^\s~^:?*\[\\]+"
+
+
+def git_ref(value: typing.Any) -> str:
+    value = string_strict(value)
+    if re.fullmatch(GIT_REF_PATTERN, value) is None:
         raise Invalid("Not a valid git ref")
     return value
+
+
+# What `refresh: never` validates to; also used to recognize a disabled
+# refresh when logging (see esphome/git.py)
+SOURCE_REFRESH_NEVER = "365250d"
 
 
 def source_refresh(value: str):
     if value.lower() == "always":
         return source_refresh("0s")
     if value.lower() == "never":
-        return source_refresh("365250d")
+        return source_refresh(SOURCE_REFRESH_NEVER)
     return positive_time_period_seconds(value)
-
-
-@dataclass(frozen=True, order=True)
-class Version:
-    major: int
-    minor: int
-    patch: int
-
-    def __str__(self):
-        return f"{self.major}.{self.minor}.{self.patch}"
-
-    @classmethod
-    def parse(cls, value: str) -> "Version":
-        match = re.match(r"^(\d+).(\d+).(\d+)-?\w*$", value)
-        if match is None:
-            raise ValueError(f"Not a valid version number {value}")
-        major = int(match[1])
-        minor = int(match[2])
-        patch = int(match[3])
-        return Version(major=major, minor=minor, patch=patch)
 
 
 def version_number(value):
@@ -1982,72 +2862,127 @@ def platformio_version_constraint(value):
     return constraints
 
 
+def _check_supported_toolchain(
+    platform_name: str, supported: tuple[Toolchain, ...]
+) -> None:
+    """Raise when the resolved ``CORE.toolchain`` is not in ``supported``
+    (one message shape for every platform)."""
+    toolchain = CORE.toolchain
+    if toolchain is None:
+        # A caller ran the check before resolving; an ordering bug, not a
+        # user error
+        raise Invalid(f"Toolchain was not resolved before {platform_name} validation")
+    if toolchain not in supported:
+        names = ", ".join(f"'{tc.value}'" for tc in supported)
+        raise Invalid(
+            f"Unsupported toolchain "
+            f"'{toolchain.value}' for "
+            f"{platform_name}. Supported: {names}."
+        )
+
+
+def toolchain_enum(supported: tuple[Toolchain, ...]) -> Callable[[str], Toolchain]:
+    """Schema validator for a platform's ``toolchain`` config key."""
+
+    def validator(value: str) -> Toolchain:
+        return Toolchain(one_of(*supported, lower=True)(value))
+
+    return validator
+
+
+def resolve_toolchain(
+    platform_name: str, supported: tuple[Toolchain, ...], default: Toolchain
+) -> Callable[[ConfigType], ConfigType]:
+    """Resolve ``CORE.toolchain`` (CLI > YAML > default) and reject one the
+    platform cannot serve.
+
+    Add to the platform's validation chain before anything that reads
+    ``CORE.toolchain``.
+    """
+
+    def validator(config: ConfigType) -> ConfigType:
+        if CORE.toolchain is None:
+            CORE.toolchain = config.get(CONF_TOOLCHAIN, default)
+        _check_supported_toolchain(platform_name, supported)
+        return config
+
+    return validator
+
+
+def require_platformio_toolchain(
+    platform_name: str,
+) -> Callable[[ConfigType], ConfigType]:
+    """Reject a CLI-selected toolchain other than PlatformIO, for platforms
+    with only the PlatformIO backend."""
+    return resolve_toolchain(
+        platform_name, (Toolchain.PLATFORMIO,), Toolchain.PLATFORMIO
+    )
+
+
 def require_framework_version(
     *,
-    esp_idf=None,
-    esp32_arduino=None,
-    esp8266_arduino=None,
-    rp2040_arduino=None,
-    bk72xx_libretiny=None,
-    host=None,
     max_version=False,
     extra_message=None,
+    **kwargs,
 ):
+    """Constrain the configured framework version per target platform / variant.
+
+    Kwargs are keyed by ``<platform>_<framework>`` (e.g. ``esp32_arduino``,
+    ``rp2_arduino``) with optional variant-specific overrides keyed by
+    ``<platform>_<variant>_<framework>`` (e.g. ``esp32_c3_arduino``,
+    ``rp2_2040_arduino``, ``rp2_2350_arduino``). Variant overrides win when
+    the configured variant matches; otherwise the base platform key is used.
+
+    Special cases: ``host`` (with host framework) and ``esp_idf`` (any ESP32
+    on ESP-IDF) bypass variant lookup.
+    """
+
     def validator(value):
         core_data = CORE.data[KEY_CORE]
         framework = core_data[KEY_TARGET_FRAMEWORK]
-        if framework == "esp-idf":
-            if esp_idf is None:
-                msg = "This feature is incompatible with esp-idf"
-                if extra_message:
-                    msg += f". {extra_message}"
-                raise Invalid(msg)
-            required = esp_idf
-        elif CORE.is_bk72xx and framework == "arduino":
-            if bk72xx_libretiny is None:
-                msg = "This feature is incompatible with BK72XX"
-                if extra_message:
-                    msg += f". {extra_message}"
-                raise Invalid(msg)
-            required = bk72xx_libretiny
-        elif CORE.is_esp32 and framework == "arduino":
-            if esp32_arduino is None:
-                msg = "This feature is incompatible with ESP32 using arduino framework"
-                if extra_message:
-                    msg += f". {extra_message}"
-                raise Invalid(msg)
-            required = esp32_arduino
-        elif CORE.is_esp8266 and framework == "arduino":
-            if esp8266_arduino is None:
-                msg = "This feature is incompatible with ESP8266"
-                if extra_message:
-                    msg += f". {extra_message}"
-                raise Invalid(msg)
-            required = esp8266_arduino
-        elif CORE.is_rp2040 and framework == "arduino":
-            if rp2040_arduino is None:
-                msg = "This feature is incompatible with RP2040"
-                if extra_message:
-                    msg += f". {extra_message}"
-                raise Invalid(msg)
-            required = rp2040_arduino
-        elif CORE.is_host and framework == "host":
-            if host is None:
-                msg = "This feature is incompatible with host platform"
-                if extra_message:
-                    msg += f". {extra_message}"
-                raise Invalid(msg)
-            required = host
-        else:
-            raise Invalid(
-                f"""
-            Internal Error: require_framework_version does not support this platform configuration
-                platform: {core_data[KEY_TARGET_PLATFORM]}
-                framework: {framework}
 
-            Please report this issue on GitHub -> https://github.com/esphome/issues/issues/new?template=bug_report.yml.
-            """
-            )
+        keys_to_try: list[str] = []
+        if CORE.is_host and framework == "host":
+            keys_to_try.append("host")
+        elif framework == "esp-idf":
+            keys_to_try.append("esp_idf")
+        else:
+            # Try variant-specific key first (mirrors the SplitDefault
+            # precedence). ESP32 strips its platform prefix from variant
+            # constants; RP2 strips just ``RP`` to keep chip-number kwargs
+            # (``rp2_2040``, ``rp2_2350``).
+            if CORE.is_esp32:
+                from esphome.components.esp32 import VARIANT_ESP32, get_esp32_variant
+
+                # Guard against tests that wire CORE.data without an
+                # esp32 variant block; same defensive intent as the rp2
+                # branch below.
+                try:
+                    variant = get_esp32_variant().replace(VARIANT_ESP32, "").lower()
+                except (KeyError, AttributeError):
+                    variant = ""
+                if variant:
+                    keys_to_try.append(f"{CORE.target_platform}_{variant}_{framework}")
+            elif CORE.is_rp2:
+                # Defensive lookup — see the matching block in
+                # ``SplitDefault.default``: the rp2 component's
+                # ``set_core_data`` may not have populated
+                # ``CORE.data["rp2"]["variant"]`` yet (validators run
+                # during schema validation, before code-gen).
+                raw_variant = CORE.data.get("rp2", {}).get("variant")
+                if raw_variant:
+                    variant = raw_variant.removeprefix("RP").lower()
+                    keys_to_try.append(f"{CORE.target_platform}_{variant}_{framework}")
+            keys_to_try.append(f"{CORE.target_platform}_{framework}")
+
+        key = next((k for k in keys_to_try if k in kwargs), None)
+        if key is None:
+            msg = f"This feature is incompatible with {CORE.target_platform.upper()} using {framework} framework"
+            if extra_message:
+                msg += f". {extra_message}"
+            raise Invalid(msg)
+
+        required = kwargs[key]
 
         if max_version:
             if core_data[KEY_FRAMEWORK_VERSION] > required:
@@ -2067,13 +3002,30 @@ def require_framework_version(
     return validator
 
 
-def require_esphome_version(year, month, patch):
+def require_esphome_version(
+    year: Version | int, month: int | None = None, patch: int | None = None
+):
+    """Validator requiring at least the given ESPHome version.
+
+    Accepts a single ``Version`` like the sibling
+    ``require_framework_version``, or the legacy ``(year, month, patch)``
+    ints external components already pass.
+    """
+    if isinstance(year, Version):
+        required = year
+    elif month is None or patch is None:
+        raise ValueError(
+            "require_esphome_version needs a Version or (year, month, patch)"
+        )
+    else:
+        required = Version(year, month, patch)
+
     def validator(value):
-        esphome_version = parse_esphome_version()
-        if esphome_version < (year, month, patch):
-            requires_version = f"{year}.{month}.{patch}"
+        # A dev or beta build of the required version still satisfies it,
+        # matching the old tuple comparison that dropped the suffix.
+        if Version.parse(ESPHOME_VERSION) < required:
             raise Invalid(
-                f"This component requires at least ESPHome version {requires_version}"
+                f"This component requires at least ESPHome version {required}"
             )
         return value
 
@@ -2082,10 +3034,8 @@ def require_esphome_version(year, month, patch):
 
 @contextmanager
 def suppress_invalid():
-    try:
+    with suppress(vol.Invalid):
         yield
-    except vol.Invalid:
-        pass
 
 
 GIT_SCHEMA = Schema(
@@ -2112,9 +3062,8 @@ def validate_source_shorthand(value):
     except Invalid:
         pass
     # Regex for GitHub repo name with optional branch/tag
-    # Note: git allows other branch/tag names as well, but never seen them used before
-    m = re.match(
-        r"github://(?:([a-zA-Z0-9\-]+)/([a-zA-Z0-9\-\._]+)(?:@([a-zA-Z0-9\-_.\./]+))?|pr#([0-9]+))",
+    m = re.fullmatch(
+        rf"github://(?:([a-zA-Z0-9\-]+)/([a-zA-Z0-9\-\._]+)(?:@({GIT_REF_PATTERN}))?|pr#([0-9]+))",
         value,
     )
     if m is None:
@@ -2149,10 +3098,37 @@ SOURCE_SCHEMA = Any(
 )
 
 
-def rename_key(old_key, new_key):
+def rename_key(
+    old_key, new_key, *, removed_in: str | None = None, component: str | None = None
+):
+    """Rename a config key from ``old_key`` to ``new_key``.
+
+    Specifying both keys is an error; otherwise only one of the two would
+    survive the rename and the other would be dropped silently.
+
+    When ``removed_in`` is set, a deprecation warning is logged if the old key is
+    present. Pass ``component`` (the platform/component name) alongside
+    ``removed_in`` so the warning identifies where it originates.
+
+    Input that is not a dictionary is returned unchanged, so the schema that
+    follows reports it as a normal configuration error.
+    """
+
     def validator(config: dict) -> dict:
+        if not isinstance(config, dict):
+            return config
         config = config.copy()
         if old_key in config:
+            has_at_most_one_key(old_key, new_key)(config)
+            if removed_in is not None:
+                prefix = f"[{component}] " if component else ""
+                _LOGGER.warning(
+                    "%s'%s' is deprecated, use '%s'. Will be removed in %s",
+                    prefix,
+                    old_key,
+                    new_key,
+                    removed_in,
+                )
             config[new_key] = config.pop(old_key)
         return config
 

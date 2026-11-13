@@ -1,0 +1,56 @@
+#include "hdc2080.h"
+#include "esphome/core/hal.h"
+#include "esphome/core/helpers.h"
+#include "esphome/core/log.h"
+
+namespace esphome::hdc2080 {
+
+ESPHOME_LOG_TAG(TAG, "hdc2080");
+
+// Register map (Table 8-6)
+static constexpr uint8_t REG_TEMPERATURE_LOW = 0x00;      // Temperature [7:0]
+static constexpr uint8_t REG_TEMPERATURE_HIGH = 0x01;     // Temperature [15:8]
+static constexpr uint8_t REG_HUMIDITY_LOW = 0x02;         // Humidity [7:0]
+static constexpr uint8_t REG_HUMIDITY_HIGH = 0x03;        // Humidity [15:8]
+static constexpr uint8_t REG_RESET_DRDY_INT_CONF = 0x0E;  // Soft Reset and Interrupt Configuration
+static constexpr uint8_t REG_MEASUREMENT_CONFIGURATION = 0x0F;
+
+// Measurement register (0x0F) bit fields
+static constexpr uint8_t MEAS_TRIG = 0x01;       // Bit 0: start measurement
+static constexpr uint8_t MEAS_CONF_TEMP = 0x02;  // Bits 2:1 = 01: temperature only
+static constexpr uint8_t MEAS_CONF_HUM = 0x04;   // Bits 2:1 = 10: humidity only
+
+void HDC2080Component::setup() {
+  const uint8_t data = 0x00;  // automatic measurement mode disabled, heater off
+  if (!this->setup_check(this->write_register(REG_RESET_DRDY_INT_CONF, &data, 1) == i2c::ERROR_OK))
+    return;
+}
+
+void HDC2080Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "HDC2080:");
+  LOG_I2C_DEVICE(this);
+  LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "Temperature", this->temperature_sensor_);
+  LOG_SENSOR("  ", "Humidity", this->humidity_sensor_);
+}
+
+void HDC2080Component::update() {
+  uint8_t data = MEAS_TRIG;  // 14-bit resolution, measure both, start
+  if (this->temperature_sensor_ != nullptr && this->humidity_sensor_ == nullptr) {
+    data = MEAS_TRIG | MEAS_CONF_TEMP;
+  } else if (this->temperature_sensor_ == nullptr && this->humidity_sensor_ != nullptr) {
+    data = MEAS_TRIG | MEAS_CONF_HUM;
+  }
+  if (!this->status_comm_check(this->write_register(REG_MEASUREMENT_CONFIGURATION, &data, 1) == i2c::ERROR_OK))
+    return;
+  // wait for conversion to complete 2ms should be enough, more is fine
+  this->set_timeout(5, [this]() {
+    uint8_t raw_data[4];
+    if (!this->status_comm_result(this->read_register(REG_TEMPERATURE_LOW, raw_data, 4) == i2c::ERROR_OK))
+      return;
+    PUBLISH_STATE(this->temperature_sensor_, encode_value_le<uint16_t>(raw_data) * (165.0f / 65536.0f) - 40.5f);
+    PUBLISH_STATE(this->humidity_sensor_, encode_value_le<uint16_t>(&raw_data[2]) * (100.0f / 65536.0f));
+  });
+}
+
+}  // namespace esphome::hdc2080

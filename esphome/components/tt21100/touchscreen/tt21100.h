@@ -7,8 +7,7 @@
 
 #include <vector>
 
-namespace esphome {
-namespace tt21100 {
+namespace esphome::tt21100 {
 
 using namespace touchscreen;
 
@@ -17,7 +16,7 @@ class TT21100ButtonListener {
   virtual void update_button(uint8_t index, uint16_t state) = 0;
 };
 
-class TT21100Touchscreen : public Touchscreen, public i2c::I2CDevice {
+class TT21100Touchscreen final : public Touchscreen, public i2c::I2CDevice {
  public:
   void setup() override;
   void dump_config() override;
@@ -29,8 +28,6 @@ class TT21100Touchscreen : public Touchscreen, public i2c::I2CDevice {
   void register_button_listener(TT21100ButtonListener *listener) { this->button_listeners_.push_back(listener); }
 
  protected:
-  void reset_();
-
   void update_touches() override;
 
   InternalGPIOPin *interrupt_pin_;
@@ -39,5 +36,4 @@ class TT21100Touchscreen : public Touchscreen, public i2c::I2CDevice {
   std::vector<TT21100ButtonListener *> button_listeners_;
 };
 
-}  // namespace tt21100
-}  // namespace esphome
+}  // namespace esphome::tt21100

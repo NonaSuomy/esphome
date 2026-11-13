@@ -4,11 +4,9 @@
 
 #include "esphome/core/component.h"
 #include "esphome/core/hal.h"
-#include "esphome/core/automation.h"
 #include "esphome/components/sensor/sensor.h"
 
-namespace esphome {
-namespace rotary_encoder {
+namespace esphome::rotary_encoder {
 
 /// All possible restore modes for the rotary encoder
 enum RotaryEncoderRestoreMode {
@@ -42,7 +40,7 @@ struct RotaryEncoderSensorStore {
   static void gpio_intr(RotaryEncoderSensorStore *arg);
 };
 
-class RotaryEncoderSensor : public sensor::Sensor, public Component {
+class RotaryEncoderSensor final : public sensor::Sensor, public Component {
  public:
   void set_pin_a(InternalGPIOPin *pin_a) { pin_a_ = pin_a; }
   void set_pin_b(InternalGPIOPin *pin_b) { pin_b_ = pin_b; }
@@ -54,7 +52,7 @@ class RotaryEncoderSensor : public sensor::Sensor, public Component {
    *
    * @param restore_mode The restore mode to use.
    */
-  void set_restore_mode(RotaryEncoderRestoreMode restore_mode);
+  void set_restore_mode(RotaryEncoderRestoreMode restore_mode) { this->restore_mode_ = restore_mode; }
 
   /** Set the resolution of the rotary encoder.
    *
@@ -63,7 +61,7 @@ class RotaryEncoderSensor : public sensor::Sensor, public Component {
    *
    * @param mode The new mode of the encoder.
    */
-  void set_resolution(RotaryEncoderResolution mode);
+  void set_resolution(RotaryEncoderResolution mode) { this->store_.resolution = mode; }
 
   /// Manually set the value of the counter.
   void set_value(int value) {
@@ -72,8 +70,8 @@ class RotaryEncoderSensor : public sensor::Sensor, public Component {
   }
 
   void set_reset_pin(GPIOPin *pin_i) { this->pin_i_ = pin_i; }
-  void set_min_value(int32_t min_value);
-  void set_max_value(int32_t max_value);
+  void set_min_value(int32_t min_value) { this->store_.min_value = min_value; }
+  void set_max_value(int32_t max_value) { this->store_.max_value = max_value; }
   void set_publish_initial_value(bool publish_initial_value) { publish_initial_value_ = publish_initial_value; }
 
   // ========== INTERNAL METHODS ==========
@@ -82,17 +80,15 @@ class RotaryEncoderSensor : public sensor::Sensor, public Component {
   void dump_config() override;
   void loop() override;
 
-  float get_setup_priority() const override;
-
-  void add_on_clockwise_callback(std::function<void()> callback) {
-    this->on_clockwise_callback_.add(std::move(callback));
+  template<typename F> void add_on_clockwise_callback(F &&callback) {
+    this->on_clockwise_callback_.add(std::forward<F>(callback));
   }
 
-  void add_on_anticlockwise_callback(std::function<void()> callback) {
-    this->on_anticlockwise_callback_.add(std::move(callback));
+  template<typename F> void add_on_anticlockwise_callback(F &&callback) {
+    this->on_anticlockwise_callback_.add(std::forward<F>(callback));
   }
 
-  void register_listener(std::function<void(uint32_t)> listener) { this->listeners_.add(std::move(listener)); }
+  template<typename F> void register_listener(F &&listener) { this->listeners_.add(std::forward<F>(listener)); }
 
  protected:
   InternalGPIOPin *pin_a_;
@@ -109,30 +105,4 @@ class RotaryEncoderSensor : public sensor::Sensor, public Component {
   CallbackManager<void(int32_t)> listeners_{};
 };
 
-template<typename... Ts> class RotaryEncoderSetValueAction : public Action<Ts...> {
- public:
-  RotaryEncoderSetValueAction(RotaryEncoderSensor *encoder) : encoder_(encoder) {}
-  TEMPLATABLE_VALUE(int, value)
-
-  void play(Ts... x) override { this->encoder_->set_value(this->value_.value(x...)); }
-
- protected:
-  RotaryEncoderSensor *encoder_;
-};
-
-class RotaryEncoderClockwiseTrigger : public Trigger<> {
- public:
-  explicit RotaryEncoderClockwiseTrigger(RotaryEncoderSensor *parent) {
-    parent->add_on_clockwise_callback([this]() { this->trigger(); });
-  }
-};
-
-class RotaryEncoderAnticlockwiseTrigger : public Trigger<> {
- public:
-  explicit RotaryEncoderAnticlockwiseTrigger(RotaryEncoderSensor *parent) {
-    parent->add_on_anticlockwise_callback([this]() { this->trigger(); });
-  }
-};
-
-}  // namespace rotary_encoder
-}  // namespace esphome
+}  // namespace esphome::rotary_encoder
