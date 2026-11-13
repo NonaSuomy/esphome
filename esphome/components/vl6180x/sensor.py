@@ -1,26 +1,33 @@
+from esphome import pins
 import esphome.codegen as cg
-import esphome.config_validation as cv
 from esphome.components import i2c, sensor
+import esphome.config_validation as cv
 from esphome.const import (
     CONF_ID,
     CONF_UPDATE_INTERVAL,
     DEVICE_CLASS_DISTANCE,
     DEVICE_CLASS_ILLUMINANCE,
     STATE_CLASS_MEASUREMENT,
-    UNIT_MILLIMETER,
     UNIT_LUX,
+    UNIT_MILLIMETER,
 )
 
-DEPENDENCIES = ['i2c']
+DEPENDENCIES = ["i2c"]
 
 # Define our own constants
 CONF_ALS = "als"
 CONF_DISTANCE = "distance"
 CONF_SCALER = "scaler"
 CONF_LOG_DISTANCE = "log_distance"
+CONF_ENABLE_PIN = "enable_pin"
+CONF_INTERRUPT_PIN = "interrupt_pin"
+CONF_RECOVERY = "recovery"
+CONF_FAILURE_THRESHOLD = "failure_threshold"
+CONF_RETRY_INTERVAL = "retry_interval"
+CONF_MAX_RETRIES = "max_retries"
 
-vl6180x_ns = cg.esphome_ns.namespace('vl6180x')
-VL6180XSensor = vl6180x_ns.class_('VL6180XSensor', cg.Component, i2c.I2CDevice)
+vl6180x_ns = cg.esphome_ns.namespace("vl6180x")
+VL6180XSensor = vl6180x_ns.class_("VL6180XSensor", cg.Component, i2c.I2CDevice)
 
 # Define distance sensor schema with scaler
 DISTANCE_SCHEMA = sensor.sensor_schema(
@@ -28,33 +35,67 @@ DISTANCE_SCHEMA = sensor.sensor_schema(
     accuracy_decimals=0,
     device_class=DEVICE_CLASS_DISTANCE,
     state_class=STATE_CLASS_MEASUREMENT,
-).extend({
-    cv.Optional(CONF_SCALER, default=1): cv.one_of(1, 2, 3, int=True),
-})
+).extend(
+    {
+        cv.Optional(CONF_SCALER, default=1): cv.one_of(1, 2, 3, int=True),
+    }
+)
+
+RECOVERY_SCHEMA = cv.Schema(
+    {
+        cv.Optional(CONF_FAILURE_THRESHOLD, default=3): cv.int_range(min=1, max=255),
+        cv.Optional(
+            CONF_RETRY_INTERVAL, default="30s"
+        ): cv.positive_time_period_milliseconds,
+        cv.Optional(CONF_MAX_RETRIES, default=10): cv.int_range(min=1, max=255),
+    }
+)
 
 CONFIG_SCHEMA = (
-    cv.Schema({
-        cv.GenerateID(): cv.declare_id(VL6180XSensor),
-        cv.Optional(CONF_UPDATE_INTERVAL, default="60s"): cv.update_interval,
-        # false hides this sensor's "distance: ..." debug lines; warnings and errors stay
-        cv.Optional(CONF_LOG_DISTANCE, default=True): cv.boolean,
-        cv.Optional(CONF_DISTANCE): DISTANCE_SCHEMA,
-        cv.Optional(CONF_ALS): sensor.sensor_schema(
-            unit_of_measurement=UNIT_LUX,
-            accuracy_decimals=1,
-            device_class=DEVICE_CLASS_ILLUMINANCE,
-            state_class=STATE_CLASS_MEASUREMENT,
-        ),
-    })
+    cv.Schema(
+        {
+            cv.GenerateID(): cv.declare_id(VL6180XSensor),
+            cv.Optional(CONF_UPDATE_INTERVAL, default="60s"): cv.update_interval,
+            # false hides this sensor's "distance: ..." debug lines; warnings and errors stay
+            cv.Optional(CONF_LOG_DISTANCE, default=True): cv.boolean,
+            # Optional hardware pins. enable_pin may be configured open-drain for XSHUT/CE.
+            cv.Optional(CONF_ENABLE_PIN): pins.gpio_output_pin_schema,
+            cv.Optional(CONF_INTERRUPT_PIN): pins.internal_gpio_input_pin_schema,
+            cv.Optional(CONF_RECOVERY): RECOVERY_SCHEMA,
+            cv.Optional(CONF_DISTANCE): DISTANCE_SCHEMA,
+            cv.Optional(CONF_ALS): sensor.sensor_schema(
+                unit_of_measurement=UNIT_LUX,
+                accuracy_decimals=1,
+                device_class=DEVICE_CLASS_ILLUMINANCE,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
+        }
+    )
     .extend(cv.COMPONENT_SCHEMA)
     .extend(i2c.i2c_device_schema(0x29))
 )
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
     await i2c.register_i2c_device(var, config)
     cg.add(var.set_log_distance(config[CONF_LOG_DISTANCE]))
+
+    if CONF_ENABLE_PIN in config:
+        pin = await cg.gpio_pin_expression(config[CONF_ENABLE_PIN])
+        cg.add(var.set_enable_pin(pin))
+
+    if CONF_INTERRUPT_PIN in config:
+        pin = await cg.gpio_pin_expression(config[CONF_INTERRUPT_PIN])
+        cg.add(var.set_interrupt_pin(pin))
+
+    if CONF_RECOVERY in config:
+        recovery = config[CONF_RECOVERY]
+        cg.add(var.set_recovery_enabled(True))
+        cg.add(var.set_failure_threshold(recovery[CONF_FAILURE_THRESHOLD]))
+        cg.add(var.set_retry_interval(recovery[CONF_RETRY_INTERVAL]))
+        cg.add(var.set_max_retries(recovery[CONF_MAX_RETRIES]))
 
     if CONF_DISTANCE in config:
         distance_config = config[CONF_DISTANCE]
